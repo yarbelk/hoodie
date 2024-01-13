@@ -1,6 +1,9 @@
 #include "register_types.h"
 
-// #include "gdexample.h"
+#include "hoodienode.h"
+#include "hoodienodes/input/hninputcurve3d.h"
+#include "hoodienodes/mesh_primitives/hnmeshgrid.h"
+#include "hoodienodes/output/hnoutput.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -13,7 +16,10 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		return;
 	}
 
-	// ClassDB::register_class<GDExample>();
+	ClassDB::register_class<HoodieNode>();
+	ClassDB::register_class<HNInputCurve3D>();
+	ClassDB::register_class<HNMeshGrid>();
+	ClassDB::register_class<HNOutput>();
 }
 
 void uninitialize_hoodie_module(ModuleInitializationLevel p_level) {
