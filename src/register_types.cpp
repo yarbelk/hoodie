@@ -1,5 +1,6 @@
 #include "register_types.h"
 
+#include "hoodiemesh.h"
 #include "hoodienode.h"
 #include "hoodienodes/input/hninputcurve3d.h"
 #include "hoodienodes/mesh_primitives/hnmeshgrid.h"
@@ -16,6 +17,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		return;
 	}
 
+	ClassDB::register_class<HoodieMesh>();
 	ClassDB::register_class<HoodieNode>();
 	ClassDB::register_class<HNInputCurve3D>();
 	ClassDB::register_class<HNMeshGrid>();

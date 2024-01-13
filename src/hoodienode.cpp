@@ -27,6 +27,8 @@ String HoodieNode::get_node_description() const {
     return node_info.description;
 }
 
+void HoodieNode::construct_node_info() {}
+
 void HoodieNode::set_position(Vector2 p_pos) {
     position = p_pos;
 }
@@ -55,6 +57,8 @@ String HoodieNode::get_property_hint() const {
     return property.hint;
 }
 
+void HoodieNode::construct_property() {}
+
 void HoodieNode::add_socket(Socket &p_socket) {
     if (p_socket.socket_io == Socket::SocketIO::INPUT) {
         input_sockets.push_back(p_socket);
@@ -71,8 +75,15 @@ Vector<HoodieNode::Socket> HoodieNode::get_output_sockets() const {
     return output_sockets;
 }
 
+void HoodieNode::construct_sockets() {}
+
 void HoodieNode::_bind_methods() {
 
+}
+
+bool HoodieNode::update(const Array &p_inputs) {
+    // TODO: implement update
+    return false;
 }
 
 HoodieNode::HoodieNode() {

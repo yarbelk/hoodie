@@ -35,6 +35,7 @@ protected:
         String name;
         String description;
 
+        Socket() {}
         Socket(SocketIO p_socket_io, Variant::Type p_type, String p_name, String p_description)
             : socket_io(p_socket_io),
               type(p_type),
