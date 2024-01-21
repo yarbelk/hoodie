@@ -1,5 +1,8 @@
 #include "register_types.h"
 
+// https://github.com/Zylann/godot_voxel/blob/f14552ea8ae9dfd54ea9b988dc205837bcfffdda/register_types.cpp
+
+#include "hoodie_editor_plugin.h"
 #include "hoodiemesh.h"
 #include "hoodienode.h"
 #include "hoodienodes/input/hninputcurve3d.h"
@@ -13,20 +16,32 @@
 using namespace godot;
 
 void initialize_hoodie_module(ModuleInitializationLevel p_level) {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
+	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
+		ClassDB::register_class<HoodieMesh>();
+		ClassDB::register_abstract_class<HoodieNode>();
+		ClassDB::register_class<HNInputCurve3D>();
+		ClassDB::register_class<HNMeshGrid>();
+		ClassDB::register_class<HNOutput>();
+
+		// Setup engine after classes are registered.
+		// This is necessary when using GDExtension because classes can't be instantiated until they are registered.
+		// Example: create singletons, load static resources
+		// run tests?
 	}
 
-	ClassDB::register_class<HoodieMesh>();
-	ClassDB::register_class<HoodieNode>();
-	ClassDB::register_class<HNInputCurve3D>();
-	ClassDB::register_class<HNMeshGrid>();
-	ClassDB::register_class<HNOutput>();
+	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
+		EditorPlugins::
+	}
+	// ClassDB::register_class<HoodieEditorPlugin>();
 }
 
 void uninitialize_hoodie_module(ModuleInitializationLevel p_level) {
-	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
+	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
+
+	}
+
+	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
+
 	}
 }
 
