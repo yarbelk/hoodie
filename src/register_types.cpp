@@ -3,11 +3,11 @@
 // https://github.com/Zylann/godot_voxel/blob/f14552ea8ae9dfd54ea9b988dc205837bcfffdda/register_types.cpp
 
 #include "hoodie_editor_plugin.h"
-#include "hoodiemesh.h"
-#include "hoodienode.h"
-#include "hoodienodes/input/hninputcurve3d.h"
-#include "hoodienodes/mesh_primitives/hnmeshgrid.h"
-#include "hoodienodes/output/hnoutput.h"
+#include "hoodie_mesh.h"
+#include "hoodie_node.h"
+#include "hoodie_nodes/input/hn_input_curve_3d.h"
+#include "hoodie_nodes/mesh_primitives/hn_mesh_grid.h"
+#include "hoodie_nodes/output/hn_output.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>

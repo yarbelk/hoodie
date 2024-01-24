@@ -1,7 +1,7 @@
 #ifndef HOODIE_HNOUTPUT_H
 #define HOODIE_HNOUTPUT_H
 
-#include "hoodienode.h"
+#include "hoodie_node.h"
 
 namespace godot
 {

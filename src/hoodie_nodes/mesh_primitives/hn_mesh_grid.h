@@ -1,7 +1,7 @@
 #ifndef HOODIE_HNMESHGRID_H
 #define HOODIE_HNMESHGRID_H
 
-#include "hoodienode.h"
+#include "hoodie_node.h"
 
 namespace godot
 {

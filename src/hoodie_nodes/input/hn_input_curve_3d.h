@@ -1,7 +1,7 @@
 #ifndef HOODIE_HNINPUTCURVE3D_H
 #define HOODIE_HNINPUTCURVE3D_H
 
-#include "hoodienode.h"
+#include "hoodie_node.h"
 
 namespace godot
 {

@@ -1,8 +1,8 @@
 #ifndef HOODIE_HOODIEMESH_H
 #define HOODIE_HOODIEMESH_H
 
-#include "hoodieidmanager.h"
-#include "hoodienode.h"
+#include "hoodie_id_manager.h"
+#include "hoodie_node.h"
 
 #include <godot_cpp/classes/array_mesh.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
