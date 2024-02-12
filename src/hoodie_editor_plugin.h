@@ -33,9 +33,9 @@ protected:
 
 public:
     // virtual String get_name() const override { return "Hoodie"; }
-    // virtual void _make_visible(bool visible);
+    virtual void _make_visible(bool visible) override;
 	// virtual void _edit(Object *object);
-	// virtual bool _handles(Object *object) const;
+	virtual bool _handles(Object *object) const override;
 
 	// virtual void _set_window_layout(const Ref<ConfigFile> &configuration);
 	// virtual void _get_window_layout(const Ref<ConfigFile> &configuration);

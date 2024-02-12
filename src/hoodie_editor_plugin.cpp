@@ -1,8 +1,27 @@
 #include "hoodie_editor_plugin.h"
 
+#include "hoodie_mesh.h"
+
 using namespace godot;
 
 void HoodieEditorPlugin::_bind_methods() {}
+
+void HoodieEditorPlugin::_make_visible(bool visible) {
+    if (visible) {
+        button->show();
+        make_bottom_panel_item_visible(main_split);
+    } else {
+        if (main_split->is_visible_in_tree()) {
+            hide_bottom_panel();
+        }
+        
+        button->hide();
+    }
+}
+
+bool HoodieEditorPlugin::_handles(Object *object) const {
+    return Object::cast_to<HoodieMesh>(object) != nullptr;
+}
 
 HoodieEditorPlugin::HoodieEditorPlugin() {
     main_split = memnew(HSplitContainer);
@@ -23,6 +42,9 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     main_split->add_child(graph_edit);
 
     button = add_control_to_bottom_panel(main_split, "Hoodie");
+
+    _make_visible(false);
 }
 
-HoodieEditorPlugin::~HoodieEditorPlugin() {}
+HoodieEditorPlugin::~HoodieEditorPlugin() {
+}

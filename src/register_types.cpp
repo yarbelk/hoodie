@@ -29,12 +29,15 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		// run tests?
 	}
 
-#ifdef TOOLS_ENABLED
+// TODO: how to manage TOOLS_ENABLED? is it necessary?
+// #ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
 		// In GDExtension we have to explicitely register all classes deriving from Object even if they are not exposed
 		ClassDB::register_internal_class<HoodieEditorPlugin>();
+
+		EditorPlugins::add_by_type<HoodieEditorPlugin>();
 	}
-#endif
+// #endif
 }
 
 void uninitialize_hoodie_module(ModuleInitializationLevel p_level) {
