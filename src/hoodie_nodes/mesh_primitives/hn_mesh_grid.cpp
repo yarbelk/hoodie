@@ -1,4 +1,4 @@
-#include "hnmeshgrid.h"
+#include "hn_mesh_grid.h"
 
 using namespace godot;
 

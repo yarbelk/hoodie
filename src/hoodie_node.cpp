@@ -1,4 +1,4 @@
-#include "hoodienode.h"
+#include "hoodie_node.h"
 
 using namespace godot;
 

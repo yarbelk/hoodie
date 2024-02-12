@@ -1,4 +1,4 @@
-#include "hninputcurve3d.h"
+#include "hn_input_curve_3d.h"
 
 using namespace godot;
 
