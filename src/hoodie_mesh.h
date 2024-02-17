@@ -13,6 +13,7 @@ namespace godot
 
 class HoodieMesh : public ArrayMesh {
     GDCLASS(HoodieMesh, ArrayMesh)
+    friend class HoodieEditorPlugin;
 
     typedef uint32_t id_t;
     typedef uint32_t vec_size_t;

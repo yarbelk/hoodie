@@ -1,10 +1,34 @@
 #include "hoodie_editor_plugin.h"
 
-#include "hoodie_mesh.h"
+#include <godot_cpp/variant/utility_functions.hpp>
 
 using namespace godot;
 
+void HoodieEditorPlugin::_menu_item_pressed(int index) {
+    switch (index) {
+        case FILE_NEW: {
+            UtilityFunctions::print("FILE_NEW not implemented.");
+        } break;
+        case FILE_PRINTDEBUG: {
+            HoodieMesh *hm = hoodie_mesh.ptr();
+            String debug = "Hoodie Debug Print - ";
+            debug += "hoodie_nodes.size() = " + String::num_int64(hm->hoodie_nodes.size());
+            debug += "; ";
+            debug += "connections.size() = " + String::num_int64(hm->connections.size());
+            UtilityFunctions::print(debug);
+        } break;
+    }
+}
+
 void HoodieEditorPlugin::_bind_methods() {}
+
+void HoodieEditorPlugin::_notification(int what) {
+    switch (what) {
+        case NOTIFICATION_POSTINITIALIZE: {
+            file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_menu_item_pressed));
+        } break;
+    }
+}
 
 void HoodieEditorPlugin::_make_visible(bool visible) {
     if (visible) {
@@ -16,6 +40,20 @@ void HoodieEditorPlugin::_make_visible(bool visible) {
         }
         
         button->hide();
+    }
+}
+
+void HoodieEditorPlugin::_edit(Object *object) {
+    UtilityFunctions::print("_edit() called.");
+    if (!object) {
+        return;
+    }
+
+    HoodieMesh *hm = Object::cast_to<HoodieMesh>(object);
+    if (hm != nullptr) {
+        hoodie_mesh = Ref<HoodieMesh>(hm);
+    } else {
+        // object is not of type HoodieMesh
     }
 }
 
@@ -31,8 +69,8 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     file_menu = memnew(MenuButton);
     file_menu->set_text("File");
     file_menu->set_shortcut_context(main_split);
-    file_menu->get_popup()->add_item("New", 0);
-    file_menu->get_popup()->add_item("Test", 1);
+    file_menu->get_popup()->add_item("New", FILE_NEW);
+    file_menu->get_popup()->add_item("Print debug", FILE_PRINTDEBUG);
     menu_hb->add_child(file_menu);
 
     main_split->add_child(vb);

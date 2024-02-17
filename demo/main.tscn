@@ -1,8 +1,8 @@
 [gd_scene load_steps=2 format=3 uid="uid://dmdyqadsq3fea"]
 
-[sub_resource type="HoodieMesh" id="HoodieMesh_a7s6s"]
+[sub_resource type="HoodieMesh" id="HoodieMesh_1ckhl"]
 
 [node name="Node3D" type="Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("HoodieMesh_a7s6s")
+mesh = SubResource("HoodieMesh_1ckhl")

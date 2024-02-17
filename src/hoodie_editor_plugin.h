@@ -1,6 +1,7 @@
 #ifndef HOODIE_HOODIEEDITORPLUGIN_H
 #define HOODIE_HOODIEEDITORPLUGIN_H
 
+#include "hoodie_mesh.h"
 #include "godot_cpp/classes/editor_plugin.hpp"
 #include "godot_cpp/classes/h_split_container.hpp"
 #include "godot_cpp/classes/v_box_container.hpp"
@@ -18,6 +19,13 @@ namespace godot
 class HoodieEditorPlugin : public EditorPlugin {
     GDCLASS(HoodieEditorPlugin, EditorPlugin);
 
+    Ref<HoodieMesh> hoodie_mesh;
+
+    enum {
+        FILE_NEW,
+        FILE_PRINTDEBUG
+    };
+
     HSplitContainer *main_split = nullptr;
     // VBoxContainer *left_container = nullptr;
     // Label *label_title = nullptr;
@@ -28,13 +36,16 @@ class HoodieEditorPlugin : public EditorPlugin {
 
     // void _window_changed(bool p_visible);
 
+    void _menu_item_pressed(int index);
+
 protected:
     static void _bind_methods();
+    void _notification(int what);
 
 public:
     // virtual String get_name() const override { return "Hoodie"; }
     virtual void _make_visible(bool visible) override;
-	// virtual void _edit(Object *object);
+	virtual void _edit(Object *object) override;
 	virtual bool _handles(Object *object) const override;
 
 	// virtual void _set_window_layout(const Ref<ConfigFile> &configuration);
