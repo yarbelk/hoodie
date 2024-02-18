@@ -31,12 +31,38 @@ class HoodieEditorPlugin : public EditorPlugin {
     // Label *label_title = nullptr;
     MenuButton *file_menu = nullptr;
     GraphEdit *graph_edit = nullptr;
+    MenuButton *add_node = nullptr;
+    PopupMenu *add_popup = nullptr;
 
     Button *button = nullptr;
+
+    Vector2 place;
 
     // void _window_changed(bool p_visible);
 
     void _menu_item_pressed(int index);
+    void _add_button_pressed();
+    void _add_popup_pressed(int index);
+
+	struct AddOption {
+		String name;
+		String category;
+		String type;
+		String description;
+
+		AddOption(const String &p_name = String(), const String &p_category = String(), const String &p_type = String(), const String &p_description = String()) {
+			name = p_name;
+			type = p_type;
+			category = p_category;
+			description = p_description;
+		}
+	};
+
+    Vector<AddOption> add_options;
+
+    void _update_options_menu();
+
+    void _add_node(int idx);
 
 protected:
     static void _bind_methods();

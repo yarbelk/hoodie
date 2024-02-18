@@ -43,7 +43,7 @@ class HoodieMesh : public ArrayMesh {
     };
 
     HoodieIdManager<id_t> id_manager;
-    HashMap<id_t, HoodieNode> hoodie_nodes;
+    HashMap<id_t, Ref<HoodieNode>> hoodie_nodes;
     Vector<Connection> connections;
     bool dirty = false;
 

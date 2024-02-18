@@ -9,7 +9,6 @@ namespace godot
 class HNMeshGrid : public HoodieNode {
     GDCLASS(HNMeshGrid, HoodieNode)
 public:
-    virtual void construct_node_info();
     virtual void construct_property();
     virtual void construct_sockets();
 };

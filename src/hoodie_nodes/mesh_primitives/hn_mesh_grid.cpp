@@ -2,10 +2,6 @@
 
 using namespace godot;
 
-void HNMeshGrid::construct_node_info() {
-    set_node_info("Grid", "");
-}
-
 void HNMeshGrid::construct_property() {}
 
 void HNMeshGrid::construct_sockets() {

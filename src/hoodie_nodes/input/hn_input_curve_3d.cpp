@@ -2,10 +2,6 @@
 
 using namespace godot;
 
-void HNInputCurve3D::construct_node_info() {
-    set_node_info("Input Curve3D", "Set the Curve3D object from the inspector.");
-}
-
 void HNInputCurve3D::construct_property() {
     set_property(Property(Variant::OBJECT, "Curve3D"));
 }

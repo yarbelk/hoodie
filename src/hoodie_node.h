@@ -11,14 +11,6 @@ class HoodieNode : public Resource {
     GDCLASS(HoodieNode, Resource)
 
 protected:
-    struct NodeInfo {
-        String name;
-        String description;
-
-        NodeInfo() {}
-        NodeInfo(String p_name, String p_description) : name(p_name), description(p_description) {}
-    };
-
     struct Property {
         Variant::Type type;
         String hint;
@@ -52,7 +44,6 @@ public:
     };
 
 private:
-    NodeInfo node_info;
     Property property;
     Vector<Socket> input_sockets;
     Vector<Socket> output_sockets;
@@ -68,14 +59,6 @@ protected:
     static void _bind_methods();
 
 public:
-    void set_node_info(String p_name, String p_description);
-    void set_node_name(String p_name);
-    String get_node_name() const;
-    void set_node_description(String p_description);
-    String get_node_description() const;
-
-    virtual void construct_node_info();
-
     void set_position(Vector2 p_pos);
     Vector2 get_position() const;
     void set_status(ProcessStatus p_status);

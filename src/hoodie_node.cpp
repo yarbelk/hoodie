@@ -7,28 +7,6 @@ void HoodieNode::mark_dirty() {
     // TODO: emit_changed?
 }
 
-void HoodieNode::set_node_info(String p_name, String p_description) {
-    node_info = NodeInfo(p_name, p_description);
-}
-
-void HoodieNode::set_node_name(String p_name) {
-    node_info.name = p_name;
-}
-
-String HoodieNode::get_node_name() const {
-    return node_info.name;
-}
-
-void HoodieNode::set_node_description(String p_description) {
-    node_info.description = p_description;
-}
-
-String HoodieNode::get_node_description() const {
-    return node_info.description;
-}
-
-void HoodieNode::construct_node_info() {}
-
 void HoodieNode::set_position(Vector2 p_pos) {
     position = p_pos;
 }
@@ -87,7 +65,6 @@ bool HoodieNode::update(const Array &p_inputs) {
 }
 
 HoodieNode::HoodieNode() {
-    construct_node_info();
     construct_property();
     construct_sockets();
 }

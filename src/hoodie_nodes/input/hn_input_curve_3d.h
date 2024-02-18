@@ -9,7 +9,6 @@ namespace godot
 class HNInputCurve3D : public HoodieNode {
     GDCLASS(HNInputCurve3D, HoodieNode)
 public:
-    virtual void construct_node_info();
     virtual void construct_property();
     virtual void construct_sockets();
 };

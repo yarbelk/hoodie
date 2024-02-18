@@ -22,7 +22,9 @@ void HoodieMesh::_remove_surface_dumb(id_t p_id) {
 }
 
 HoodieMesh::id_t HoodieMesh::add_node(Ref<HoodieNode> p_node) {
-    return 0;
+    id_t id = id_manager.generateID();
+    hoodie_nodes[id] = p_node;
+    return id;
 }
 
 void HoodieMesh::remove_node(id_t p_id) {}

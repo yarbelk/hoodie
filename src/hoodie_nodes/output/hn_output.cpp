@@ -2,10 +2,6 @@
 
 using namespace godot;
 
-void HNOutput::construct_node_info() {
-    set_node_info("Output", "");
-}
-
 void HNOutput::construct_property() {}
 
 void HNOutput::construct_sockets() {

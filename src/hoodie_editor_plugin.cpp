@@ -20,12 +20,58 @@ void HoodieEditorPlugin::_menu_item_pressed(int index) {
     }
 }
 
+void HoodieEditorPlugin::_add_button_pressed() {
+    place = Vector2(10.0, 50.0);
+}
+
+void HoodieEditorPlugin::_add_popup_pressed(int index) {
+    
+}
+
+void HoodieEditorPlugin::_update_options_menu() {
+    add_popup->clear();
+
+    for (int i = 0; i < add_options.size(); i++) {
+        String path = add_options[i].category;
+        PackedStringArray subfolders = path.split("/");
+
+        PopupMenu *popup = add_popup;
+
+        for (int j = 0; j < subfolders.size(); j++) {
+            String j_name = subfolders[j];
+            if (!popup->has_node(j_name)) {
+                PopupMenu *new_popup = memnew(PopupMenu);
+                new_popup->set_name(j_name);
+                new_popup->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_add_node));
+                popup->add_child(new_popup);
+                popup->add_submenu_item(j_name, j_name);
+            }
+            popup = popup->get_node<PopupMenu>(j_name);
+        }
+        // node classes
+        popup->add_item(subfolders[subfolders.size() - 1], i);
+    }
+}
+
+void HoodieEditorPlugin::_add_node(int idx) {
+    // TODO: godot source code visual_shader_editor_plugin.cpp _add_node()
+    UtilityFunctions::print("HoodieEditorPlugin::_add_node() called.");
+    Ref<HoodieNode> hnode;
+    HoodieNode *hn = Object::cast_to<HoodieNode>(ClassDB::instantiate(add_options[idx].type));
+    hnode = Ref<HoodieNode>(hn);
+    hoodie_mesh.ptr()->add_node(hnode);
+}
+
 void HoodieEditorPlugin::_bind_methods() {}
 
 void HoodieEditorPlugin::_notification(int what) {
     switch (what) {
         case NOTIFICATION_POSTINITIALIZE: {
             file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_menu_item_pressed));
+            add_node->connect("pressed", callable_mp(this, &HoodieEditorPlugin::_add_button_pressed));
+            add_popup->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_add_popup_pressed));
+
+            _update_options_menu();
         } break;
     }
 }
@@ -78,6 +124,33 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
 
     graph_edit = memnew(GraphEdit);
     main_split->add_child(graph_edit);
+
+    add_node = memnew(MenuButton);
+    add_node->set_text("Add node...");
+    graph_edit->get_menu_hbox()->add_child(add_node);
+    graph_edit->get_menu_hbox()->move_child(add_node, 0);
+
+    add_popup = add_node->get_popup();
+
+	///////////////////////////////////////
+	// HOODIE NODES TREE OPTIONS
+	///////////////////////////////////////
+
+    // INPUT
+
+    add_options.push_back(AddOption("Input Curve3D", "Input", "HNInputCurve3D"));
+
+    // MESH
+
+    add_options.push_back(AddOption("Mesh Grid", "Mesh/Primitives", "HNMeshGrid"));
+
+    // OUTPUT
+
+    add_options.push_back(AddOption("Output", "Output", "HNOutput"));
+
+    // _update_options_menu();
+
+    ///////////////////////////////////////
 
     button = add_control_to_bottom_panel(main_split, "Hoodie");
 

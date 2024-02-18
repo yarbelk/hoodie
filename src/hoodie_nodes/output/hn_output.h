@@ -9,7 +9,6 @@ namespace godot
 class HNOutput : public HoodieNode {
     GDCLASS(HNOutput, HoodieNode)
 public:
-    virtual void construct_node_info();
     virtual void construct_property();
     virtual void construct_sockets();
 };
