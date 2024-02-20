@@ -32,12 +32,13 @@ void HoodieEditorPlugin::_update_options_menu() {
     add_popup->clear();
 
     for (int i = 0; i < add_options.size(); i++) {
-        String path = add_options[i].category;
+        String path = add_options[i].category + String("/") + add_options[i].name;
         PackedStringArray subfolders = path.split("/");
 
         PopupMenu *popup = add_popup;
 
-        for (int j = 0; j < subfolders.size(); j++) {
+        // E.g. Mesh/Primitive/Grid
+        for (int j = 0; j < subfolders.size() - 1; j++) {
             String j_name = subfolders[j];
             if (!popup->has_node(j_name)) {
                 PopupMenu *new_popup = memnew(PopupMenu);
@@ -48,7 +49,6 @@ void HoodieEditorPlugin::_update_options_menu() {
             }
             popup = popup->get_node<PopupMenu>(j_name);
         }
-        // node classes
         popup->add_item(subfolders[subfolders.size() - 1], i);
     }
 }
@@ -147,8 +147,6 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     // OUTPUT
 
     add_options.push_back(AddOption("Output", "Output", "HNOutput"));
-
-    // _update_options_menu();
 
     ///////////////////////////////////////
 
