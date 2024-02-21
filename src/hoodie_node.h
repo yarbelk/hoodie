@@ -9,6 +9,9 @@ namespace godot
 
 class HoodieNode : public Resource {
     GDCLASS(HoodieNode, Resource)
+    friend class HoodieMesh;
+
+    typedef uint32_t id_t;
 
 protected:
     struct Property {
@@ -44,6 +47,7 @@ public:
     };
 
 private:
+    id_t id;
     Property property;
     Vector<Socket> input_sockets;
     Vector<Socket> output_sockets;
@@ -58,11 +62,17 @@ private:
 protected:
     static void _bind_methods();
 
+    bool _set(const StringName &p_name, const Variant &p_value);
+	bool _get(const StringName &p_name, Variant &r_ret) const;
+
 public:
     void set_position(Vector2 p_pos);
     Vector2 get_position() const;
     void set_status(ProcessStatus p_status);
     ProcessStatus get_status() const;
+
+    id_t get_id();
+    void set_id(id_t p_id);
 
     // Property stuff
     void set_property(Property p_property);

@@ -15,7 +15,7 @@ class HoodieMesh : public ArrayMesh {
     GDCLASS(HoodieMesh, ArrayMesh)
     friend class HoodieEditorPlugin;
 
-    typedef uint32_t id_t;
+    typedef HoodieNode::id_t id_t;
     typedef uint32_t vec_size_t;
 
     struct NodeSocketPair {
@@ -54,6 +54,8 @@ class HoodieMesh : public ArrayMesh {
     void _remove_orphan_surfaces();
     void _remove_surface_dumb(id_t p_id);
 
+    TypedArray<HoodieNode> _get_hoodie_nodes();
+    void _set_hoodie_nodes(TypedArray<HoodieNode> p_nodes);
     id_t add_node(Ref<HoodieNode> p_node);
     void remove_node(id_t p_id);
     Ref<HoodieNode> get_node(id_t p_id);
@@ -67,7 +69,6 @@ class HoodieMesh : public ArrayMesh {
 
 protected:
     static void _bind_methods();
-    // TODO: _set _get _get_property_list
 	// bool _set(const StringName &p_name, const Variant &p_value);
 	// bool _get(const StringName &p_name, Variant &r_ret) const;
 	// void _get_property_list(List<PropertyInfo> *p_list) const;

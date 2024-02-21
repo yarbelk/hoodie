@@ -57,7 +57,8 @@ void HoodieEditorPlugin::_add_node(int idx) {
     // TODO: godot source code visual_shader_editor_plugin.cpp _add_node()
     UtilityFunctions::print("HoodieEditorPlugin::_add_node() called.");
     Ref<HoodieNode> hnode;
-    HoodieNode *hn = Object::cast_to<HoodieNode>(ClassDB::instantiate(add_options[idx].type));
+    Variant v = ClassDB::instantiate(StringName(add_options[idx].type));
+    HoodieNode *hn = Object::cast_to<HoodieNode>(v);
     hnode = Ref<HoodieNode>(hn);
     hoodie_mesh.ptr()->add_node(hnode);
 }

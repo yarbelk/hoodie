@@ -23,6 +23,14 @@ HoodieNode::ProcessStatus HoodieNode::get_status() const {
     return status;
 }
 
+HoodieNode::id_t HoodieNode::get_id() {
+    return id;
+}
+
+void HoodieNode::set_id(HoodieNode::id_t p_id) {
+    id = p_id;
+}
+
 void HoodieNode::set_property(Property p_property) {
     property = p_property;
 }
@@ -57,6 +65,16 @@ void HoodieNode::construct_sockets() {}
 
 void HoodieNode::_bind_methods() {
 
+}
+
+bool HoodieNode::_set(const StringName &p_name, const Variant &p_value) {
+    // TODO: implement _set()
+    return false;
+}
+
+bool HoodieNode::_get(const StringName &p_name, Variant &r_ret) const {
+    // TODO: implement _get()
+    return false;
 }
 
 bool HoodieNode::update(const Array &p_inputs) {
