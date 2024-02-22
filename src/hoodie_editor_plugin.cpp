@@ -61,6 +61,7 @@ void HoodieEditorPlugin::_add_node(int idx) {
     HoodieNode *hn = Object::cast_to<HoodieNode>(v);
     hnode = Ref<HoodieNode>(hn);
     hoodie_mesh.ptr()->add_node(hnode);
+    add_graph_node();
 }
 
 void HoodieEditorPlugin::_bind_methods() {}
@@ -154,6 +155,28 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     button = add_control_to_bottom_panel(main_split, "Hoodie");
 
     _make_visible(false);
+}
+
+void HoodieEditorPlugin::add_graph_node() {
+	static const Color type_color[] = {
+		Color(0.38, 0.85, 0.96), // scalar (float)
+		Color(0.49, 0.78, 0.94), // scalar (int)
+		Color(0.20, 0.88, 0.67), // scalar (uint)
+		Color(0.74, 0.57, 0.95), // vector2
+		Color(0.84, 0.49, 0.93), // vector3
+		Color(1.0, 0.125, 0.95), // vector4
+		Color(0.55, 0.65, 0.94), // boolean
+		Color(0.96, 0.66, 0.43), // transform
+		Color(1.0, 1.0, 0.0), // sampler
+	};
+
+    GraphNode *node = memnew(GraphNode);
+    node->set_title("Test Node");
+    node->set_resizable(false);
+    // node->set_name("name");
+    node->set_custom_minimum_size(Size2(200, 200));
+
+    graph_edit->add_child(node);
 }
 
 HoodieEditorPlugin::~HoodieEditorPlugin() {

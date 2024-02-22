@@ -10,6 +10,7 @@
 #include "godot_cpp/classes/popup_menu.hpp"
 #include "godot_cpp/classes/label.hpp"
 #include "godot_cpp/classes/graph_edit.hpp"
+#include "godot_cpp/classes/graph_node.hpp"
 #include "godot_cpp/classes/button.hpp"
 
 namespace godot
@@ -62,6 +63,7 @@ class HoodieEditorPlugin : public EditorPlugin {
 
     void _update_options_menu();
 
+    // Add a node to the HoodieMesh class
     void _add_node(int idx);
 
 protected:
@@ -80,6 +82,8 @@ public:
 	// virtual String _get_unsaved_status(const String &for_scene) const;
 	// virtual void _save_external_data();
 	// virtual void _apply_changes();
+
+    void add_graph_node();
 
     HoodieEditorPlugin();
     ~HoodieEditorPlugin();
