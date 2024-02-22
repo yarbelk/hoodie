@@ -83,7 +83,7 @@ public:
 	// virtual void _save_external_data();
 	// virtual void _apply_changes();
 
-    void add_graph_node(AddOption option);
+    void add_graph_node(Ref<HoodieNode> &hoodie_node, const AddOption &option);
 
     HoodieEditorPlugin();
     ~HoodieEditorPlugin();

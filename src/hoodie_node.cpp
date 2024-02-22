@@ -43,38 +43,10 @@ String HoodieNode::get_property_hint() const {
     return property.hint;
 }
 
-void HoodieNode::construct_property() {}
-
-void HoodieNode::add_socket(Socket &p_socket) {
-    if (p_socket.socket_io == Socket::SocketIO::INPUT) {
-        input_sockets.push_back(p_socket);
-    } else {
-        output_sockets.push_back(p_socket);
-    }
+void HoodieNode::construct_property() {
 }
-
-Vector<HoodieNode::Socket> HoodieNode::get_input_sockets() const {
-    return input_sockets;
-}
-
-Vector<HoodieNode::Socket> HoodieNode::get_output_sockets() const {
-    return output_sockets;
-}
-
-void HoodieNode::construct_sockets() {}
 
 void HoodieNode::_bind_methods() {
-
-}
-
-bool HoodieNode::_set(const StringName &p_name, const Variant &p_value) {
-    // TODO: implement _set()
-    return false;
-}
-
-bool HoodieNode::_get(const StringName &p_name, Variant &r_ret) const {
-    // TODO: implement _get()
-    return false;
 }
 
 bool HoodieNode::update(const Array &p_inputs) {
@@ -82,7 +54,29 @@ bool HoodieNode::update(const Array &p_inputs) {
     return false;
 }
 
+int HoodieNode::get_input_port_count() const {
+    return 0;
+}
+
+HoodieNode::PortType HoodieNode::get_input_port_type(int p_port) const {
+    return PortType::PORT_TYPE_SCALAR;
+}
+
+String HoodieNode::get_input_port_name(int p_port) const {
+    return "";
+}
+
+int HoodieNode::get_output_port_count() const {
+    return 0;
+}
+
+HoodieNode::PortType HoodieNode::get_output_port_type(int p_port) const {
+    return PortType::PORT_TYPE_SCALAR;
+}
+
+String HoodieNode::get_output_port_name(int p_port) const {
+    return "";
+}
+
 HoodieNode::HoodieNode() {
-    construct_property();
-    construct_sockets();
 }

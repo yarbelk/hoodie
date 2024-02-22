@@ -61,7 +61,7 @@ void HoodieEditorPlugin::_add_node(int idx) {
     HoodieNode *hn = Object::cast_to<HoodieNode>(v);
     hnode = Ref<HoodieNode>(hn);
     hoodie_mesh.ptr()->add_node(hnode);
-    add_graph_node(add_options[idx]);
+    add_graph_node(hnode, add_options[idx]);
 }
 
 void HoodieEditorPlugin::_bind_methods() {}
@@ -109,7 +109,9 @@ bool HoodieEditorPlugin::_handles(Object *object) const {
     return Object::cast_to<HoodieMesh>(object) != nullptr;
 }
 
-void HoodieEditorPlugin::add_graph_node(AddOption option) {
+void HoodieEditorPlugin::add_graph_node(Ref<HoodieNode> &hoodie_node, const AddOption &option) {
+    HoodieNode *hn = hoodie_node.ptr();
+
 	static const Color type_color[] = {
 		Color(0.38, 0.85, 0.96), // scalar (float)
 		Color(0.49, 0.78, 0.94), // scalar (int)
@@ -122,13 +124,45 @@ void HoodieEditorPlugin::add_graph_node(AddOption option) {
 		Color(1.0, 1.0, 0.0), // sampler
 	};
 
-    GraphNode *node = memnew(GraphNode);
-    node->set_title(option.name);
-    node->set_resizable(false);
-    // node->set_name("name");
-    node->set_custom_minimum_size(Size2(200, 0));
+    GraphNode *graph_node = memnew(GraphNode);
+    graph_node->set_title(option.name);
+    graph_node->set_resizable(false);
+    graph_node->set_custom_minimum_size(Size2(200, 0));
 
-    graph_edit->add_child(node);
+    int j = 0;
+    for (int i = 0; i < hn->get_output_port_count(); i++)
+    {
+        HBoxContainer *hb = memnew(HBoxContainer);
+        Label *label = memnew(Label);
+        label->set_text(hn->get_output_port_name(i));
+        label->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_RIGHT);
+        label->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);
+        label->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+        hb->add_child(label);
+        graph_node->add_child(hb);
+
+        int port_type = 0;
+        graph_node->set_slot(i, false, port_type, type_color[0], true, port_type, type_color[0]);
+        j++;
+    }
+
+    for (int i = 0; i < hn->get_input_port_count(); i++)
+    {
+        HBoxContainer *hb = memnew(HBoxContainer);
+        Label *label = memnew(Label);
+        label->set_text(hn->get_input_port_name(i));
+        label->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_LEFT);
+        label->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);
+        label->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+        hb->add_child(label);
+        graph_node->add_child(hb);
+
+        int port_type = 0;
+        graph_node->set_slot(j, true, port_type, type_color[0], false, port_type, type_color[0]);
+        j++;
+    }
+
+    graph_edit->add_child(graph_node);
 }
 
 HoodieEditorPlugin::HoodieEditorPlugin() {

@@ -9,6 +9,7 @@ namespace godot
 
 class HoodieNode : public Resource {
     GDCLASS(HoodieNode, Resource)
+    friend class HoodieEditorPlugin;
     friend class HoodieMesh;
 
     typedef uint32_t id_t;
@@ -39,11 +40,23 @@ protected:
     };
 
 public:
+    enum PortType {
+		PORT_TYPE_SCALAR,
+		PORT_TYPE_SCALAR_INT,
+		PORT_TYPE_SCALAR_UINT,
+		PORT_TYPE_VECTOR_2D,
+		PORT_TYPE_VECTOR_3D,
+		PORT_TYPE_VECTOR_4D,
+		PORT_TYPE_BOOLEAN,
+        PORT_TYPE_ARRAY,
+        PORT_TYPE_MAX,
+    };
+
     enum ProcessStatus {
 		PENDING, // all nodes are cleared to this before we update our mesh
 		INPROGRESS, // a node gets this status when we are in the middle of updating it, helps detect cyclic relationships
 		UNCHANGED, // a node gets this status once we finish updating and find the node unchanged
-		CHANGED // a node gets this status once we finish updating at its contents has changed
+		CHANGED, // a node gets this status once we finish updating at its contents has changed
     };
 
 private:
@@ -62,9 +75,6 @@ private:
 protected:
     static void _bind_methods();
 
-    bool _set(const StringName &p_name, const Variant &p_value);
-	bool _get(const StringName &p_name, Variant &r_ret) const;
-
 public:
     void set_position(Vector2 p_pos);
     Vector2 get_position() const;
@@ -82,13 +92,21 @@ public:
     // virtual void set_input(Variant p_input);
     // virtual Variant get_input();
 
-    void add_socket(Socket &p_socket);
-    Vector<Socket> get_input_sockets() const;
-    Vector<Socket> get_output_sockets() const;
+    // void add_socket(Socket &p_socket);
+    // Vector<Socket> get_input_sockets() const;
+    // Vector<Socket> get_output_sockets() const;
 
-    virtual void construct_sockets();
+    // virtual void construct_sockets();
     
     virtual bool update(const Array &p_inputs);
+
+	virtual int get_input_port_count() const;
+	virtual PortType get_input_port_type(int p_port) const;
+	virtual String get_input_port_name(int p_port) const;
+
+    virtual int get_output_port_count() const;
+	virtual PortType get_output_port_type(int p_port) const;
+	virtual String get_output_port_name(int p_port) const;
 
     HoodieNode();
 };
