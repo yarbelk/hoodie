@@ -32,3 +32,6 @@ Thumbs.db
 # ignore other demo addons installed
 /demo/addons/plugin_refresher/
 /demo/addons/zylann.editor_debugger/
+
+#ignore .vscode folder
+/.vscode/

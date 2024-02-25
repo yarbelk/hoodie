@@ -1,0 +1,82 @@
+#include "hoodie_node.h"
+
+using namespace godot;
+
+void HoodieNode::mark_dirty() {
+    dirty = true;
+    // TODO: emit_changed?
+}
+
+void HoodieNode::set_position(Vector2 p_pos) {
+    position = p_pos;
+}
+
+Vector2 HoodieNode::get_position() const {
+    return position;
+}
+
+void HoodieNode::set_status(ProcessStatus p_status) {
+    status = p_status;
+}
+
+HoodieNode::ProcessStatus HoodieNode::get_status() const {
+    return status;
+}
+
+HoodieNode::id_t HoodieNode::get_id() {
+    return id;
+}
+
+void HoodieNode::set_id(HoodieNode::id_t p_id) {
+    id = p_id;
+}
+
+void HoodieNode::set_property(Property p_property) {
+    property = p_property;
+}
+
+Variant::Type HoodieNode::get_property_type() const {
+    return property.type;
+}
+
+String HoodieNode::get_property_hint() const {
+    return property.hint;
+}
+
+void HoodieNode::construct_property() {
+}
+
+void HoodieNode::_bind_methods() {
+}
+
+bool HoodieNode::update(const Array &p_inputs) {
+    // TODO: implement update
+    return false;
+}
+
+int HoodieNode::get_input_port_count() const {
+    return 0;
+}
+
+HoodieNode::PortType HoodieNode::get_input_port_type(int p_port) const {
+    return PortType::PORT_TYPE_SCALAR;
+}
+
+String HoodieNode::get_input_port_name(int p_port) const {
+    return "";
+}
+
+int HoodieNode::get_output_port_count() const {
+    return 0;
+}
+
+HoodieNode::PortType HoodieNode::get_output_port_type(int p_port) const {
+    return PortType::PORT_TYPE_SCALAR;
+}
+
+String HoodieNode::get_output_port_name(int p_port) const {
+    return "";
+}
+
+HoodieNode::HoodieNode() {
+}
