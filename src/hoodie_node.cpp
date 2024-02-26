@@ -1,5 +1,7 @@
 #include "hoodie_node.h"
 
+#include <godot_cpp/variant/utility_functions.hpp>
+
 using namespace godot;
 
 void HoodieNode::mark_dirty() {
@@ -49,9 +51,19 @@ void HoodieNode::construct_property() {
 void HoodieNode::_bind_methods() {
 }
 
-bool HoodieNode::update(const Array &p_inputs) {
-    // TODO: implement update
-    return false;
+bool HoodieNode::update(bool p_inputs_updated, const Array &p_inputs) {
+    bool updated = dirty || p_inputs_updated;
+    dirty = false;
+
+    if (updated) {
+        _process(p_inputs);
+    }
+
+    return updated;
+}
+
+void HoodieNode::_process(const Array &p_inputs) {
+    UtilityFunctions::print("Base HoodieNode _process() call.");
 }
 
 int HoodieNode::get_input_port_count() const {
@@ -76,6 +88,10 @@ HoodieNode::PortType HoodieNode::get_output_port_type(int p_port) const {
 
 String HoodieNode::get_output_port_name(int p_port) const {
     return "";
+}
+
+const Variant HoodieNode::get_output(int p_port) const {
+    return Variant();
 }
 
 HoodieNode::HoodieNode() {

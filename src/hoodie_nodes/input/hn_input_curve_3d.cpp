@@ -1,6 +1,16 @@
 #include "hn_input_curve_3d.h"
 
+#include <godot_cpp/variant/utility_functions.hpp>
+
 using namespace godot;
+
+/* bool update(bool p_inputs_updated, const Array &p_inputs) {
+
+} */
+
+void HNInputCurve3D::_process() {
+    UtilityFunctions::print("HNInputCurve3D _process() call.");
+}
 
 int HNInputCurve3D::get_input_port_count() const {
     return 0;

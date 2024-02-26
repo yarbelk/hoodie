@@ -10,6 +10,10 @@ class HNInputCurve3D : public HoodieNode {
     GDCLASS(HNInputCurve3D, HoodieNode)
 
 public:
+	// bool update(bool p_inputs_updated, const Array &p_inputs) override;
+
+	void _process() override;
+
     int get_input_port_count() const override;
 	PortType get_input_port_type(int p_port) const override;
 	String get_input_port_name(int p_port) const override;

@@ -98,7 +98,9 @@ public:
 
     // virtual void construct_sockets();
     
-    virtual bool update(const Array &p_inputs);
+    virtual bool update(bool p_inputs_updated, const Array &p_inputs);
+
+    virtual void _process(const Array &p_inputs);
 
 	virtual int get_input_port_count() const;
 	virtual PortType get_input_port_type(int p_port) const;
@@ -107,6 +109,8 @@ public:
     virtual int get_output_port_count() const;
 	virtual PortType get_output_port_type(int p_port) const;
 	virtual String get_output_port_name(int p_port) const;
+
+    virtual const Variant get_output(int p_port) const;
 
     HoodieNode();
 };

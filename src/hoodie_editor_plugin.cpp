@@ -12,10 +12,15 @@ void HoodieEditorPlugin::_menu_item_pressed(int index) {
         case FILE_PRINTDEBUG: {
             HoodieMesh *hm = hoodie_mesh.ptr();
             String debug = "Hoodie Debug Print - ";
-            debug += "hoodie_nodes.size() = " + String::num_int64(hm->hoodie_nodes.size());
+            debug += "hoodie_nodes.size() = " + String::num_int64(hm->graph.nodes.size());
             debug += "; ";
-            debug += "connections.size() = " + String::num_int64(hm->connections.size());
+            debug += "connections.size() = " + String::num_int64(hm->graph.connections.size());
             UtilityFunctions::print(debug);
+            /*
+            for (const KeyValue<HoodieMesh::id_t, HoodieMesh::Node> &E : hm->graph.nodes) {
+                E.value.node->update(true, Array());
+            }
+            */
         } break;
     }
 }
