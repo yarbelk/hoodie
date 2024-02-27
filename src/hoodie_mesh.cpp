@@ -235,6 +235,7 @@ void HoodieMesh::_set_hoodie_nodes(TypedArray<HoodieNode> p_nodes) {
 
 HoodieMesh::id_t HoodieMesh::add_node(Ref<HoodieNode> p_node) {
     id_t id = get_valid_node_id();
+    ERR_FAIL_COND(graph.nodes.has(id));
     p_node->set_id(id);
     graph.nodes[id].node = p_node;
     return id;
