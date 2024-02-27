@@ -130,7 +130,7 @@ void HoodieEditorPlugin::add_graph_node(Ref<HoodieNode> &hoodie_node, const AddO
 	};
 
     GraphNode *graph_node = memnew(GraphNode);
-    graph_node->set_title(option.name);
+    graph_node->set_title(option.name + String(" [") + String::num_int64(hn->id) + String("]"));
     graph_node->set_resizable(false);
     graph_node->set_custom_minimum_size(Size2(200, 0));
 
