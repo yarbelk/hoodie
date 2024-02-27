@@ -8,7 +8,7 @@ using namespace godot;
 
 } */
 
-void HNInputCurve3D::_process() {
+void HNInputCurve3D::_process(const Array &p_inputs) {
     UtilityFunctions::print("HNInputCurve3D _process() call.");
 }
 

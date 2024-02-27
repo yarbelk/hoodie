@@ -12,7 +12,7 @@ class HNInputCurve3D : public HoodieNode {
 public:
 	// bool update(bool p_inputs_updated, const Array &p_inputs) override;
 
-	void _process() override;
+	void _process(const Array &p_inputs) override;
 
     int get_input_port_count() const override;
 	PortType get_input_port_type(int p_port) const override;
