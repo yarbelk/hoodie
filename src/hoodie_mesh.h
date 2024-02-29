@@ -81,7 +81,8 @@ private:
     id_t add_node(Ref<HoodieNode> p_node);
     void remove_node(id_t p_id);
     Ref<HoodieNode> get_node(id_t p_id);
-    Vector<id_t> get_nodes_id_list();
+
+    Vector<id_t> get_nodes_id_list() const;
     id_t get_valid_node_id() const;
 
     void add_connection(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port);

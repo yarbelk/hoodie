@@ -247,8 +247,13 @@ Ref<HoodieNode> HoodieMesh::get_node(id_t p_id) {
     return Ref<HoodieNode>();
 }
 
-Vector<HoodieMesh::id_t> HoodieMesh::get_nodes_id_list() {
-    return Vector<HoodieMesh::id_t>();
+Vector<HoodieMesh::id_t> HoodieMesh::get_nodes_id_list() const {
+    Vector<id_t> ret;
+    for (const KeyValue<id_t, HoodieMesh::Node> &E : graph.nodes) {
+        ret.push_back(E.key);
+    }
+
+    return ret;
 }
 
 HoodieMesh::id_t HoodieMesh::get_valid_node_id() const {
