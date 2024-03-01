@@ -12,6 +12,10 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
     UtilityFunctions::print("HNInputCurve3D _process() call.");
 }
 
+String HNInputCurve3D::get_caption() const {
+    return "Input Curve 3D";
+}
+
 int HNInputCurve3D::get_input_port_count() const {
     return 0;
 }

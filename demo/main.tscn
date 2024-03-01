@@ -1,15 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://dmdyqadsq3fea"]
+[gd_scene load_steps=2 format=3 uid="uid://dmdyqadsq3fea"]
 
-[sub_resource type="HNInputCurve3D" id="HNInputCurve3D_r366y"]
-
-[sub_resource type="HNMeshGrid" id="HNMeshGrid_gcj1b"]
-
-[sub_resource type="HNOutput" id="HNOutput_2lnsk"]
-
-[sub_resource type="HoodieMesh" id="HoodieMesh_vfupd"]
-_data = Array[HoodieNode]([SubResource("HNInputCurve3D_r366y"), SubResource("HNMeshGrid_gcj1b"), SubResource("HNOutput_2lnsk")])
+[sub_resource type="HoodieMesh" id="HoodieMesh_fwksc"]
 
 [node name="Node3D" type="Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("HoodieMesh_vfupd")
+mesh = SubResource("HoodieMesh_fwksc")

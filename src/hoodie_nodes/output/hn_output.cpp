@@ -2,6 +2,10 @@
 
 using namespace godot;
 
+String HNOutput::get_caption() const {
+    return "Output";
+}
+
 int HNOutput::get_input_port_count() const {
     return 1;
 }

@@ -66,6 +66,10 @@ void HoodieNode::_process(const Array &p_inputs) {
     UtilityFunctions::print("Base HoodieNode _process() call.");
 }
 
+String HoodieNode::get_caption() const {
+    return "Hoodie Node";
+}
+
 int HoodieNode::get_input_port_count() const {
     return 0;
 }

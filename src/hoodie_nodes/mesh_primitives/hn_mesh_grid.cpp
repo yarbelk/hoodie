@@ -2,6 +2,10 @@
 
 using namespace godot;
 
+String HNMeshGrid::get_caption() const {
+    return "Mesh Grid";
+}
+
 int HNMeshGrid::get_input_port_count() const {
     return 4;
 }

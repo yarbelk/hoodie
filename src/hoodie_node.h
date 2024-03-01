@@ -9,10 +9,12 @@ namespace godot
 
 class HoodieNode : public Resource {
     GDCLASS(HoodieNode, Resource)
+    friend class HoodieGraphPlugin;
     friend class HoodieEditorPlugin;
     friend class HoodieMesh;
 
-    typedef uint32_t id_t;
+    // typedef uint32_t id_t;
+    typedef int id_t;
 
 protected:
     struct Property {
@@ -101,6 +103,8 @@ public:
     virtual bool update(bool p_inputs_updated, const Array &p_inputs);
 
     virtual void _process(const Array &p_inputs);
+
+    virtual String get_caption() const;
 
 	virtual int get_input_port_count() const;
 	virtual PortType get_input_port_type(int p_port) const;

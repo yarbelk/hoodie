@@ -16,6 +16,7 @@ namespace godot
 class HoodieMesh : public ArrayMesh {
     GDCLASS(HoodieMesh, ArrayMesh)
 
+    friend class HoodieGraphPlugin;
     friend class HoodieEditorPlugin;
 
     typedef HoodieNode::id_t id_t;
@@ -78,9 +79,11 @@ private:
 
     TypedArray<HoodieNode> _get_hoodie_nodes();
     void _set_hoodie_nodes(TypedArray<HoodieNode> p_nodes);
-    id_t add_node(Ref<HoodieNode> p_node);
+    void add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_position, id_t p_id);
     void remove_node(id_t p_id);
-    Ref<HoodieNode> get_node(id_t p_id);
+
+    Vector2 get_node_position(id_t p_id) const;
+    Ref<HoodieNode> get_node(id_t p_id) const;
 
     Vector<id_t> get_nodes_id_list() const;
     id_t get_valid_node_id() const;

@@ -233,18 +233,55 @@ void HoodieMesh::_set_hoodie_nodes(TypedArray<HoodieNode> p_nodes) {
     }
 }
 
-HoodieMesh::id_t HoodieMesh::add_node(Ref<HoodieNode> p_node) {
-    id_t id = get_valid_node_id();
-    ERR_FAIL_COND(graph.nodes.has(id));
-    p_node->set_id(id);
-    graph.nodes[id].node = p_node;
-    return id;
+void HoodieMesh::add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_position, id_t p_id) {
+    // id_t id = get_valid_node_id();
+    ERR_FAIL_COND(graph.nodes.has(p_id));
+    p_node->set_id(p_id);
+
+    Node n;
+    n.node = p_node;
+    n.position = p_position;
+
+    // n.node->connect_changed(queue_update)
+
+    graph.nodes[p_id] = n;
+
+    _queue_update();
 }
 
-void HoodieMesh::remove_node(id_t p_id) {}
+void HoodieMesh::remove_node(id_t p_id) {
+    // graph.nodes[p_id].node->disconnect_changed()
 
-Ref<HoodieNode> HoodieMesh::get_node(id_t p_id) {
-    return Ref<HoodieNode>();
+    graph.nodes.erase(p_id);
+
+    // TODO: implement connections and connected nodes deletion
+    /*
+    for (List<Connection>::Element *E = graph.connections.front(); E;) {
+        List<Connection>::Element *N = E->next();
+        if (E->get().l_node == p_id || E->get().r_node == p_id) {
+            if (E->get().l_node == p_id) {
+                graph.nodes[E->get().r_node].prev_connected_nodes.erase(p_id);
+                graph.nodes[E->get().r_node].node->set_input_port_connected();
+            } else if (E->get().r_node == p_id) {
+                graph.nodes[E->get().l_node].next_connected_nodes.erase(p_id);
+            }
+            graph.connections.erase(E);
+        }
+        E = N;
+    }
+    */
+
+    _queue_update();
+}
+
+Ref<HoodieNode> HoodieMesh::get_node(id_t p_id) const {
+    ERR_FAIL_COND_V(!graph.nodes.has(p_id), Ref<HoodieNode>());
+    return graph.nodes[p_id].node;
+}
+
+Vector2 HoodieMesh::get_node_position(id_t p_id) const {
+    ERR_FAIL_COND_V(!graph.nodes.has(p_id), Vector2());
+    return graph.nodes[p_id].position;
 }
 
 Vector<HoodieMesh::id_t> HoodieMesh::get_nodes_id_list() const {
@@ -291,6 +328,9 @@ const Vector<HoodieMesh::NodePortPair> HoodieMesh::get_left_ports(id_t p_r_node,
 void HoodieMesh::_bind_methods() {
     ClassDB::bind_method(D_METHOD("_get_hoodie_nodes"), &HoodieMesh::_get_hoodie_nodes);
     ClassDB::bind_method(D_METHOD("_set_hoodie_nodes", "nodes"), &HoodieMesh::_set_hoodie_nodes);
+    ClassDB::bind_method(D_METHOD("add_node", "node", "position", "id"), &HoodieMesh::add_node);
+    ClassDB::bind_method(D_METHOD("remove_node", "id"), &HoodieMesh::remove_node);
+    ClassDB::bind_method(D_METHOD("get_node_position", "id"), &HoodieMesh::get_node_position);
 
     ClassDB::bind_method(D_METHOD("_update"), &HoodieMesh::_update);
 

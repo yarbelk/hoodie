@@ -9,6 +9,8 @@ namespace godot
 class HNMeshGrid : public HoodieNode {
     GDCLASS(HNMeshGrid, HoodieNode)
 public:
+    String get_caption() const override;
+
     int get_input_port_count() const override;
 	PortType get_input_port_type(int p_port) const override;
 	String get_input_port_name(int p_port) const override;
