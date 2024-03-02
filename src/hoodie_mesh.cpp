@@ -245,7 +245,14 @@ void HoodieMesh::add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_positi
     // n.node->connect_changed(queue_update)
 
     graph.nodes[p_id] = n;
-
+    // graph.nodes.insert(p_id, n);
+/* 
+    if (graph.nodes.has(p_id)) {
+        UtilityFunctions::print("RB has it!");
+    } else {
+        UtilityFunctions::print("RB has NOT it. It has: " + itos(graph.nodes.back()->key()));
+    }
+ */
     _queue_update();
 }
 

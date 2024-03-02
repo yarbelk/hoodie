@@ -10,6 +10,8 @@ HoodieGraphPlugin::HoodieGraphPlugin() {
 }
 
 void HoodieGraphPlugin::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("add_node", "id", "just_update"), &HoodieGraphPlugin::add_node);
+    ClassDB::bind_method(D_METHOD("remove_node", "id", "just_update"), &HoodieGraphPlugin::remove_node);
 }
 
 void HoodieGraphPlugin::set_editor(HoodieEditorPlugin *p_editor) {
@@ -21,9 +23,11 @@ void HoodieGraphPlugin::register_hoodie_mesh(HoodieMesh *p_hoodie_mesh) {
 }
 
 void HoodieGraphPlugin::register_link(id_t p_id, HoodieNode *p_hoodie_node, GraphElement *p_graph_element) {
+    links.insert(p_id, { p_hoodie_node, p_graph_element });
 }
 
 void HoodieGraphPlugin::clear_links() {
+    links.clear();
 }
 
 void HoodieGraphPlugin::update_node(id_t p_id) {
@@ -57,10 +61,15 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 	};
 
     GraphNode *graph_node = memnew(GraphNode);
-    // graph_node->set_title(option.name + String(" [") + String::num_int64(hn->id) + String("]"));
-    graph_node->set_title(hoodie_node->get_caption());
+    graph_node->set_title(hoodie_node->get_caption() + String(" [") + String::num_int64(hoodie_node->id) + String("]"));
 
     graph_node->connect("delete_request", callable_mp(editor, &HoodieEditorPlugin::_delete_node_request).bind(hoodie_node->get_id()), CONNECT_DEFERRED);
+
+    if (p_just_update) {
+
+    } else {
+        register_link(p_id, hoodie_node.ptr(), graph_node);
+    }
 
     graph_node->set_resizable(false);
     graph_node->set_custom_minimum_size(Size2(200, 0));
@@ -104,9 +113,21 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 }
 
 void HoodieGraphPlugin::remove_node(id_t p_id, bool p_just_update) {
-    if (hoodie_mesh->graph.nodes.has(p_id)) {
+    UtilityFunctions::print("remove_node " + itos(p_id));
+    RBMap<id_t, HoodieMesh::Node> ns = hoodie_mesh->graph.nodes;
+    bool has = hoodie_mesh->graph.nodes.has(p_id);
+
+    for (const KeyValue<id_t, HoodieMesh::Node> &E : hoodie_mesh->graph.nodes) {
+        UtilityFunctions::print("remove_node loop key: " + itos(E.key));
+    }
+
+    UtilityFunctions::print("GraphPlugin HM size: " + itos(hoodie_mesh->graph.nodes.size()));
+    UtilityFunctions::print("EditorPlugin HM size: " + itos(editor->hoodie_mesh->graph.nodes.size()));
+
+    if (has) {
         Node *graph_edit_node = links[p_id].graph_element->get_parent();
         graph_edit_node->remove_child(links[p_id].graph_element);
+        UtilityFunctions::print("remove_child " + links[p_id].graph_element->get_name());
         memdelete(links[p_id].graph_element);
         if (!p_just_update) {
             links.erase(p_id);
@@ -237,6 +258,14 @@ void HoodieEditorPlugin::_add_node(int idx) {
 void HoodieEditorPlugin::_delete_nodes(const List<id_t> &p_nodes) {
     EditorUndoRedoManager *undo_redo = get_undo_redo();
 
+    // Delete nodes from the graph.
+    /*
+    for (const id_t &F : p_nodes) {
+        // undo_redo->add_do_method(this, "remove_graph_node", F, false);
+        graph_plugin->remove_node(F, false);
+    }
+    */
+
     // TODO: implement connections undo_redo
 
     for (const id_t &F : p_nodes) {
@@ -244,16 +273,18 @@ void HoodieEditorPlugin::_delete_nodes(const List<id_t> &p_nodes) {
 
         Ref<HoodieNode> node = hoodie_mesh->get_node(F);
 
-        // undo_redo->add_do_method(hoodie_mesh.ptr(), "remove_node", F);
-        hoodie_mesh->remove_node(F);
-        // undo_redo->add_undo_method(hoodie_mesh.ptr(), "add_node", node, hoodie_mesh->get_node_position(F), F);
+        undo_redo->add_do_method(graph_plugin.ptr(), "remove_node", F, false);
+        undo_redo->add_do_method(hoodie_mesh.ptr(), "remove_node", F);
+        // hoodie_mesh->remove_node(F);
+        undo_redo->add_undo_method(graph_plugin.ptr(), "add_node", F, false);
+        undo_redo->add_undo_method(hoodie_mesh.ptr(), "add_node", node, hoodie_mesh->get_node_position(F), F);
         // TODO: complete undo_method
-        // undo_redo->add_undo_method(this, "add_graph_node", node, )
     }
 
     // Delete nodes from the graph.
     for (const id_t &F : p_nodes) {
-        undo_redo->add_do_method(this, "remove_graph_node", F, false);
+        // undo_redo->add_do_method(this, "remove_graph_node", F, false);
+        // graph_plugin->remove_node(F, false);
     }
 }
 
@@ -294,8 +325,6 @@ void HoodieEditorPlugin::_delete_nodes_request(const TypedArray<StringName> &p_n
 }
 
 void HoodieEditorPlugin::_bind_methods() {
-    // ClassDB::bind_method(D_METHOD("add_graph_node", "node", "option", "id", "just_update"), &HoodieEditorPlugin::add_graph_node);
-    // ClassDB::bind_method(D_METHOD("remove_graph_node", "id", "just_update"), &HoodieEditorPlugin::remove_graph_node);
 }
 
 void HoodieEditorPlugin::_notification(int what) {
