@@ -256,6 +256,11 @@ void HoodieMesh::add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_positi
     _queue_update();
 }
 
+void HoodieMesh::set_node_position(id_t p_id, const Vector2 &p_position) {
+    ERR_FAIL_COND(!graph.nodes.has(p_id));
+    graph.nodes[p_id].position = p_position;
+}
+
 void HoodieMesh::remove_node(id_t p_id) {
     // graph.nodes[p_id].node->disconnect_changed()
 
@@ -338,6 +343,7 @@ void HoodieMesh::_bind_methods() {
     ClassDB::bind_method(D_METHOD("add_node", "node", "position", "id"), &HoodieMesh::add_node);
     ClassDB::bind_method(D_METHOD("remove_node", "id"), &HoodieMesh::remove_node);
     ClassDB::bind_method(D_METHOD("get_node_position", "id"), &HoodieMesh::get_node_position);
+    ClassDB::bind_method(D_METHOD("set_node_position", "id", "position"), &HoodieMesh::set_node_position);
 
     ClassDB::bind_method(D_METHOD("_update"), &HoodieMesh::_update);
 

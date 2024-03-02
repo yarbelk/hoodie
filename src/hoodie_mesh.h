@@ -80,6 +80,8 @@ private:
     TypedArray<HoodieNode> _get_hoodie_nodes();
     void _set_hoodie_nodes(TypedArray<HoodieNode> p_nodes);
     void add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_position, id_t p_id);
+    void set_node_position(id_t p_id, const Vector2 &p_position);
+
     void remove_node(id_t p_id);
 
     Vector2 get_node_position(id_t p_id) const;

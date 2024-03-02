@@ -12,6 +12,7 @@ HoodieGraphPlugin::HoodieGraphPlugin() {
 void HoodieGraphPlugin::_bind_methods() {
     ClassDB::bind_method(D_METHOD("add_node", "id", "just_update"), &HoodieGraphPlugin::add_node);
     ClassDB::bind_method(D_METHOD("remove_node", "id", "just_update"), &HoodieGraphPlugin::remove_node);
+    ClassDB::bind_method(D_METHOD("set_node_position", "id", "position"), &HoodieGraphPlugin::set_node_position);
 }
 
 void HoodieGraphPlugin::set_editor(HoodieEditorPlugin *p_editor) {
@@ -74,7 +75,11 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     graph_node->set_resizable(false);
     graph_node->set_custom_minimum_size(Size2(200, 0));
 
+    graph_node->set_position_offset(hoodie_mesh->get_node_position(p_id));
+
     graph_node->set_name(itos(p_id));
+
+    graph_node->connect("dragged", callable_mp(editor, &HoodieEditorPlugin::_node_dragged).bind(p_id));
 
     int j = 0;
     for (int i = 0; i < hoodie_node->get_output_port_count(); i++)
@@ -121,6 +126,12 @@ void HoodieGraphPlugin::remove_node(id_t p_id, bool p_just_update) {
         if (!p_just_update) {
             links.erase(p_id);
         }
+    }
+}
+
+void HoodieGraphPlugin::set_node_position(id_t p_id, const Vector2 &p_position) {
+    if (links.has(p_id)) {
+        links[p_id].graph_element->set_position_offset(p_position);
     }
 }
 
@@ -243,6 +254,31 @@ void HoodieEditorPlugin::_add_node(int idx) {
     graph_plugin->add_node(valid_id, false);
 }
 
+void HoodieEditorPlugin::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, id_t p_node) {
+    drag_buffer.push_back({ p_node, p_from, p_to });
+    if (!drag_dirty) {
+        call_deferred(StringName("_nodes_dragged"));
+    }
+    drag_dirty = true;
+}
+
+void HoodieEditorPlugin::_nodes_dragged() {
+    drag_dirty = false;
+
+    EditorUndoRedoManager *undo_redo = get_undo_redo();
+    undo_redo->create_action("Node(s) Moved");
+
+    for (const DragOp &E : drag_buffer) {
+        undo_redo->add_do_method(hoodie_mesh.ptr(), "set_node_position", E.node, E.to);
+        undo_redo->add_undo_method(hoodie_mesh.ptr(), "set_node_position", E.node, E.from);
+        undo_redo->add_do_method(graph_plugin.ptr(), "set_node_position", E.node, E.to);
+        undo_redo->add_undo_method(graph_plugin.ptr(), "set_node_position", E.node, E.from);
+    }
+
+    drag_buffer.clear();
+    undo_redo->commit_action();
+}
+
 void HoodieEditorPlugin::_delete_nodes(const List<id_t> &p_nodes) {
     EditorUndoRedoManager *undo_redo = get_undo_redo();
 
@@ -294,6 +330,7 @@ void HoodieEditorPlugin::_delete_nodes_request(const TypedArray<StringName> &p_n
 }
 
 void HoodieEditorPlugin::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("_nodes_dragged"), &HoodieEditorPlugin::_nodes_dragged);
 }
 
 void HoodieEditorPlugin::_notification(int what) {

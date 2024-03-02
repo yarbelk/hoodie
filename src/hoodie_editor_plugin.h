@@ -45,6 +45,7 @@ public:
     void update_node_deferred(id_t p_id);
     void add_node(id_t p_id, bool p_just_update);
     void remove_node(id_t p_id, bool p_just_update);
+    void set_node_position(id_t p_id, const Vector2 &p_position);
 
     HoodieGraphPlugin();
     ~HoodieGraphPlugin();
@@ -106,6 +107,15 @@ class HoodieEditorPlugin : public EditorPlugin {
     // Add a node to the HoodieMesh class
     void _add_node(int idx);
 
+	struct DragOp {
+		id_t node = 0;
+		Vector2 from;
+		Vector2 to;
+	};
+	List<DragOp> drag_buffer;
+    bool drag_dirty = false;
+	void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, id_t p_node);
+    void _nodes_dragged();
     bool updating = false;
 
     // void _connection_request
