@@ -49,6 +49,10 @@ void HoodieNode::construct_property() {
 }
 
 void HoodieNode::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("get_id"), &HoodieNode::get_id);
+    ClassDB::bind_method(D_METHOD("set_id", "id"), &HoodieNode::set_id);
+
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "_id", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_id", "get_id");
 }
 
 bool HoodieNode::update(bool p_inputs_updated, const Array &p_inputs) {
