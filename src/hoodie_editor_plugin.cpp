@@ -113,21 +113,10 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 }
 
 void HoodieGraphPlugin::remove_node(id_t p_id, bool p_just_update) {
-    UtilityFunctions::print("remove_node " + itos(p_id));
-    RBMap<id_t, HoodieMesh::Node> ns = hoodie_mesh->graph.nodes;
-    bool has = hoodie_mesh->graph.nodes.has(p_id);
-
-    for (const KeyValue<id_t, HoodieMesh::Node> &E : hoodie_mesh->graph.nodes) {
-        UtilityFunctions::print("remove_node loop key: " + itos(E.key));
-    }
-
-    UtilityFunctions::print("GraphPlugin HM size: " + itos(hoodie_mesh->graph.nodes.size()));
-    UtilityFunctions::print("EditorPlugin HM size: " + itos(editor->hoodie_mesh->graph.nodes.size()));
-
-    if (has) {
+    // if (hoodie_mesh->graph.nodes.has(p_id)) {
+    if (links.has(p_id)) {
         Node *graph_edit_node = links[p_id].graph_element->get_parent();
         graph_edit_node->remove_child(links[p_id].graph_element);
-        UtilityFunctions::print("remove_child " + links[p_id].graph_element->get_name());
         memdelete(links[p_id].graph_element);
         if (!p_just_update) {
             links.erase(p_id);
@@ -244,7 +233,6 @@ void HoodieEditorPlugin::_update_options_menu() {
 
 void HoodieEditorPlugin::_add_node(int idx) {
     // TODO: godot source code visual_shader_editor_plugin.cpp _add_node()
-    UtilityFunctions::print("HoodieEditorPlugin::_add_node() called.");
     Ref<HoodieNode> hnode;
     Variant v = ClassDB::instantiate(StringName(add_options[idx].type));
     HoodieNode *hn = Object::cast_to<HoodieNode>(v);
@@ -258,38 +246,19 @@ void HoodieEditorPlugin::_add_node(int idx) {
 void HoodieEditorPlugin::_delete_nodes(const List<id_t> &p_nodes) {
     EditorUndoRedoManager *undo_redo = get_undo_redo();
 
-    // Delete nodes from the graph.
-    /*
-    for (const id_t &F : p_nodes) {
-        // undo_redo->add_do_method(this, "remove_graph_node", F, false);
-        graph_plugin->remove_node(F, false);
-    }
-    */
-
-    // TODO: implement connections undo_redo
+    // TODO: implement connections
 
     for (const id_t &F : p_nodes) {
-        UtilityFunctions::print("_delete_nodes F = " + String::num_int64(F));
-
         Ref<HoodieNode> node = hoodie_mesh->get_node(F);
 
-        undo_redo->add_do_method(graph_plugin.ptr(), "remove_node", F, false);
         undo_redo->add_do_method(hoodie_mesh.ptr(), "remove_node", F);
-        // hoodie_mesh->remove_node(F);
-        undo_redo->add_undo_method(graph_plugin.ptr(), "add_node", F, false);
+        undo_redo->add_do_method(graph_plugin.ptr(), "remove_node", F, false);
         undo_redo->add_undo_method(hoodie_mesh.ptr(), "add_node", node, hoodie_mesh->get_node_position(F), F);
-        // TODO: complete undo_method
-    }
-
-    // Delete nodes from the graph.
-    for (const id_t &F : p_nodes) {
-        // undo_redo->add_do_method(this, "remove_graph_node", F, false);
-        // graph_plugin->remove_node(F, false);
+        undo_redo->add_undo_method(graph_plugin.ptr(), "add_node", F, false);
     }
 }
 
 void HoodieEditorPlugin::_delete_node_request(id_t p_node) {
-    UtilityFunctions::print("_delete_node_request " + String::num_int64(p_node));
     Ref<HoodieNode> node = hoodie_mesh->get_node(p_node);
 
     List<id_t> to_erase;
@@ -306,10 +275,7 @@ void HoodieEditorPlugin::_delete_nodes_request(const TypedArray<StringName> &p_n
 
     if (!p_nodes.is_empty()) {
         for (int i = 0; i < p_nodes.size(); i++) {
-            UtilityFunctions::print("_delete_nodes_request node = " + String(p_nodes[i]));
             id_t id = p_nodes[i].operator String().to_int();
-            // id_t id = 
-            // Ref<HoodieNode> node = hoodie_mesh->get_node(id);
             to_erase.push_back(id);
         }
     }
@@ -318,6 +284,9 @@ void HoodieEditorPlugin::_delete_nodes_request(const TypedArray<StringName> &p_n
         return;
     }
 
+    // FIXME: UndoRedo mismatch error.
+    // Look at: https://github.com/godotengine/godot-proposals/discussions/7168
+    // and: https://github.com/Zylann/godot_voxel/blob/57baa553221aeff45be3ff46caa3261819a473bd/editor/graph/voxel_generator_graph_undo_redo_workaround.h#L10
     EditorUndoRedoManager *undo_redo = get_undo_redo();
     undo_redo->create_action("Delete HoodieNode(s)");
     _delete_nodes(to_erase);
@@ -355,7 +324,6 @@ void HoodieEditorPlugin::_make_visible(bool visible) {
 }
 
 void HoodieEditorPlugin::_edit(Object *object) {
-    UtilityFunctions::print("_edit() called.");
     if (!object) {
         return;
     }
