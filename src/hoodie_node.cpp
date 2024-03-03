@@ -9,14 +9,6 @@ void HoodieNode::mark_dirty() {
     // TODO: emit_changed?
 }
 
-void HoodieNode::set_position(const Vector2 &p_pos) {
-    position = p_pos;
-}
-
-Vector2 HoodieNode::get_position() const {
-    return position;
-}
-
 void HoodieNode::set_status(const ProcessStatus &p_status) {
     status = p_status;
 }
@@ -49,15 +41,10 @@ void HoodieNode::construct_property() {
 }
 
 void HoodieNode::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("get_position"), &HoodieNode::get_position);
-    ClassDB::bind_method(D_METHOD("set_position", "position"), &HoodieNode::set_position);
-
     ClassDB::bind_method(D_METHOD("get_id"), &HoodieNode::get_id);
     ClassDB::bind_method(D_METHOD("set_id", "id"), &HoodieNode::set_id);
 
-    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "position"), "set_position", "get_position");
     ADD_PROPERTY(PropertyInfo(Variant::INT, "_id", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "set_id", "get_id");
-    // ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "position"), "set_position", "get_position");
 }
 
 bool HoodieNode::update(bool p_inputs_updated, const Array &p_inputs) {

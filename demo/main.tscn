@@ -1,25 +1,23 @@
-[gd_scene load_steps=6 format=3 uid="uid://dmdyqadsq3fea"]
+[gd_scene load_steps=5 format=3 uid="uid://dmdyqadsq3fea"]
 
-[sub_resource type="HNInputCurve3D" id="HNInputCurve3D_n8ihy"]
-position = Vector2(360, 140)
+[sub_resource type="HNInputCurve3D" id="HNInputCurve3D_q361c"]
 _id = 1
 
-[sub_resource type="HNMeshGrid" id="HNMeshGrid_aiwbg"]
-position = Vector2(580, 40)
+[sub_resource type="HNMeshGrid" id="HNMeshGrid_254ic"]
 _id = 2
 
-[sub_resource type="HNOutput" id="HNOutput_tpdml"]
-position = Vector2(1040, 160)
+[sub_resource type="HNOutput" id="HNOutput_j3qe6"]
 _id = 3
 
-[sub_resource type="HNInputCurve3D" id="HNInputCurve3D_5n7lp"]
-position = Vector2(800, 200)
-_id = 4
-
-[sub_resource type="HoodieMesh" id="HoodieMesh_od1kw"]
-_data = Array[HoodieNode]([SubResource("HNInputCurve3D_n8ihy"), SubResource("HNMeshGrid_aiwbg"), SubResource("HNOutput_tpdml"), SubResource("HNInputCurve3D_5n7lp")])
+[sub_resource type="HoodieMesh" id="HoodieMesh_weaoq"]
+nodes/1/node = SubResource("HNInputCurve3D_q361c")
+nodes/1/position = Vector2(-80, 220)
+nodes/2/node = SubResource("HNMeshGrid_254ic")
+nodes/2/position = Vector2(360, 60)
+nodes/3/node = SubResource("HNOutput_j3qe6")
+nodes/3/position = Vector2(800, 240)
 
 [node name="Node3D" type="Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("HoodieMesh_od1kw")
+mesh = SubResource("HoodieMesh_weaoq")

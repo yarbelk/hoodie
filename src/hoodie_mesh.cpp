@@ -259,7 +259,6 @@ void HoodieMesh::add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_positi
 void HoodieMesh::set_node_position(id_t p_id, const Vector2 &p_position) {
     ERR_FAIL_COND(!graph.nodes.has(p_id));
     graph.nodes[p_id].position = p_position;
-    graph.nodes[p_id].node->set_position(p_position);
 }
 
 void HoodieMesh::remove_node(id_t p_id) {
@@ -294,8 +293,7 @@ Ref<HoodieNode> HoodieMesh::get_node(id_t p_id) const {
 
 Vector2 HoodieMesh::get_node_position(id_t p_id) const {
     ERR_FAIL_COND_V(!graph.nodes.has(p_id), Vector2());
-    // return graph.nodes[p_id].position;
-    return graph.nodes[p_id].node->get_position();
+    return graph.nodes[p_id].position;
 }
 
 Vector<HoodieMesh::id_t> HoodieMesh::get_nodes_id_list() const {
@@ -349,28 +347,79 @@ void HoodieMesh::_bind_methods() {
 
     ClassDB::bind_method(D_METHOD("_update"), &HoodieMesh::_update);
 
-    ADD_PROPERTY(PropertyInfo(Variant::INT, "_data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_hoodie_nodes", "_get_hoodie_nodes");
+    // ADD_PROPERTY(PropertyInfo(Variant::INT, "_data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_hoodie_nodes", "_get_hoodie_nodes");
 }
 
-/*
 bool HoodieMesh::_set(const StringName &p_name, const Variant &p_value) {
-    PackedStringArray components = String(p_name).split("/", true, 2);
-    if (components.size() >= 2 && components[0].begins_with("hoodie_node_") && components[0].trim_prefix("hoodie_node_").is_valid_int()) {
-        id_t point_index = components[0].trim_prefix("hoodie_node_").to_int();
-        String property = components[1];
-        if ()
+    String prop_name = p_name;
+    if (prop_name.begins_with("nodes/")) {
+        String index = prop_name.get_slicec('/', 1);
+        if (index == "connections") {
+            TypedArray<id_t> conns = p_value;
+            if (conns.size() % 4 == 0) {
+                for (int i = 0; i < conns.size(); i += 4) {
+                    // TODO: implement connections serialization
+                    // connect_nodes_forced(conns[i + 0], conns[i + 1], conns[i + 2], conns[i + 3]);
+                }
+            }
+            return true;
+        }
+
+        id_t id = index.to_int();
+        String what = prop_name.get_slicec('/', 2);
+
+        if (what == "node") {
+            add_node(p_value, Vector2(), id);
+            return true;
+        } else if (what == "position") {
+            set_node_position(id, p_value);
+            return true;
+        }
     }
     return false;
 }
 
 bool HoodieMesh::_get(const StringName &p_name, Variant &r_ret) const {
-    PackedStringArray components = String(p_name).split("/", true, 2);
-    if (components.size() >= 2 && components[0].begins_with("hoodie_node_") && components[0].trim_prefix("hoodie_node_").is_valid_int()) {
-        
+    String prop_name = p_name;
+    if (prop_name.begins_with("nodes/")) {
+        String index = prop_name.get_slicec('/', 1);
+        if (index == "connections") {
+            TypedArray<id_t> conns;
+            for (const Connection &E : graph.connections) {
+                conns.push_back(E.l_node);
+                conns.push_back(E.l_port);
+                conns.push_back(E.r_node);
+                conns.push_back(E.r_port);
+            }
+
+            r_ret = conns;
+            return true;
+        }
+
+        id_t id = index.to_int();
+        String what = prop_name.get_slicec('/', 2);
+
+        if (what == "node") {
+            r_ret = get_node(id);
+            return true;
+        } else if (what == "position") {
+            r_ret = get_node_position(id);
+            return true;
+        }
     }
     return false;
 }
-*/
+
+void HoodieMesh::_get_property_list(List<PropertyInfo> *p_list) const {
+    for (const KeyValue<id_t, Node> &E : graph.nodes) {
+        String prop_name = "nodes/";
+        prop_name += itos(E.key);
+
+        p_list->push_back(PropertyInfo(Variant::OBJECT, prop_name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "HoodieNode", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_ALWAYS_DUPLICATE));
+        p_list->push_back(PropertyInfo(Variant::VECTOR2, prop_name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR));
+    }
+    p_list->push_back(PropertyInfo(Variant::PACKED_INT32_ARRAY, "nodes/connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR));
+}
 
 HoodieMesh::HoodieMesh() {
 

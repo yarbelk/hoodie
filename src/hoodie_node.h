@@ -67,8 +67,6 @@ private:
     Vector<Socket> input_sockets;
     Vector<Socket> output_sockets;
 
-    Vector2 position;
-
     ProcessStatus status;
     bool dirty = false;
 
@@ -78,8 +76,6 @@ protected:
     static void _bind_methods();
 
 public:
-    void set_position(const Vector2 &p_pos);
-    Vector2 get_position() const;
     void set_status(const ProcessStatus &p_status);
     ProcessStatus get_status() const;
 
