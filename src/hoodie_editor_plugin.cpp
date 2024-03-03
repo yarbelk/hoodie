@@ -10,8 +10,11 @@ HoodieGraphPlugin::HoodieGraphPlugin() {
 }
 
 void HoodieGraphPlugin::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("update_node", "id"), &HoodieGraphPlugin::update_node);
     ClassDB::bind_method(D_METHOD("add_node", "id", "just_update"), &HoodieGraphPlugin::add_node);
     ClassDB::bind_method(D_METHOD("remove_node", "id", "just_update"), &HoodieGraphPlugin::remove_node);
+    ClassDB::bind_method(D_METHOD("connect_nodes"), &HoodieGraphPlugin::connect_nodes);
+    ClassDB::bind_method(D_METHOD("disconnect_nodes"), &HoodieGraphPlugin::disconnect_nodes);
     ClassDB::bind_method(D_METHOD("set_node_position", "id", "position"), &HoodieGraphPlugin::set_node_position);
 }
 
@@ -32,9 +35,15 @@ void HoodieGraphPlugin::clear_links() {
 }
 
 void HoodieGraphPlugin::update_node(id_t p_id) {
+    if (!links.has(p_id)) {
+        return;
+    }
+    remove_node(p_id, true);
+    add_node(p_id, true);
 }
 
 void HoodieGraphPlugin::update_node_deferred(id_t p_id) {
+    call_deferred(StringName("update_node"), p_id);
 }
 
 void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
@@ -67,7 +76,9 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     graph_node->connect("delete_request", callable_mp(editor, &HoodieEditorPlugin::_delete_node_request).bind(p_id), CONNECT_DEFERRED);
 
     if (p_just_update) {
+        Link &link = links[p_id];
 
+        link.graph_element = graph_node;
     } else {
         register_link(p_id, hoodie_node.ptr(), graph_node);
     }
@@ -125,6 +136,36 @@ void HoodieGraphPlugin::remove_node(id_t p_id, bool p_just_update) {
         memdelete(links[p_id].graph_element);
         if (!p_just_update) {
             links.erase(p_id);
+        }
+    }
+}
+
+void HoodieGraphPlugin::connect_nodes(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port) {
+    GraphEdit *graph = editor->graph_edit;
+    if (!graph) {
+        return;
+    }
+
+    if (hoodie_mesh.is_valid()) {
+        graph->connect_node(itos(p_l_node), p_l_port, itos(p_r_node), p_r_port);
+        connections.push_back({ p_l_node, p_l_port, p_r_node, p_r_port });
+    }
+}
+
+void HoodieGraphPlugin::disconnect_nodes(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port) {
+    GraphEdit *graph = editor->graph_edit;
+    if (!graph) {
+        return;
+    }
+
+    if (hoodie_mesh.is_valid()) {
+        graph->disconnect_node(itos(p_l_node), p_l_port, itos(p_r_node), p_r_port);
+
+        for (const List<HoodieMesh::Connection>::Element *E = connections.front(); E; E = E->next()) {
+            if (E->get().l_node == p_l_node && E->get().l_port == p_l_port && E->get().r_node == p_r_node && E->get().r_port == p_r_port) {
+                connections.erase(E);
+                break;
+            }
         }
     }
 }

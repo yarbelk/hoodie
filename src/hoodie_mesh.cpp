@@ -442,7 +442,7 @@ bool HoodieMesh::can_connect_nodes(id_t p_from_node, vec_size_t p_from_port, id_
     }
 
     HoodieNode::PortType l_port_type = graph.nodes[p_from_node].node->get_output_port_type(p_from_port);
-    HoodieNode::PortType r_port_type = graph.nodes[p_to_node].node->get_output_port_type(p_to_port);
+    HoodieNode::PortType r_port_type = graph.nodes[p_to_node].node->get_input_port_type(p_to_port);
 
     if (!is_port_types_compatible(l_port_type, r_port_type)) {
         return false;

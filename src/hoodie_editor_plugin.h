@@ -20,6 +20,7 @@ class HoodieGraphPlugin : public RefCounted {
     GDCLASS(HoodieGraphPlugin, RefCounted);
 
     typedef HoodieNode::id_t id_t;
+    typedef HoodieNode::vec_size_t vec_size_t;
 
 private:
     HoodieEditorPlugin *editor = nullptr;
@@ -45,6 +46,8 @@ public:
     void update_node_deferred(id_t p_id);
     void add_node(id_t p_id, bool p_just_update);
     void remove_node(id_t p_id, bool p_just_update);
+    void connect_nodes(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port);
+    void disconnect_nodes(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port);
     void set_node_position(id_t p_id, const Vector2 &p_position);
 
     HoodieGraphPlugin();
