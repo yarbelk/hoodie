@@ -63,15 +63,18 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     Ref<HoodieNode> hoodie_node = hoodie_mesh->get_node(p_id);
 
 	static const Color type_color[] = {
-		Color(0.38, 0.85, 0.96), // scalar (float)
-		Color(0.49, 0.78, 0.94), // scalar (int)
-		Color(0.20, 0.88, 0.67), // scalar (uint)
-		Color(0.74, 0.57, 0.95), // vector2
-		Color(0.84, 0.49, 0.93), // vector3
-		Color(1.0, 0.125, 0.95), // vector4
-		Color(0.55, 0.65, 0.94), // boolean
-		Color(0.96, 0.66, 0.43), // transform
-		Color(1.0, 1.0, 0.0), // sampler
+		Color(0.70, 0.70, 0.70), // scalar (float)
+		Color(0.37, 0.62, 0.38), // scalar (int)
+		Color(0.17, 0.66, 0.19), // scalar (uint)
+		Color(0.80, 0.10, 0.00), // vector2
+		Color(0.60, 0.10, 0.00), // vector3
+		Color(0.40, 0.10, 0.00), // vector4
+		Color(0.80, 0.65, 0.84), // boolean
+		Color(0.78, 0.78, 0.16), // color
+		Color(0.34, 0.65, 1.00), // string
+		Color(0.00, 0.84, 0.64), // geometry
+		Color(0.46, 0.46, 1.00), // array
+		Color(1.0, 1.0, 0.0), // max
 	};
 
     GraphNode *graph_node = memnew(GraphNode);
@@ -99,6 +102,8 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     int j = 0;
     for (int i = 0; i < hoodie_node->get_output_port_count(); i++)
     {
+        HoodieNode::PortType port_output = hoodie_node->get_output_port_type(i);
+
         HBoxContainer *hb = memnew(HBoxContainer);
         Label *label = memnew(Label);
         label->set_text(hoodie_node->get_output_port_name(i));
@@ -109,12 +114,14 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
         graph_node->add_child(hb);
 
         int port_type = 0;
-        graph_node->set_slot(i, false, port_type, type_color[0], true, port_type, type_color[0]);
+        graph_node->set_slot(i, false, port_type, type_color[0], true, port_type, type_color[port_output]);
         j++;
     }
 
     for (int i = 0; i < hoodie_node->get_input_port_count(); i++)
     {
+        HoodieNode::PortType port_input = hoodie_node->get_input_port_type(i);
+
         HBoxContainer *hb = memnew(HBoxContainer);
         Label *label = memnew(Label);
         label->set_text(hoodie_node->get_input_port_name(i));
@@ -125,7 +132,7 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
         graph_node->add_child(hb);
 
         int port_type = 0;
-        graph_node->set_slot(j, true, port_type, type_color[0], false, port_type, type_color[0]);
+        graph_node->set_slot(j, true, port_type, type_color[port_input], false, port_type, type_color[0]);
         j++;
     }
 
@@ -397,7 +404,7 @@ void HoodieEditorPlugin::_delete_nodes(const List<id_t> &p_nodes) {
             }
         }
     }
-    
+
     List<HoodieMesh::Connection> used_conns;
     for (const id_t &F : p_nodes) {
         for (const HoodieMesh::Connection &E : conns) {
