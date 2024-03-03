@@ -26,6 +26,10 @@ void HoodieGraphPlugin::register_hoodie_mesh(HoodieMesh *p_hoodie_mesh) {
     hoodie_mesh = Ref<HoodieMesh>(p_hoodie_mesh);
 }
 
+void HoodieGraphPlugin::set_connections(const List<HoodieMesh::Connection> &p_connections) {
+    connections = p_connections;
+}
+
 void HoodieGraphPlugin::register_link(id_t p_id, HoodieNode *p_hoodie_node, GraphElement *p_graph_element) {
     links.insert(p_id, { p_hoodie_node, p_graph_element });
 }
@@ -223,7 +227,7 @@ void HoodieEditorPlugin::_update_graph() {
         return;
     }
 
-    // graph_edit->set_scroll_offset();
+    // TODO: graph_edit->set_scroll_offset();
 
     graph_edit->clear_connections();
     // Remove all nodes.
@@ -237,8 +241,8 @@ void HoodieEditorPlugin::_update_graph() {
     }
 
     List<HoodieMesh::Connection> node_connections;
-    // hoodie_mesh->get_node_connections()
-    // graph_plugin->sete_connections();
+    hoodie_mesh->get_node_connections(&node_connections);
+    graph_plugin->set_connections(node_connections);
 
     Vector<id_t> nodes = hoodie_mesh->get_nodes_id_list();
 
@@ -250,11 +254,11 @@ void HoodieEditorPlugin::_update_graph() {
 
     for (const HoodieMesh::Connection &E : node_connections) {
         id_t l_node = E.l_node;
-        id_t l_port = E.l_port;
+        vec_size_t l_port = E.l_port;
         id_t r_node = E.r_node;
-        id_t r_port = E.r_port;
+        vec_size_t r_port = E.r_port;
 
-        // graph_edit->connect_node()
+        graph_edit->connect_node(itos(l_node), l_port, itos(r_node), r_port);
     }
 }
 
@@ -291,7 +295,6 @@ void HoodieEditorPlugin::_add_node(int idx) {
     hnode = Ref<HoodieNode>(hn);
     id_t valid_id = hoodie_mesh->get_valid_node_id();
     hoodie_mesh.ptr()->add_node(hnode, place, valid_id);
-    // add_graph_node(hnode, add_options[idx], valid_id, false);
     graph_plugin->add_node(valid_id, false);
 }
 

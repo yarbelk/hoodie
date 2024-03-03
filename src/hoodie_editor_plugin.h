@@ -40,6 +40,7 @@ protected:
 public:
     void set_editor(HoodieEditorPlugin *p_editor);
     void register_hoodie_mesh(HoodieMesh *p_hoodie_mesh);
+    void set_connections(const List<HoodieMesh::Connection> &p_connections);
     void register_link(id_t p_id, HoodieNode *p_hoodie_node, GraphElement *p_graph_element);
     void clear_links();
     void update_node(id_t p_id);

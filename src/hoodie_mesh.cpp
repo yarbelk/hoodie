@@ -339,8 +339,7 @@ bool HoodieMesh::_set(const StringName &p_name, const Variant &p_value) {
             TypedArray<id_t> conns = p_value;
             if (conns.size() % 4 == 0) {
                 for (int i = 0; i < conns.size(); i += 4) {
-                    // TODO: implement connections serialization
-                    // connect_nodes_forced(conns[i + 0], conns[i + 1], conns[i + 2], conns[i + 3]);
+                    connect_nodes_forced(conns[i + 0], conns[i + 1], conns[i + 2], conns[i + 3]);
                 }
             }
             return true;
