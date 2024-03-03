@@ -1,6 +1,7 @@
 #ifndef HOODIE_HOODIENODE_H
 #define HOODIE_HOODIENODE_H
 
+#include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/templates/hash_map.hpp>

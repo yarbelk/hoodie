@@ -10,8 +10,6 @@ class HNInputCurve3D : public HoodieNode {
     GDCLASS(HNInputCurve3D, HoodieNode)
 
 public:
-	// bool update(bool p_inputs_updated, const Array &p_inputs) override;
-
 	void _process(const Array &p_inputs) override;
 
     String get_caption() const override;

@@ -253,6 +253,8 @@ void HoodieMesh::remove_node(id_t p_id) {
             if (connection.l_node == p_id) {
                 graph.nodes[connection.r_node].prev_connected_nodes.erase(p_id);
                 graph.nodes[connection.r_node].node->set_input_port_connected(connection.r_port, false);
+                // TODO: check if this is correct
+                graph.nodes[connection.r_node].node->mark_dirty();
             } else if (connection.r_node == p_id) {
                 graph.nodes[connection.l_node].next_connected_nodes.erase(p_id);
             }
@@ -481,6 +483,7 @@ void HoodieMesh::connect_nodes_forced(id_t p_from_node, vec_size_t p_from_port, 
     graph.nodes[p_from_node].node->set_output_port_connected(p_from_port, true);
     graph.nodes[p_to_node].node->set_input_port_connected(p_to_port, true);
 
+    graph.nodes[p_to_node].node->mark_dirty();
     _queue_update();
 }
 
@@ -512,6 +515,7 @@ Error HoodieMesh::connect_nodes(id_t p_from_node, vec_size_t p_from_port, id_t p
     graph.nodes[p_from_node].node->set_output_port_connected(p_from_port, true);
     graph.nodes[p_to_node].node->set_input_port_connected(p_to_port, true);
 
+    graph.nodes[p_to_node].node->mark_dirty();
     _queue_update();
     return OK;
 }
@@ -524,6 +528,9 @@ void HoodieMesh::disconnect_nodes(id_t p_from_node, vec_size_t p_from_port, id_t
             graph.nodes[p_to_node].prev_connected_nodes.erase(p_from_node);
             graph.nodes[p_from_node].node->set_output_port_connected(p_from_port, false);
             graph.nodes[p_to_node].node->set_input_port_connected(p_to_port, false);
+
+            // TODO: check if this is right
+            graph.nodes[p_to_node].node->mark_dirty();
             _queue_update();
             return;
         }
