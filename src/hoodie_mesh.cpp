@@ -242,26 +242,24 @@ void HoodieMesh::set_node_position(id_t p_id, const Vector2 &p_position) {
 }
 
 void HoodieMesh::remove_node(id_t p_id) {
-    // graph.nodes[p_id].node->disconnect_changed()
+    // TODO: graph.nodes[p_id].node->disconnect_changed()
 
     graph.nodes.erase(p_id);
 
-    // TODO: implement connections and connected nodes deletion
-    /*
     for (List<Connection>::Element *E = graph.connections.front(); E;) {
         List<Connection>::Element *N = E->next();
-        if (E->get().l_node == p_id || E->get().r_node == p_id) {
-            if (E->get().l_node == p_id) {
-                graph.nodes[E->get().r_node].prev_connected_nodes.erase(p_id);
-                graph.nodes[E->get().r_node].node->set_input_port_connected();
-            } else if (E->get().r_node == p_id) {
-                graph.nodes[E->get().l_node].next_connected_nodes.erase(p_id);
+        const Connection &connection = E->get();
+        if (connection.l_node == p_id || connection.r_node == p_id) {
+            if (connection.l_node == p_id) {
+                graph.nodes[connection.r_node].prev_connected_nodes.erase(p_id);
+                graph.nodes[connection.r_node].node->set_input_port_connected(connection.r_port, false);
+            } else if (connection.r_node == p_id) {
+                graph.nodes[connection.l_node].next_connected_nodes.erase(p_id);
             }
             graph.connections.erase(E);
         }
         E = N;
     }
-    */
 
     _queue_update();
 }

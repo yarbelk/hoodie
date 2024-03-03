@@ -133,7 +133,6 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 }
 
 void HoodieGraphPlugin::remove_node(id_t p_id, bool p_just_update) {
-    // if (hoodie_mesh->graph.nodes.has(p_id)) {
     if (links.has(p_id)) {
         Node *graph_edit_node = links[p_id].graph_element->get_parent();
         graph_edit_node->remove_child(links[p_id].graph_element);
@@ -377,9 +376,10 @@ void HoodieEditorPlugin::_disconnection_request(const String &p_from, int p_from
 }
 
 void HoodieEditorPlugin::_delete_nodes(const List<id_t> &p_nodes) {
-    EditorUndoRedoManager *undo_redo = get_undo_redo();
+    List<HoodieMesh::Connection> conns;
+    hoodie_mesh->get_node_connections(&conns);
 
-    // TODO: implement connections
+    EditorUndoRedoManager *undo_redo = get_undo_redo();
 
     for (const id_t &F : p_nodes) {
         Ref<HoodieNode> node = hoodie_mesh->get_node(F);
@@ -388,6 +388,34 @@ void HoodieEditorPlugin::_delete_nodes(const List<id_t> &p_nodes) {
         undo_redo->add_do_method(graph_plugin.ptr(), "remove_node", F, false);
         undo_redo->add_undo_method(hoodie_mesh.ptr(), "add_node", node, hoodie_mesh->get_node_position(F), F);
         undo_redo->add_undo_method(graph_plugin.ptr(), "add_node", F, false);
+    }
+
+    for (const id_t &F : p_nodes) {
+        for (const HoodieMesh::Connection &E : conns) {
+            if (E.l_node == F || E.r_node == F) {
+                undo_redo->add_do_method(graph_plugin.ptr(), "disconnect_nodes", E.l_node, E.l_port, E.r_node, E.r_port);
+            }
+        }
+    }
+    
+    List<HoodieMesh::Connection> used_conns;
+    for (const id_t &F : p_nodes) {
+        for (const HoodieMesh::Connection &E : conns) {
+            if (E.l_node == F || E.r_node == F) {
+                bool cancel = false;
+                for (List<HoodieMesh::Connection>::Element *R = used_conns.front(); R; R = R->next()) {
+                    if (R->get().l_node == E.l_node && R->get().l_port == E.l_port && R->get().r_node == E.r_node && R->get().r_port == E.r_port) {
+                        cancel = true; // to avoid ERR_ALREADY_EXISTS warning
+                        break;
+                    }
+                }
+                if (!cancel) {
+                    undo_redo->add_undo_method(hoodie_mesh.ptr(), "connect_nodes", E.l_node, E.l_port, E.r_node, E.r_port);
+                    undo_redo->add_undo_method(graph_plugin.ptr(), "connect_nodes", E.l_node, E.l_port, E.r_node, E.r_port);
+                    used_conns.push_back(E);
+                }
+            }
+        }
     }
 }
 
