@@ -217,27 +217,8 @@ bool HoodieMesh::_update_node(id_t p_id, Ref<HoodieNode> p_node) {
     }
 }
 
-TypedArray<HoodieNode> HoodieMesh::_get_hoodie_nodes() {
-    TypedArray<HoodieNode> result;
-    for (const KeyValue<id_t, Node> &E : graph.nodes) {
-        result.push_back(E.value.node);
-    }
-    return result;
-}
-
-void HoodieMesh::_set_hoodie_nodes(TypedArray<HoodieNode> p_nodes) {
-    graph.nodes.clear();
-    for (int i = 0; i < p_nodes.size(); i++) {
-        Ref<HoodieNode> node = p_nodes[i];
-        graph.nodes[node->get_id()].node = node;
-    }
-}
-
 void HoodieMesh::add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_position, id_t p_id) {
-    // id_t id = get_valid_node_id();
     ERR_FAIL_COND(graph.nodes.has(p_id));
-    p_node->set_id(p_id);
-
     Node n;
     n.node = p_node;
     n.position = p_position;
@@ -245,14 +226,7 @@ void HoodieMesh::add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_positi
     // n.node->connect_changed(queue_update)
 
     graph.nodes[p_id] = n;
-    // graph.nodes.insert(p_id, n);
-/* 
-    if (graph.nodes.has(p_id)) {
-        UtilityFunctions::print("RB has it!");
-    } else {
-        UtilityFunctions::print("RB has NOT it. It has: " + itos(graph.nodes.back()->key()));
-    }
- */
+
     _queue_update();
 }
 
@@ -338,16 +312,12 @@ const Vector<HoodieMesh::NodePortPair> HoodieMesh::get_left_ports(id_t p_r_node,
 }
 
 void HoodieMesh::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("_get_hoodie_nodes"), &HoodieMesh::_get_hoodie_nodes);
-    ClassDB::bind_method(D_METHOD("_set_hoodie_nodes", "nodes"), &HoodieMesh::_set_hoodie_nodes);
     ClassDB::bind_method(D_METHOD("add_node", "node", "position", "id"), &HoodieMesh::add_node);
     ClassDB::bind_method(D_METHOD("remove_node", "id"), &HoodieMesh::remove_node);
     ClassDB::bind_method(D_METHOD("get_node_position", "id"), &HoodieMesh::get_node_position);
     ClassDB::bind_method(D_METHOD("set_node_position", "id", "position"), &HoodieMesh::set_node_position);
 
     ClassDB::bind_method(D_METHOD("_update"), &HoodieMesh::_update);
-
-    // ADD_PROPERTY(PropertyInfo(Variant::INT, "_data", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR | PROPERTY_USAGE_INTERNAL), "_set_hoodie_nodes", "_get_hoodie_nodes");
 }
 
 bool HoodieMesh::_set(const StringName &p_name, const Variant &p_value) {

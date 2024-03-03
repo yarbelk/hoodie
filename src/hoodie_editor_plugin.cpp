@@ -62,9 +62,9 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 	};
 
     GraphNode *graph_node = memnew(GraphNode);
-    graph_node->set_title(hoodie_node->get_caption() + String(" [") + String::num_int64(hoodie_node->id) + String("]"));
+    graph_node->set_title(hoodie_node->get_caption() + String(" [") + String::num_int64(p_id) + String("]"));
 
-    graph_node->connect("delete_request", callable_mp(editor, &HoodieEditorPlugin::_delete_node_request).bind(hoodie_node->get_id()), CONNECT_DEFERRED);
+    graph_node->connect("delete_request", callable_mp(editor, &HoodieEditorPlugin::_delete_node_request).bind(p_id), CONNECT_DEFERRED);
 
     if (p_just_update) {
 

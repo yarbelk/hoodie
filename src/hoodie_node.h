@@ -62,7 +62,6 @@ public:
     };
 
 private:
-    id_t id;
     Property property;
     Vector<Socket> input_sockets;
     Vector<Socket> output_sockets;
@@ -78,9 +77,6 @@ protected:
 public:
     void set_status(const ProcessStatus &p_status);
     ProcessStatus get_status() const;
-
-    id_t get_id();
-    void set_id(id_t p_id);
 
     // Property stuff
     void set_property(const Property &p_property);

@@ -1,23 +1,20 @@
 [gd_scene load_steps=5 format=3 uid="uid://dmdyqadsq3fea"]
 
-[sub_resource type="HNInputCurve3D" id="HNInputCurve3D_q361c"]
-_id = 1
+[sub_resource type="HNInputCurve3D" id="HNInputCurve3D_fwjp7"]
 
-[sub_resource type="HNMeshGrid" id="HNMeshGrid_254ic"]
-_id = 2
+[sub_resource type="HNMeshGrid" id="HNMeshGrid_7ktsr"]
 
-[sub_resource type="HNOutput" id="HNOutput_j3qe6"]
-_id = 3
+[sub_resource type="HNOutput" id="HNOutput_5eiyr"]
 
-[sub_resource type="HoodieMesh" id="HoodieMesh_weaoq"]
-nodes/1/node = SubResource("HNInputCurve3D_q361c")
-nodes/1/position = Vector2(-80, 220)
-nodes/2/node = SubResource("HNMeshGrid_254ic")
-nodes/2/position = Vector2(360, 60)
-nodes/3/node = SubResource("HNOutput_j3qe6")
-nodes/3/position = Vector2(800, 240)
+[sub_resource type="HoodieMesh" id="HoodieMesh_iqow3"]
+nodes/1/node = SubResource("HNInputCurve3D_fwjp7")
+nodes/1/position = Vector2(100, 180)
+nodes/2/node = SubResource("HNMeshGrid_7ktsr")
+nodes/2/position = Vector2(560, 40)
+nodes/3/node = SubResource("HNOutput_5eiyr")
+nodes/3/position = Vector2(300, 100)
 
 [node name="Node3D" type="Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("HoodieMesh_weaoq")
+mesh = SubResource("HoodieMesh_iqow3")
