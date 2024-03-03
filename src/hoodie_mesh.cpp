@@ -211,6 +211,8 @@ bool HoodieMesh::_update_node(id_t p_id, Ref<HoodieNode> p_node) {
                     UtilityFunctions::print("l_node and r_node type don't match!");
                     l_data = Variant();
                 }
+
+                inputs.push_back(l_data);
             }
 
             if (p_node->update(updated, inputs)) {

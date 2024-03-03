@@ -16,15 +16,15 @@ void HNOutput::_process(const Array &p_inputs) {
         if (p_inputs[0].get_type() == Variant::ARRAY) {
             Array surface = p_inputs[0];
 
-            output_arr[Mesh::ARRAY_VERTEX] = surface[Mesh::ARRAY_VERTEX];
-            output_arr[Mesh::ARRAY_NORMAL] = surface[Mesh::ARRAY_NORMAL];
-            output_arr[Mesh::ARRAY_TANGENT] = surface[Mesh::ARRAY_TANGENT];
-            output_arr[Mesh::ARRAY_COLOR] = surface[Mesh::ARRAY_COLOR];
-            output_arr[Mesh::ARRAY_TEX_UV] = surface[Mesh::ARRAY_TEX_UV];
-            output_arr[Mesh::ARRAY_TEX_UV2] = surface[Mesh::ARRAY_TEX_UV2];
-            output_arr[Mesh::ARRAY_BONES] = surface[Mesh::ARRAY_BONES];
-            output_arr[Mesh::ARRAY_WEIGHTS] = surface[Mesh::ARRAY_WEIGHTS];
-            output_arr[Mesh::ARRAY_INDEX] = surface[Mesh::ARRAY_INDEX];
+            output_arr[ArrayMesh::ARRAY_VERTEX] = surface[ArrayMesh::ARRAY_VERTEX];
+            output_arr[ArrayMesh::ARRAY_NORMAL] = surface[ArrayMesh::ARRAY_NORMAL];
+            output_arr[ArrayMesh::ARRAY_TANGENT] = surface[ArrayMesh::ARRAY_TANGENT];
+            output_arr[ArrayMesh::ARRAY_COLOR] = surface[ArrayMesh::ARRAY_COLOR];
+            output_arr[ArrayMesh::ARRAY_TEX_UV] = surface[ArrayMesh::ARRAY_TEX_UV];
+            output_arr[ArrayMesh::ARRAY_TEX_UV2] = surface[ArrayMesh::ARRAY_TEX_UV2];
+            output_arr[ArrayMesh::ARRAY_BONES] = surface[ArrayMesh::ARRAY_BONES];
+            output_arr[ArrayMesh::ARRAY_WEIGHTS] = surface[ArrayMesh::ARRAY_WEIGHTS];
+            output_arr[ArrayMesh::ARRAY_INDEX] = surface[ArrayMesh::ARRAY_INDEX];
         }
     }
 }

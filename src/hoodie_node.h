@@ -77,7 +77,7 @@ private:
     Vector<Socket> output_sockets;
 
     ProcessStatus status;
-    bool dirty = false;
+    bool dirty = true;
 
     void mark_dirty();
 
