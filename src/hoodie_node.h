@@ -78,16 +78,16 @@ protected:
     static void _bind_methods();
 
 public:
-    void set_position(Vector2 p_pos);
+    void set_position(const Vector2 &p_pos);
     Vector2 get_position() const;
-    void set_status(ProcessStatus p_status);
+    void set_status(const ProcessStatus &p_status);
     ProcessStatus get_status() const;
 
     id_t get_id();
     void set_id(id_t p_id);
 
     // Property stuff
-    void set_property(Property p_property);
+    void set_property(const Property &p_property);
     Variant::Type get_property_type() const;
     String get_property_hint() const;
     virtual void construct_property();

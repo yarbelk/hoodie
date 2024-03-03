@@ -259,6 +259,7 @@ void HoodieMesh::add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_positi
 void HoodieMesh::set_node_position(id_t p_id, const Vector2 &p_position) {
     ERR_FAIL_COND(!graph.nodes.has(p_id));
     graph.nodes[p_id].position = p_position;
+    graph.nodes[p_id].node->set_position(p_position);
 }
 
 void HoodieMesh::remove_node(id_t p_id) {
@@ -293,7 +294,8 @@ Ref<HoodieNode> HoodieMesh::get_node(id_t p_id) const {
 
 Vector2 HoodieMesh::get_node_position(id_t p_id) const {
     ERR_FAIL_COND_V(!graph.nodes.has(p_id), Vector2());
-    return graph.nodes[p_id].position;
+    // return graph.nodes[p_id].position;
+    return graph.nodes[p_id].node->get_position();
 }
 
 Vector<HoodieMesh::id_t> HoodieMesh::get_nodes_id_list() const {
