@@ -82,5 +82,27 @@ const Variant HoodieNode::get_output(int p_port) const {
     return Variant();
 }
 
+bool HoodieNode::is_output_port_connected(vec_size_t p_port) const {
+    if (connected_output_ports.has(p_port)) {
+        return connected_output_ports[p_port];
+    }
+    return false;
+}
+
+void HoodieNode::set_output_port_connected(vec_size_t p_port, bool p_connected) {
+    connected_output_ports[p_port] = p_connected;
+}
+
+bool HoodieNode::is_input_port_connected(vec_size_t p_port) const {
+    if (connected_input_ports.has(p_port)) {
+        return connected_input_ports[p_port];
+    }
+    return false;
+}
+
+void HoodieNode::set_input_port_connected(vec_size_t p_port, bool p_connected) {
+    connected_input_ports[p_port] = p_connected;
+}
+
 HoodieNode::HoodieNode() {
 }

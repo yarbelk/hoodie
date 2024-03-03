@@ -57,6 +57,7 @@ class HoodieEditorPlugin : public EditorPlugin {
     friend class HoodieGraphPlugin;
 
     typedef HoodieNode::id_t id_t;
+    typedef HoodieMesh::vec_size_t vec_size_t;
 
     Ref<HoodieMesh> hoodie_mesh;
 
@@ -118,8 +119,8 @@ class HoodieEditorPlugin : public EditorPlugin {
     void _nodes_dragged();
     bool updating = false;
 
-    // void _connection_request
-    // void _disconnection_request
+	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
+	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
 
     void _delete_nodes(const List<HoodieMesh::id_t> &p_nodes);
     void _delete_node_request(HoodieMesh::id_t p_node);

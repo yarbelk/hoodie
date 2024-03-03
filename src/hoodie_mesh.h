@@ -20,7 +20,7 @@ class HoodieMesh : public ArrayMesh {
     friend class HoodieEditorPlugin;
 
     typedef HoodieNode::id_t id_t;
-    typedef uint32_t vec_size_t;
+    typedef HoodieNode::vec_size_t vec_size_t;
 
 public:
     struct Connection {
@@ -28,6 +28,12 @@ public:
         vec_size_t l_port;
         id_t r_node;
         vec_size_t r_port;
+
+        Connection()
+            : l_node(0),
+              l_port(0),
+              r_node(0),
+              r_port(0) {}
 
         Connection(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port)
             : l_node(p_l_node),
@@ -104,6 +110,16 @@ protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 
 public:
+    bool is_nodes_connected_relatively(const Graph *p_graph, id_t p_node, id_t p_target) const;
+	bool can_connect_nodes(id_t p_from_node, vec_size_t p_from_port, id_t p_to_node, vec_size_t p_to_port) const;
+    Error connect_nodes(id_t p_from_node, vec_size_t p_from_port, id_t p_to_node, vec_size_t p_to_port);
+    void disconnect_nodes(id_t p_from_node, vec_size_t p_from_port, id_t p_to_node, vec_size_t p_to_port);
+    void connect_nodes_forced(id_t p_from_node, vec_size_t p_from_port, id_t p_to_node, vec_size_t p_to_port);
+    bool is_port_types_compatible(int p_a, int p_b) const;
+
+    // void rebuild();
+    void get_node_connections(List<Connection> *r_connections) const;
+
     HoodieMesh();
 };
     

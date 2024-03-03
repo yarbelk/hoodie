@@ -3,18 +3,24 @@
 
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 
 namespace godot
 {
 
 class HoodieNode : public Resource {
     GDCLASS(HoodieNode, Resource)
+
     friend class HoodieGraphPlugin;
     friend class HoodieEditorPlugin;
     friend class HoodieMesh;
 
     // typedef uint32_t id_t;
     typedef int id_t;
+    typedef uint32_t vec_size_t;
+
+    HashMap<vec_size_t, bool> connected_input_ports;
+    HashMap<vec_size_t, bool> connected_output_ports;
 
 protected:
     struct Property {
@@ -107,6 +113,11 @@ public:
 	virtual String get_output_port_name(int p_port) const;
 
     virtual const Variant get_output(int p_port) const;
+
+    bool is_output_port_connected(vec_size_t p_port) const;
+	void set_output_port_connected(vec_size_t p_port, bool p_connected);
+	bool is_input_port_connected(vec_size_t p_port) const;
+	void set_input_port_connected(vec_size_t p_port, bool p_connected);
 
     HoodieNode();
 };

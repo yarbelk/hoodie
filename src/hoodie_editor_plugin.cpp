@@ -279,6 +279,59 @@ void HoodieEditorPlugin::_nodes_dragged() {
     undo_redo->commit_action();
 }
 
+void HoodieEditorPlugin::_connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
+    id_t l_node = p_from.to_int();
+    vec_size_t l_port = p_from_index;
+    id_t r_node = p_to.to_int();
+    vec_size_t r_port = p_to_index;
+
+    if (!hoodie_mesh->can_connect_nodes(l_node, l_port, r_node, r_port)) {
+        return;
+    }
+
+    EditorUndoRedoManager *undo_redo = get_undo_redo();
+    undo_redo->create_action("HoodieNode(s) Connected");
+
+    List<HoodieMesh::Connection> conns;
+    hoodie_mesh->get_node_connections(&conns);
+
+    for (const HoodieMesh::Connection &E : conns) {
+        if (E.r_node == r_node && E.r_port == r_port) {
+            undo_redo->add_do_method(hoodie_mesh.ptr(), "disconnect_nodes", E.l_node, E.l_port, E.r_node, E.r_port);
+            undo_redo->add_undo_method(hoodie_mesh.ptr(), "connect_nodes", E.l_node, E.l_port, E.r_node, E.r_port);
+            undo_redo->add_do_method(graph_plugin.ptr(), "disconnect_nodes", E.l_node, E.l_port, E.r_node, E.r_port);
+            undo_redo->add_undo_method(graph_plugin.ptr(), "connect_nodes", E.l_node, E.l_port, E.r_node, E.r_port);
+        }
+    }
+
+    undo_redo->add_do_method(hoodie_mesh.ptr(), "connect_nodes", l_node, l_port, r_node, r_port);
+    undo_redo->add_undo_method(hoodie_mesh.ptr(), "disconnect_nodes", l_node, l_port, r_node, r_port);
+    undo_redo->add_do_method(graph_plugin.ptr(), "connect_nodes", l_node, l_port, r_node, r_port);
+    undo_redo->add_undo_method(graph_plugin.ptr(), "disconnect_nodes", l_node, l_port, r_node, r_port);
+    undo_redo->add_do_method(graph_plugin.ptr(), "update_node", r_node);
+    undo_redo->add_undo_method(graph_plugin.ptr(), "update_node", r_node);
+    undo_redo->commit_action();
+}
+
+void HoodieEditorPlugin::_disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
+    graph_edit->disconnect_node(p_from, p_from_index, p_to, p_to_index);
+
+    id_t l_node = p_from.to_int();
+    vec_size_t l_port = p_from_index;
+    id_t r_node = p_to.to_int();
+    vec_size_t r_port = p_to_index;
+
+    EditorUndoRedoManager *undo_redo = get_undo_redo();
+    undo_redo->create_action("HoodieNode(s) Disconnected");
+    undo_redo->add_do_method(hoodie_mesh.ptr(), "disconnect_nodes", l_node, l_port, r_node, r_port);
+    undo_redo->add_undo_method(hoodie_mesh.ptr(), "connect_nodes", l_node, l_port, r_node, r_port);
+    undo_redo->add_do_method(graph_plugin.ptr(), "disconnect_nodes", l_node, l_port, r_node, r_port);
+    undo_redo->add_undo_method(graph_plugin.ptr(), "connect_nodes", l_node, l_port, r_node, r_port);
+    undo_redo->add_do_method(graph_plugin.ptr(), "update_node", r_node);
+    undo_redo->add_undo_method(graph_plugin.ptr(), "update_node", r_node);
+    undo_redo->commit_action();
+}
+
 void HoodieEditorPlugin::_delete_nodes(const List<id_t> &p_nodes) {
     EditorUndoRedoManager *undo_redo = get_undo_redo();
 
@@ -320,9 +373,6 @@ void HoodieEditorPlugin::_delete_nodes_request(const TypedArray<StringName> &p_n
         return;
     }
 
-    // FIXME: UndoRedo mismatch error.
-    // Look at: https://github.com/godotengine/godot-proposals/discussions/7168
-    // and: https://github.com/Zylann/godot_voxel/blob/57baa553221aeff45be3ff46caa3261819a473bd/editor/graph/voxel_generator_graph_undo_redo_workaround.h#L10
     EditorUndoRedoManager *undo_redo = get_undo_redo();
     undo_redo->create_action("Delete HoodieNode(s)");
     _delete_nodes(to_erase);
@@ -336,6 +386,8 @@ void HoodieEditorPlugin::_bind_methods() {
 void HoodieEditorPlugin::_notification(int what) {
     switch (what) {
         case NOTIFICATION_POSTINITIALIZE: {
+            graph_edit->connect("connection_request", callable_mp(this, &HoodieEditorPlugin::_connection_request), CONNECT_DEFERRED);
+            graph_edit->connect("disconnection_request", callable_mp(this, &HoodieEditorPlugin::_disconnection_request), CONNECT_DEFERRED);
             graph_edit->connect("delete_nodes_request", callable_mp(this, &HoodieEditorPlugin::_delete_nodes_request));
 
             file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_menu_item_pressed));
@@ -402,80 +454,6 @@ void HoodieEditorPlugin::_edit(Object *object) {
 bool HoodieEditorPlugin::_handles(Object *object) const {
     return Object::cast_to<HoodieMesh>(object) != nullptr;
 }
-
-/*
-void HoodieEditorPlugin::add_graph_node(Ref<HoodieNode> &hoodie_node, const AddOption &option, id_t p_id, bool p_just_update) {
-// void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
-    // HoodieNode *hn = hoodie_node.ptr();
-    Ref<HoodieNode> hoodie_node = hoodie_mesh->get_node(p_id);
-
-	static const Color type_color[] = {
-		Color(0.38, 0.85, 0.96), // scalar (float)
-		Color(0.49, 0.78, 0.94), // scalar (int)
-		Color(0.20, 0.88, 0.67), // scalar (uint)
-		Color(0.74, 0.57, 0.95), // vector2
-		Color(0.84, 0.49, 0.93), // vector3
-		Color(1.0, 0.125, 0.95), // vector4
-		Color(0.55, 0.65, 0.94), // boolean
-		Color(0.96, 0.66, 0.43), // transform
-		Color(1.0, 1.0, 0.0), // sampler
-	};
-
-    GraphNode *graph_node = memnew(GraphNode);
-    graph_node->set_title(option.name + String(" [") + String::num_int64(hn->id) + String("]"));
-
-    graph_node->connect("delete_request", callable_mp(this, &HoodieEditorPlugin::_delete_node_request).bind(hoodie_node->get_id()), CONNECT_DEFERRED);
-
-    graph_node->set_resizable(false);
-    graph_node->set_custom_minimum_size(Size2(200, 0));
-
-    graph_node->set_name(itos(p_id));
-
-    int j = 0;
-    for (int i = 0; i < hn->get_output_port_count(); i++)
-    {
-        HBoxContainer *hb = memnew(HBoxContainer);
-        Label *label = memnew(Label);
-        label->set_text(hn->get_output_port_name(i));
-        label->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_RIGHT);
-        label->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);
-        label->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-        hb->add_child(label);
-        graph_node->add_child(hb);
-
-        int port_type = 0;
-        graph_node->set_slot(i, false, port_type, type_color[0], true, port_type, type_color[0]);
-        j++;
-    }
-
-    for (int i = 0; i < hn->get_input_port_count(); i++)
-    {
-        HBoxContainer *hb = memnew(HBoxContainer);
-        Label *label = memnew(Label);
-        label->set_text(hn->get_input_port_name(i));
-        label->set_horizontal_alignment(HORIZONTAL_ALIGNMENT_LEFT);
-        label->set_vertical_alignment(VERTICAL_ALIGNMENT_CENTER);
-        label->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-        hb->add_child(label);
-        graph_node->add_child(hb);
-
-        int port_type = 0;
-        graph_node->set_slot(j, true, port_type, type_color[0], false, port_type, type_color[0]);
-        j++;
-    }
-
-    graph_edit->add_child(graph_node);
-}
-*/
-
-/*
-void HoodieEditorPlugin::remove_graph_node(id_t p_id, bool p_just_update) {
-    if (hoodie_mesh->graph.nodes.has(p_id)) {
-        graph_edit->remove_child()
-        memdelete()
-    }
-}
-*/
 
 HoodieEditorPlugin::HoodieEditorPlugin() {
     main_split = memnew(HSplitContainer);

@@ -21,6 +21,12 @@ TypedArray<Dictionary> HoodieMesh::_get_node_connections() const {
     return ret;
 }
 
+void HoodieMesh::get_node_connections(List<Connection> *r_connections) const {
+    for (const Connection &E : graph.connections) {
+        r_connections->push_back(E);
+    }
+}
+
 void HoodieMesh::_queue_update() {
     if (dirty.is_set()) {
         return;
@@ -314,8 +320,13 @@ const Vector<HoodieMesh::NodePortPair> HoodieMesh::get_left_ports(id_t p_r_node,
 void HoodieMesh::_bind_methods() {
     ClassDB::bind_method(D_METHOD("add_node", "node", "position", "id"), &HoodieMesh::add_node);
     ClassDB::bind_method(D_METHOD("remove_node", "id"), &HoodieMesh::remove_node);
+
     ClassDB::bind_method(D_METHOD("get_node_position", "id"), &HoodieMesh::get_node_position);
     ClassDB::bind_method(D_METHOD("set_node_position", "id", "position"), &HoodieMesh::set_node_position);
+
+    ClassDB::bind_method(D_METHOD("connect_nodes", "l_node", "l_port", "r_node", "r_port"), &HoodieMesh::connect_nodes);
+    ClassDB::bind_method(D_METHOD("disconnect_nodes", "l_node", "l_port", "r_node", "r_port"), &HoodieMesh::disconnect_nodes);
+    ClassDB::bind_method(D_METHOD("connect_nodes_forced", "l_node", "l_port", "r_node", "r_port"), &HoodieMesh::connect_nodes_forced);
 
     ClassDB::bind_method(D_METHOD("_update"), &HoodieMesh::_update);
 }
@@ -391,6 +402,141 @@ void HoodieMesh::_get_property_list(List<PropertyInfo> *p_list) const {
     p_list->push_back(PropertyInfo(Variant::PACKED_INT32_ARRAY, "nodes/connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR));
 }
 
-HoodieMesh::HoodieMesh() {
+bool HoodieMesh::is_nodes_connected_relatively(const Graph *p_graph, id_t p_node, id_t p_target) const {
+    bool result = false;
 
+    const HoodieMesh::Node &node = p_graph->nodes[p_node];
+
+    for (const id_t &E : node.prev_connected_nodes) {
+        if (E == p_target) {
+            return true;
+        }
+
+        result = is_nodes_connected_relatively(p_graph, E, p_target);
+        if (result) {
+            break;
+        }
+    }
+    return result;
+}
+
+bool HoodieMesh::can_connect_nodes(id_t p_from_node, vec_size_t p_from_port, id_t p_to_node, vec_size_t p_to_port) const {
+    if (!graph.nodes.has(p_from_node)) {
+        return false;
+    }
+
+    if (p_from_node == p_to_node) {
+        return false;
+    }
+
+    if (p_from_port < 0 || p_from_port >= graph.nodes[p_from_node].node->get_output_port_count()) {
+        return false;
+    }
+
+    if (!graph.nodes.has(p_to_node)) {
+        return false;
+    }
+
+    if (p_to_port < 0 || p_to_port >= graph.nodes[p_to_node].node->get_input_port_count()) {
+        return false;
+    }
+
+    HoodieNode::PortType l_port_type = graph.nodes[p_from_node].node->get_output_port_type(p_from_port);
+    HoodieNode::PortType r_port_type = graph.nodes[p_to_node].node->get_output_port_type(p_to_port);
+
+    if (!is_port_types_compatible(l_port_type, r_port_type)) {
+        return false;
+    }
+
+    for (const Connection &E : graph.connections) {
+        if (E.l_node == p_from_node && E.l_port == p_from_node && E.r_node == p_to_node && E.r_port == p_to_port) {
+            return false;
+        }
+    }
+
+    if (is_nodes_connected_relatively(&graph, p_from_node, p_to_node)) {
+        return false;
+    }
+
+    return true;
+}
+
+void HoodieMesh::connect_nodes_forced(id_t p_from_node, vec_size_t p_from_port, id_t p_to_node, vec_size_t p_to_port) {
+    ERR_FAIL_COND(!graph.nodes.has(p_from_node));
+    ERR_FAIL_INDEX(p_from_port, graph.nodes[p_from_node].node->get_output_port_count());
+    ERR_FAIL_COND(!graph.nodes.has(p_to_node));
+    ERR_FAIL_INDEX(p_to_port, graph.nodes[p_to_node].node->get_input_port_count());
+
+    for (const Connection &E : graph.connections) {
+        if (E.l_node == p_from_node && E.l_port == p_from_port && E.r_node == p_to_node && E.r_port == p_to_port) {
+            return;
+        }
+    }
+
+    Connection c;
+    c.l_node = p_from_node;
+    c.l_port = p_from_port;
+    c.r_node = p_to_node;
+    c.r_port = p_to_port;
+    graph.connections.push_back(c);
+    graph.nodes[p_from_node].next_connected_nodes.push_back(p_to_node);
+    graph.nodes[p_to_node].prev_connected_nodes.push_back(p_from_node);
+    graph.nodes[p_from_node].node->set_output_port_connected(p_from_port, true);
+    graph.nodes[p_to_node].node->set_input_port_connected(p_to_port, true);
+
+    _queue_update();
+}
+
+Error HoodieMesh::connect_nodes(id_t p_from_node, vec_size_t p_from_port, id_t p_to_node, vec_size_t p_to_port) {
+    ERR_FAIL_COND_V(!graph.nodes.has(p_from_node), ERR_INVALID_PARAMETER);
+    ERR_FAIL_INDEX_V(p_from_port, graph.nodes[p_from_node].node->get_output_port_count(), ERR_INVALID_PARAMETER);
+    ERR_FAIL_COND_V(!graph.nodes.has(p_to_node), ERR_INVALID_PARAMETER);
+    ERR_FAIL_INDEX_V(p_to_port, graph.nodes[p_to_node].node->get_input_port_count(), ERR_INVALID_PARAMETER);
+
+    HoodieNode::PortType l_port_type = graph.nodes[p_from_node].node->get_output_port_type(p_from_port);
+    HoodieNode::PortType r_port_type = graph.nodes[p_to_node].node->get_input_port_type(p_to_port);
+
+    ERR_FAIL_COND_V_MSG(!is_port_types_compatible(l_port_type, r_port_type), ERR_INVALID_PARAMETER, "Incompatible port types.");
+
+    for (const Connection &E : graph.connections) {
+        if (E.l_node == p_from_node && E.l_port == p_from_port && E.r_node == p_to_node && E.r_port == p_to_port) {
+            ERR_FAIL_V(ERR_ALREADY_EXISTS);
+        }
+    }
+
+    Connection c;
+    c.l_node = p_from_node;
+    c.l_port = p_from_port;
+    c.r_node = p_to_node;
+    c.r_port = p_to_port;
+    graph.connections.push_back(c);
+    graph.nodes[p_from_node].next_connected_nodes.push_back(p_to_node);
+    graph.nodes[p_to_node].prev_connected_nodes.push_back(p_from_node);
+    graph.nodes[p_from_node].node->set_output_port_connected(p_from_port, true);
+    graph.nodes[p_to_node].node->set_input_port_connected(p_to_port, true);
+
+    _queue_update();
+    return OK;
+}
+
+void HoodieMesh::disconnect_nodes(id_t p_from_node, vec_size_t p_from_port, id_t p_to_node, vec_size_t p_to_port) {
+    for (const List<Connection>::Element *E = graph.connections.front(); E; E = E->next()) {
+        if (E->get().l_node == p_from_node && E->get().l_port == p_from_port && E->get().r_node == p_to_node && E->get().r_port == p_to_port) {
+            graph.connections.erase(E);
+            graph.nodes[p_from_node].next_connected_nodes.erase(p_to_node);
+            graph.nodes[p_to_node].prev_connected_nodes.erase(p_from_node);
+            graph.nodes[p_from_node].node->set_output_port_connected(p_from_port, false);
+            graph.nodes[p_to_node].node->set_input_port_connected(p_to_port, false);
+            _queue_update();
+            return;
+        }
+    }
+}
+
+bool HoodieMesh::is_port_types_compatible(int p_a, int p_b) const {
+    // return MAX(0, p_a - (int)HoodieNode::PORT_TYPE_BOOLEAN) == (MAX(0, p_b - (int)HoodieNode::PORT_TYPE_BOOLEAN));
+    return p_a == p_b;
+}
+
+HoodieMesh::HoodieMesh() {
 }
