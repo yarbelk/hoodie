@@ -11,7 +11,7 @@ int HNOutput::get_input_port_count() const {
 }
 
 HNOutput::PortType HNOutput::get_input_port_type(int p_port) const {
-    return PortType::PORT_TYPE_ARRAY;
+    return PortType::PORT_TYPE_GEOMETRY;
 }
 
 String HNOutput::get_input_port_name(int p_port) const {

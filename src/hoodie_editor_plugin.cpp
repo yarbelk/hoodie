@@ -66,14 +66,14 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 		Color(0.70, 0.70, 0.70), // scalar (float)
 		Color(0.37, 0.62, 0.38), // scalar (int)
 		Color(0.17, 0.66, 0.19), // scalar (uint)
-		Color(0.80, 0.10, 0.00), // vector2
-		Color(0.60, 0.10, 0.00), // vector3
-		Color(0.40, 0.10, 0.00), // vector4
+		Color(0.46, 0.46, 1.00), // vector2
+		Color(0.46, 0.46, 1.00), // vector3
+		Color(0.46, 0.46, 1.00), // vector4
 		Color(0.80, 0.65, 0.84), // boolean
 		Color(0.78, 0.78, 0.16), // color
 		Color(0.34, 0.65, 1.00), // string
 		Color(0.00, 0.84, 0.64), // geometry
-		Color(0.46, 0.46, 1.00), // array
+		Color(0.00, 0.00, 0.00), // array
 		Color(1.0, 1.0, 0.0), // max
 	};
 

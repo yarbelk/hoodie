@@ -47,9 +47,9 @@ int HNMeshGrid::get_output_port_count() const {
 HNMeshGrid::PortType HNMeshGrid::get_output_port_type(int p_port) const {
     switch (p_port) {
         case 0:
-            return PortType::PORT_TYPE_ARRAY;
+            return PortType::PORT_TYPE_GEOMETRY;
         case 1:
-            return PortType::PORT_TYPE_ARRAY;
+            return PortType::PORT_TYPE_VECTOR_2D;
         default:
             return PortType::PORT_TYPE_SCALAR;
     }
