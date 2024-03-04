@@ -620,6 +620,7 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     // MESH
 
     add_options.push_back(AddOption("Mesh Grid", "Mesh/Primitives", "HNMeshGrid"));
+    add_options.push_back(AddOption("Mesh Line", "Mesh/Primitives", "HNMeshLine"));
 
     // OUTPUT
 

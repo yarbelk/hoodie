@@ -24,7 +24,15 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
     PackedVector3Array curve_tan = curve[1] ? curve[1] : Variant();
     PackedVector3Array curve_nor = curve[2] ? curve[2] : Variant();
     PackedFloat32Array curve_tilt = curve[3] ? curve[3] : Variant();
-    PackedVector3Array shape = p_inputs[1].get_type() == get_input_port_type(1) ? p_inputs[1] : Variant();
+    profile = p_inputs[1];
+    if (profile.size() < 4) {
+        return;
+    }
+    PackedVector3Array profile_pos = profile[0] ? profile[0] : Variant();
+    PackedVector3Array profile_tan = profile[1] ? profile[1] : Variant();
+    PackedVector3Array profile_nor = profile[2] ? profile[2] : Variant();
+    PackedFloat32Array profile_tilt = profile[3] ? profile[3] : Variant();
+    // PackedVector3Array profile_pos = p_inputs[1].get_type() == get_input_port_type(1) ? p_inputs[1] : Variant();
     bool closed = false;
     if (p_inputs.size() > 2) {
         closed = (bool)p_inputs[2];
@@ -37,7 +45,7 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
     // PackedVector3Array curve_nor = p_inputs[4].get_type() == get_input_connector_type(4) ? p_inputs[4] : Variant();
     // PackedFloat32Array curve_tilt = p_inputs[5].get_type() == get_input_connector_type(5) ? p_inputs[5] : Variant();
 
-    const int shape_size = shape.size();
+    const int shape_size = profile_pos.size();
     const int shape_verts_size = shape_size + (closed ? 1 : 0);
     const int path_size = curve_pos.size();
     const int total_verts = shape_verts_size * path_size;
@@ -75,7 +83,7 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
 
     /*
     // Calculation
-    // Shape Normals: vectors that point to the next shape point
+    // Shape Normals: vectors that point to the next profile_pos point
     PackedVector3Array shape_normals;
     for (int i = 0; i < shape_size; i++)
     {
@@ -85,7 +93,7 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
             next = shape[(i + 1) % shape_size];
         } else {
             origin = shape[i];
-            // TODO: implement proper not closed shape normal calculation
+            // TODO: implement proper not closed profile_pos normal calculation
             next = shape[(i + 1) % shape_size];
         }
         n = (next - origin).normalized().cross(Vector3(0, 0, 1));
@@ -103,10 +111,10 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
     // Shape Length
     float shape_length = 0;
     {
-        Vector3 prev_pt = shape[0];
+        Vector3 prev_pt = profile_pos[0];
         for (int j = 1; j < shape_verts_size; j++)
         {
-            Vector3 pt = shape[j%shape_size];
+            Vector3 pt = profile_pos[j%shape_size];
             shape_length += (pt - prev_pt).length();
             prev_pt = pt;
         }
@@ -114,7 +122,7 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
     }
     
     // Extrusion
-    // This is basically a double loop: for each path point -> for each shape point -> build verts, norms, indices etc.
+    // This is basically a double loop: for each path point -> for each profile_pos point -> build verts, norms, indices etc.
     int triangle_index = 0;
     for (int p = 0; p < path_size; p++)
     {
@@ -132,7 +140,7 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
         for (int s = 0; s < shape_verts_size; s++)
         {
             int index = p * shape_verts_size + s;
-            vertices[index] = frame.xform(shape[s]);
+            vertices[index] = frame.xform(profile_pos[s]);
             normals[index] = curve_nor[p];
             // normals[index] = frame.basis.get_column(3);
             if (p > path_size - 2) continue;
