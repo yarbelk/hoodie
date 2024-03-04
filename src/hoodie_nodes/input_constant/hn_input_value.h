@@ -10,6 +10,9 @@ class HNInputValue : public HoodieNode {
     GDCLASS(HNInputValue, HoodieNode)
 
 private:
+    // Input
+    float float_val;
+    // Output
     Array value_arr;
 
 public:
@@ -24,6 +27,8 @@ public:
     int get_output_port_count() const override;
 	PortType get_output_port_type(int p_port) const override;
 	String get_output_port_name(int p_port) const override;
+
+    void set_property_input(vec_size_t p_port, Variant &p_input) override;
 
     const Variant get_output(int p_port) const override;
 };

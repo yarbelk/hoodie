@@ -5,7 +5,8 @@ using namespace godot;
 void HNInputValue::_process(const Array &p_inputs) {
     UtilityFunctions::print("HNInputValue _process() call.");
 
-    float x = 20.0;
+    // float x = 20.0;
+    float x = float_val;
 
     value_arr.clear();
     value_arr.push_back(x);
@@ -37,6 +38,10 @@ HNInputValue::PortType HNInputValue::get_output_port_type(int p_port) const {
 
 String HNInputValue::get_output_port_name(int p_port) const {
     return "Value";
+}
+
+void HNInputValue::set_property_input(vec_size_t p_port, Variant &p_input) {
+    float_val = (float)p_input;
 }
 
 const Variant HNInputValue::get_output(int p_port) const {

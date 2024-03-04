@@ -78,6 +78,9 @@ String HoodieNode::get_output_port_name(int p_port) const {
     return "";
 }
 
+void HoodieNode::set_property_input(vec_size_t p_port, Variant &p_input) {
+}
+
 const Variant HoodieNode::get_output(int p_port) const {
     return Variant();
 }

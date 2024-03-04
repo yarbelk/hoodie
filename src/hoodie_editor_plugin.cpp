@@ -113,10 +113,6 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
         hb->add_child(label);
         graph_node->add_child(hb);
 
-        int port_type = 0;
-        graph_node->set_slot(i, false, port_type, type_color[0], true, port_type, type_color[port_output]);
-        j++;
-
         // Adding LineEdit(s).
         if (hoodie_node->get_output_port_type(i) == HoodieNode::PORT_TYPE_SCALAR) {
             EditorSpinSlider *ess = memnew(EditorSpinSlider);
@@ -127,7 +123,14 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
             ess->set_hide_slider(true);
             ess->set_allow_greater(true);
             ess->set_allow_lesser(true);
+            ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, j));
+            Link &link = links[p_id];
+            link.ranges[j] = ess;
         }
+
+        int port_type = 0;
+        graph_node->set_slot(i, false, port_type, type_color[0], true, port_type, type_color[port_output]);
+        j++;
     }
 
     for (int i = 0; i < hoodie_node->get_input_port_count(); i++)
@@ -196,6 +199,13 @@ void HoodieGraphPlugin::set_node_position(id_t p_id, const Vector2 &p_position) 
     if (links.has(p_id)) {
         links[p_id].graph_element->set_position_offset(p_position);
     }
+}
+
+void HoodieGraphPlugin::_on_range_value_changed(double p_val, id_t p_id, vec_size_t p_port_id) {
+    Link &link = links[p_id];
+    link.hoodie_node->set_property_input(p_port_id, Variant(p_val));
+    link.hoodie_node->mark_dirty();
+    editor->hoodie_mesh->_queue_update();
 }
 
 HoodieGraphPlugin::~HoodieGraphPlugin() {

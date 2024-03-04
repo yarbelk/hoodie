@@ -12,6 +12,8 @@
 #include "godot_cpp/classes/graph_edit.hpp"
 #include "godot_cpp/classes/graph_node.hpp"
 #include "godot_cpp/classes/button.hpp"
+#include "godot_cpp/classes/line_edit.hpp"
+#include "godot_cpp/classes/spin_box.hpp"
 #include "godot_cpp/classes/editor_spin_slider.hpp"
 
 namespace godot
@@ -29,6 +31,7 @@ private:
     struct Link {
         HoodieNode *hoodie_node = nullptr;
         GraphElement *graph_element = nullptr;
+        HashMap<vec_size_t, Range *> ranges; 
     };
 
     Ref<HoodieMesh> hoodie_mesh;
@@ -51,6 +54,8 @@ public:
     void connect_nodes(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port);
     void disconnect_nodes(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port);
     void set_node_position(id_t p_id, const Vector2 &p_position);
+
+    void _on_range_value_changed(double p_val, id_t p_id, vec_size_t p_port_id);
 
     HoodieGraphPlugin();
     ~HoodieGraphPlugin();

@@ -16,10 +16,12 @@ class HoodieNode : public Resource {
     friend class HoodieEditorPlugin;
     friend class HoodieMesh;
 
+protected:
     // typedef uint32_t id_t;
     typedef int id_t;
     typedef uint32_t vec_size_t;
 
+private:
     HashMap<vec_size_t, bool> connected_input_ports;
     HashMap<vec_size_t, bool> connected_output_ports;
 
@@ -115,6 +117,8 @@ public:
     virtual int get_output_port_count() const;
 	virtual PortType get_output_port_type(int p_port) const;
 	virtual String get_output_port_name(int p_port) const;
+
+    virtual void set_property_input(vec_size_t p_port, Variant &p_input);
 
     virtual const Variant get_output(int p_port) const;
 
