@@ -2,7 +2,6 @@
 
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/editor_undo_redo_manager.hpp>
-// #include <godot_cpp/classes/undo_redo.hpp>
 
 using namespace godot;
 
@@ -100,6 +99,8 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     graph_node->connect("dragged", callable_mp(editor, &HoodieEditorPlugin::_node_dragged).bind(p_id));
 
     int j = 0;
+
+    // Adding Output ports.
     for (int i = 0; i < hoodie_node->get_output_port_count(); i++)
     {
         HoodieNode::PortType port_output = hoodie_node->get_output_port_type(i);
@@ -113,26 +114,12 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
         hb->add_child(label);
         graph_node->add_child(hb);
 
-        // Adding LineEdit(s).
-        if (hoodie_node->get_output_port_type(i) == HoodieNode::PORT_TYPE_SCALAR) {
-            EditorSpinSlider *ess = memnew(EditorSpinSlider);
-            hb->add_child(ess);
-            ess->set_custom_minimum_size(Size2(65, 0));
-            ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-            ess->set_step(0.001);
-            ess->set_hide_slider(true);
-            ess->set_allow_greater(true);
-            ess->set_allow_lesser(true);
-            ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, j));
-            Link &link = links[p_id];
-            link.ranges[j] = ess;
-        }
-
         int port_type = 0;
         graph_node->set_slot(i, false, port_type, type_color[0], true, port_type, type_color[port_output]);
         j++;
     }
 
+    // Adding Input ports.
     for (int i = 0; i < hoodie_node->get_input_port_count(); i++)
     {
         HoodieNode::PortType port_input = hoodie_node->get_input_port_type(i);
@@ -150,6 +137,27 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
         graph_node->set_slot(j, true, port_type, type_color[port_input], false, port_type, type_color[0]);
         j++;
     }
+
+    // Adding Properties fields.
+    VBoxContainer *props_vb = memnew(VBoxContainer);
+    for (int i = 0; i < hoodie_node->get_property_input_count(); i++) {
+        switch (hoodie_node->get_property_input_type(i)) {
+            case Variant::FLOAT:
+                EditorSpinSlider *ess = memnew(EditorSpinSlider);
+                props_vb->add_child(ess);
+                ess->set_custom_minimum_size(Size2(65, 0));
+                ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                ess->set_step(0.01);
+                ess->set_hide_slider(true);
+                ess->set_allow_greater(true);
+                ess->set_allow_lesser(true);
+                ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, i));
+                Link &link = links[p_id];
+                link.ranges[i] = ess;
+                break;
+        }
+    }
+    graph_node->add_child(props_vb);
 
     editor->graph_edit->add_child(graph_node);
 }
@@ -201,9 +209,9 @@ void HoodieGraphPlugin::set_node_position(id_t p_id, const Vector2 &p_position) 
     }
 }
 
-void HoodieGraphPlugin::_on_range_value_changed(double p_val, id_t p_id, vec_size_t p_port_id) {
+void HoodieGraphPlugin::_on_range_value_changed(double p_val, id_t p_id, vec_size_t p_prop_id) {
     Link &link = links[p_id];
-    link.hoodie_node->set_property_input(p_port_id, Variant(p_val));
+    link.hoodie_node->set_property_input(p_prop_id, Variant(p_val));
     link.hoodie_node->mark_dirty();
     editor->hoodie_mesh->_queue_update();
 }

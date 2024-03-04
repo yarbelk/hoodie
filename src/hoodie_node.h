@@ -118,6 +118,8 @@ public:
 	virtual PortType get_output_port_type(int p_port) const;
 	virtual String get_output_port_name(int p_port) const;
 
+    virtual int get_property_input_count() const;
+    virtual Variant::Type get_property_input_type(vec_size_t p_prop) const;
     virtual void set_property_input(vec_size_t p_port, Variant &p_input);
 
     virtual const Variant get_output(int p_port) const;
