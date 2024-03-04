@@ -143,17 +143,30 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     for (int i = 0; i < hoodie_node->get_property_input_count(); i++) {
         switch (hoodie_node->get_property_input_type(i)) {
             case Variant::FLOAT:
-                EditorSpinSlider *ess = memnew(EditorSpinSlider);
-                props_vb->add_child(ess);
-                ess->set_custom_minimum_size(Size2(65, 0));
-                ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-                ess->set_step(0.01);
-                ess->set_hide_slider(true);
-                ess->set_allow_greater(true);
-                ess->set_allow_lesser(true);
-                ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, i));
-                Link &link = links[p_id];
-                link.ranges[i] = ess;
+                {
+                    EditorSpinSlider *ess = memnew(EditorSpinSlider);
+                    props_vb->add_child(ess);
+                    ess->set_custom_minimum_size(Size2(65, 0));
+                    ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                    ess->set_step(0.01);
+                    ess->set_hide_slider(true);
+                    ess->set_allow_greater(true);
+                    ess->set_allow_lesser(true);
+                    ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, i));
+                    Link &link = links[p_id];
+                    link.ranges[i] = ess;
+                }
+                break;
+            case Variant::OBJECT:
+                {
+                    if (hoodie_node->get_class() == "HNInputCurve3D") {
+                        Label *curve_lab = memnew(Label);
+                        props_vb->add_child(curve_lab);
+                        curve_lab->set_custom_minimum_size(Size2(65, 0));
+                        curve_lab->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                        curve_lab->set_text("Select Curve3D form the Inspector.");
+                    }
+                }
                 break;
         }
     }
@@ -598,6 +611,11 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     add_options.push_back(AddOption("Input Value", "Input/Constant", "HNInputValue"));
 
     add_options.push_back(AddOption("Input Curve3D", "Input", "HNInputCurve3D"));
+
+    // CURVE
+
+    add_options.push_back(AddOption("Curve to Mesh", "Curve/Operations", "HNCurveToMesh"));
+    add_options.push_back(AddOption("Curve to Points", "Curve/Operations", "HNCurveToPoints"));
 
     // MESH
 

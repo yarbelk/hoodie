@@ -17,7 +17,8 @@ HoodieNode::ProcessStatus HoodieNode::get_status() const {
     return status;
 }
 
-void HoodieNode::set_property(const Property &p_property) {
+// TODO: delete this
+/* void HoodieNode::set_property(const Property &p_property) {
     property = p_property;
 }
 
@@ -30,7 +31,7 @@ String HoodieNode::get_property_hint() const {
 }
 
 void HoodieNode::construct_property() {
-}
+} */
 
 void HoodieNode::_bind_methods() {
 }
@@ -86,7 +87,15 @@ Variant::Type HoodieNode::get_property_input_type(vec_size_t p_prop) const {
     return Variant::NIL;
 }
 
-void HoodieNode::set_property_input(vec_size_t p_prop, Variant &p_input) {
+String HoodieNode::get_property_input_hint(vec_size_t p_prop) const {
+    return "";
+}
+
+Variant HoodieNode::get_property_input(vec_size_t p_port) const {
+    return Variant();
+}
+
+void HoodieNode::set_property_input(vec_size_t p_prop, Variant p_input) {
 }
 
 const Variant HoodieNode::get_output(int p_port) const {

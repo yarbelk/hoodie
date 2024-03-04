@@ -5,6 +5,8 @@
 #include "hoodie_editor_plugin.h"
 #include "hoodie_mesh.h"
 #include "hoodie_node.h"
+#include "hoodie_nodes/curve_operations/hn_curve_to_mesh.h"
+#include "hoodie_nodes/curve_operations/hn_curve_to_points.h"
 #include "hoodie_nodes/input/hn_input_curve_3d.h"
 #include "hoodie_nodes/input_constant/hn_input_value.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_grid.h"
@@ -20,6 +22,8 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
 		ClassDB::register_class<HoodieMesh>();
 		ClassDB::register_abstract_class<HoodieNode>();
+		ClassDB::register_class<HNCurveToMesh>();
+		ClassDB::register_class<HNCurveToPoints>();
 		ClassDB::register_class<HNInputCurve3D>();
 		ClassDB::register_class<HNInputValue>();
 		ClassDB::register_class<HNMeshGrid>();

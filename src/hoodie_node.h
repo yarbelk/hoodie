@@ -25,6 +25,8 @@ private:
     HashMap<vec_size_t, bool> connected_input_ports;
     HashMap<vec_size_t, bool> connected_output_ports;
 
+// TODO: delete this
+/*
 protected:
     struct Property {
         Variant::Type type;
@@ -49,6 +51,7 @@ protected:
               name(p_name),
               description(p_description) {}
     };
+*/
 
 public:
     enum PortType {
@@ -74,13 +77,15 @@ public:
     };
 
 private:
-    Property property;
-    Vector<Socket> input_sockets;
-    Vector<Socket> output_sockets;
+    // TODO: delete this
+    // Property property;
+    // Vector<Socket> input_sockets;
+    // Vector<Socket> output_sockets;
 
     ProcessStatus status;
     bool dirty = true;
 
+protected:
     void mark_dirty();
 
 protected:
@@ -91,10 +96,10 @@ public:
     ProcessStatus get_status() const;
 
     // Property stuff
-    void set_property(const Property &p_property);
-    Variant::Type get_property_type() const;
-    String get_property_hint() const;
-    virtual void construct_property();
+    // void set_property(const Property &p_property);
+    // Variant::Type get_property_type() const;
+    // String get_property_hint() const;
+    // virtual void construct_property();
     // virtual void set_input(Variant p_input);
     // virtual Variant get_input();
 
@@ -120,7 +125,9 @@ public:
 
     virtual int get_property_input_count() const;
     virtual Variant::Type get_property_input_type(vec_size_t p_prop) const;
-    virtual void set_property_input(vec_size_t p_port, Variant &p_input);
+    virtual String get_property_input_hint(vec_size_t p_prop) const;
+    virtual Variant get_property_input(vec_size_t p_port) const;
+    virtual void set_property_input(vec_size_t p_port, Variant p_input);
 
     virtual const Variant get_output(int p_port) const;
 

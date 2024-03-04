@@ -357,6 +357,18 @@ bool HoodieMesh::_set(const StringName &p_name, const Variant &p_value) {
             set_node_position(id, p_value);
             return true;
         }
+    } else if (prop_name.begins_with("inputs/")) {
+        String index = prop_name.get_slicec('/', 1);
+        id_t id = index.to_int();
+
+        for (const KeyValue<id_t, Node> &E : graph.nodes) {
+            if (E.key == id) {
+                for (int i = 0; i < E.value.node->get_property_input_count(); i++) {
+                    E.value.node->set_property_input(i, p_value);
+                    return true;
+                }
+            }
+        }
     }
     return false;
 }
@@ -388,11 +400,24 @@ bool HoodieMesh::_get(const StringName &p_name, Variant &r_ret) const {
             r_ret = get_node_position(id);
             return true;
         }
+    } else if (prop_name.begins_with("inputs/")) {
+        String index = prop_name.get_slicec('/', 1);
+        id_t id = index.to_int();
+
+        for (const KeyValue<id_t, Node> &E : graph.nodes) {
+            if (E.key == id) {
+                for (int i = 0; i < E.value.node->get_property_input_count(); i++) {
+                    r_ret = Variant(E.value.node->get_property_input(i));
+                    return true;
+                }
+            }
+        }
     }
     return false;
 }
 
 void HoodieMesh::_get_property_list(List<PropertyInfo> *p_list) const {
+    // Save HoodieNodes positions and connections.
     for (const KeyValue<id_t, Node> &E : graph.nodes) {
         String prop_name = "nodes/";
         prop_name += itos(E.key);
@@ -401,6 +426,26 @@ void HoodieMesh::_get_property_list(List<PropertyInfo> *p_list) const {
         p_list->push_back(PropertyInfo(Variant::VECTOR2, prop_name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR));
     }
     p_list->push_back(PropertyInfo(Variant::PACKED_INT32_ARRAY, "nodes/connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR));
+
+    // Display properties.
+    // FIXME: this probably needs a revision, as it uses a simple int index to reference the node of the property.
+    for (const KeyValue<id_t, Node> &E : graph.nodes) {
+        for (int i = 0; i < E.value.node->get_property_input_count(); i++) {
+            Variant::Type type = E.value.node->get_property_input_type(i);
+            String node_name = E.value.node->get_class() + " [" + itos(E.key) + "]";
+
+            if (type != Variant::OBJECT || type == Variant::NIL) {
+                continue;
+            }
+
+            String prop_name = "inputs/";
+            prop_name += itos(E.key);
+
+            if (type == GDEXTENSION_VARIANT_TYPE_OBJECT) {
+                p_list->push_back(PropertyInfo(type, prop_name, PROPERTY_HINT_RESOURCE_TYPE, E.value.node->get_property_input_hint(i)));
+            }
+        }
+    }
 }
 
 bool HoodieMesh::is_nodes_connected_relatively(const Graph *p_graph, id_t p_node, id_t p_target) const {

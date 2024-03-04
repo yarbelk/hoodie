@@ -15,6 +15,7 @@
 #include "godot_cpp/classes/line_edit.hpp"
 #include "godot_cpp/classes/spin_box.hpp"
 #include "godot_cpp/classes/editor_spin_slider.hpp"
+#include "godot_cpp/classes/editor_property.hpp"
 
 namespace godot
 {

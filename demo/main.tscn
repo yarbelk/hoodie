@@ -1,4 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://dmdyqadsq3fea"]
+[gd_scene load_steps=10 format=3 uid="uid://dmdyqadsq3fea"]
+
+[sub_resource type="Curve3D" id="Curve3D_xl5xv"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -3.41934, 0.369174, 1.45497, 0, 0, 0, 0, 0, 0, -1.46931, 2.13695, -1.17672, 0, 0, 0, 0, 0, 0, 2.80088, 1.74337, -3.05517, 0, 0, 0, 0, 0, 0, 6.54416, -3.30646, -0.416515, 0, 0, 0, 0, 0, 0, 0.0850866, -0.818235, 0.700711, 0, 0, 0, 0, 0, 0, -3.05449, -1.57871, 3.03806),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
+}
+point_count = 6
 
 [sub_resource type="HNOutput" id="HNOutput_ionfj"]
 
@@ -8,18 +15,31 @@
 
 [sub_resource type="HNInputValue" id="HNInputValue_35b0b"]
 
+[sub_resource type="HNInputCurve3D" id="HNInputCurve3D_wwtty"]
+
+[sub_resource type="HNCurveToMesh" id="HNCurveToMesh_2qi4x"]
+
+[sub_resource type="HNOutput" id="HNOutput_yidlw"]
+
 [sub_resource type="HoodieMesh" id="HoodieMesh_t3w84"]
 nodes/1/node = SubResource("HNOutput_ionfj")
-nodes/1/position = Vector2(920, 140)
+nodes/1/position = Vector2(1180, 160)
 nodes/2/node = SubResource("HNMeshGrid_tslw5")
-nodes/2/position = Vector2(520, 100)
+nodes/2/position = Vector2(780, 120)
 nodes/3/node = SubResource("HNInputValue_6dhwy")
-nodes/3/position = Vector2(160, 120)
+nodes/3/position = Vector2(440, 140)
 nodes/4/node = SubResource("HNInputValue_35b0b")
-nodes/4/position = Vector2(160, 200)
+nodes/4/position = Vector2(440, 240)
+nodes/5/node = SubResource("HNInputCurve3D_wwtty")
+nodes/5/position = Vector2(400, 420)
+nodes/6/node = SubResource("HNCurveToMesh_2qi4x")
+nodes/6/position = Vector2(780, 420)
+nodes/7/node = SubResource("HNOutput_yidlw")
+nodes/7/position = Vector2(1200, 420)
 nodes/connections = Array[int]([3, 0, 2, 0, 4, 0, 2, 1, 2, 0, 1, 0])
+inputs/5 = SubResource("Curve3D_xl5xv")
 _surfaces = [{
-"aabb": AABB(0, 0, 0, 1.704, 1e-05, 1.272),
+"aabb": AABB(0, 0, 0, 2.2, 1e-05, 1.35),
 "format": 34359742465,
 "index_count": 6,
 "index_data": PackedByteArray(0, 0, 1, 0, 2, 0, 2, 0, 3, 0, 0, 0),
@@ -27,10 +47,13 @@ _surfaces = [{
 "primitive": 3,
 "uv_scale": Vector4(0, 0, 0, 0),
 "vertex_count": 4,
-"vertex_data": PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 172, 28, 218, 63, 0, 0, 0, 0, 0, 0, 0, 0, 172, 28, 218, 63, 0, 0, 0, 0, 229, 208, 162, 63, 0, 0, 0, 0, 0, 0, 0, 0, 229, 208, 162, 63)
+"vertex_data": PackedByteArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 205, 204, 12, 64, 0, 0, 0, 0, 0, 0, 0, 0, 205, 204, 12, 64, 0, 0, 0, 0, 205, 204, 172, 63, 0, 0, 0, 0, 0, 0, 0, 0, 205, 204, 172, 63)
 }]
 
 [node name="Node3D" type="Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("HoodieMesh_t3w84")
+
+[node name="Path3D" type="Path3D" parent="."]
+curve = SubResource("Curve3D_xl5xv")

@@ -2,8 +2,48 @@
 
 using namespace godot;
 
+void HNInputCurve3D::_curve_changed() {
+    mark_dirty();
+}
+
 void HNInputCurve3D::_process(const Array &p_inputs) {
     UtilityFunctions::print("HNInputCurve3D _process() call.");
+
+    PackedVector3Array points;
+    PackedVector3Array tangents;
+    PackedVector3Array normals;
+    PackedFloat32Array tilts;
+
+    if (curve.is_valid()) {
+        points = curve->get_baked_points();
+        normals = curve->get_baked_up_vectors();
+
+        // Calculate tangents
+        PackedVector3Array ts;
+        for (int i = 0; i < points.size(); i++)
+        {
+            Vector3 origin, next;
+            origin = points[i];
+            next = points[i == points.size() - 1 ? i-1 : i+1];
+            Vector3 t = (next - origin).normalized();
+            ts.push_back(t);
+        }
+        tangents = ts;
+
+        // TODO: implement normals
+
+        tilts = curve->get_baked_tilts();
+
+        packed_curve.push_back(points);
+        packed_curve.push_back(tangents);
+        packed_curve.push_back(normals);
+        packed_curve.push_back(tilts);
+    } else {
+        points.resize(0);
+        tangents.resize(0);
+        normals.resize(0);
+        tilts.resize(0);
+    }
 }
 
 String HNInputCurve3D::get_caption() const {
@@ -23,35 +63,66 @@ String HNInputCurve3D::get_input_port_name(int p_port) const {
 }
 
 int HNInputCurve3D::get_output_port_count() const {
-    return 4;
+    return 1;
 }
 
 HNInputCurve3D::PortType HNInputCurve3D::get_output_port_type(int p_port) const {
-    switch (p_port) {
-        case 0:
-            return PortType::PORT_TYPE_VECTOR_3D;
-        case 1:
-            return PortType::PORT_TYPE_VECTOR_3D;
-        case 2:
-            return PortType::PORT_TYPE_VECTOR_3D;
-        case 3:
-            return PortType::PORT_TYPE_SCALAR;
-        default:
-            return PortType::PORT_TYPE_SCALAR;
-    }
+    return PortType::PORT_TYPE_GEOMETRY;
 }
 
 String HNInputCurve3D::get_output_port_name(int p_port) const {
-    switch (p_port) {
-        case 0:
-            return "Points";
-        case 1:
-            return "Tangents";
-        case 2:
-            return "Normals";
-        case 3:
-            return "Tilts";
-        default:
-            return "";
+    return "Curve3D";
+}
+
+int HNInputCurve3D::get_property_input_count() const {
+    return 1;
+}
+
+Variant::Type HNInputCurve3D::get_property_input_type(vec_size_t p_prop) const {
+    return Variant::OBJECT;
+}
+
+String HNInputCurve3D::get_property_input_hint(vec_size_t p_prop) const {
+    return "Curve3D";
+}
+
+Variant HNInputCurve3D::get_property_input(vec_size_t p_port) const {
+    if (curve.is_valid()) {
+        return Variant(curve);
     }
+    return Variant();
+}
+
+void HNInputCurve3D::set_property_input(vec_size_t p_prop, Variant p_input) {
+    if (p_input.get_type() != Variant::OBJECT) {
+        return;
+    }
+
+    Ref<Curve3D> new_curve = p_input;
+    if (new_curve.is_null()) {
+        return;
+    } else if (new_curve->get_class() != "Curve3D") {
+        return;
+    }
+
+    // Disconnect from the old...
+    if (curve.is_valid()) {
+        curve->disconnect("changed", Callable(this, "_curve_changed"));
+    }
+
+    // and update
+    curve = new_curve;
+
+    // Connect to the new
+    if (curve.is_valid()) {
+        curve->connect("changed", Callable(this, "_curve_changed"));
+    }
+
+    UtilityFunctions::print("Input Curve Node point count: ", curve->get_point_count());
+
+    mark_dirty();
+}
+
+const Variant HNInputCurve3D::get_output(int p_port) const {
+    return Variant(packed_curve);
 }

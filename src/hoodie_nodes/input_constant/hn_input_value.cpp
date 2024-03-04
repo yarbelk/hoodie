@@ -48,7 +48,7 @@ Variant::Type HNInputValue::get_property_input_type(vec_size_t p_prop) const {
     return Variant::FLOAT;
 }
 
-void HNInputValue::set_property_input(vec_size_t p_prop, Variant &p_input) {
+void HNInputValue::set_property_input(vec_size_t p_prop, Variant p_input) {
     float_val = (float)p_input;
 }
 
