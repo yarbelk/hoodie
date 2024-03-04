@@ -116,6 +116,18 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
         int port_type = 0;
         graph_node->set_slot(i, false, port_type, type_color[0], true, port_type, type_color[port_output]);
         j++;
+
+        // Adding LineEdit(s).
+        if (hoodie_node->get_output_port_type(i) == HoodieNode::PORT_TYPE_SCALAR) {
+            EditorSpinSlider *ess = memnew(EditorSpinSlider);
+            hb->add_child(ess);
+            ess->set_custom_minimum_size(Size2(65, 0));
+            ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            ess->set_step(0.001);
+            ess->set_hide_slider(true);
+            ess->set_allow_greater(true);
+            ess->set_allow_lesser(true);
+        }
     }
 
     for (int i = 0; i < hoodie_node->get_input_port_count(); i++)

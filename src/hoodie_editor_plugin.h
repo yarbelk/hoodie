@@ -12,6 +12,7 @@
 #include "godot_cpp/classes/graph_edit.hpp"
 #include "godot_cpp/classes/graph_node.hpp"
 #include "godot_cpp/classes/button.hpp"
+#include "godot_cpp/classes/editor_spin_slider.hpp"
 
 namespace godot
 {
