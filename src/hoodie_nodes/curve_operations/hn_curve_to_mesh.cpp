@@ -155,8 +155,8 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
         }
     }
 
-    UtilityFunctions::print("Vertices: ", vertices);
-    UtilityFunctions::print("Indices: ", indices);
+    // UtilityFunctions::print("Vertices: ", vertices);
+    // UtilityFunctions::print("Indices: ", indices);
     
     mesh[ArrayMesh::ARRAY_VERTEX] = vertices;
     mesh[ArrayMesh::ARRAY_NORMAL] = normals;

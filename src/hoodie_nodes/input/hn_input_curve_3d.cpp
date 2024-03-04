@@ -15,6 +15,8 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
     PackedFloat32Array tilts;
 
     if (curve.is_valid()) {
+        packed_curve.clear();
+
         points = curve->get_baked_points();
         normals = curve->get_baked_up_vectors();
 
@@ -107,7 +109,8 @@ void HNInputCurve3D::set_property_input(vec_size_t p_prop, Variant p_input) {
 
     // Disconnect from the old...
     if (curve.is_valid()) {
-        curve->disconnect("changed", Callable(this, "_curve_changed"));
+        curve->disconnect("changed", callable_mp((HoodieNode*)this, &HNInputCurve3D::mark_dirty));
+        curve->disconnect("changed", callable_mp((Object*)this, &HNInputCurve3D::emit_signal<>).bind("changed"));
     }
 
     // and update
@@ -115,12 +118,14 @@ void HNInputCurve3D::set_property_input(vec_size_t p_prop, Variant p_input) {
 
     // Connect to the new
     if (curve.is_valid()) {
-        curve->connect("changed", Callable(this, "_curve_changed"));
+        curve->connect("changed", callable_mp((HoodieNode*)this, &HNInputCurve3D::mark_dirty));
+        curve->connect("changed", callable_mp((Object*)this, &HNInputCurve3D::emit_signal<>).bind("changed"));
     }
 
     UtilityFunctions::print("Input Curve Node point count: ", curve->get_point_count());
 
     mark_dirty();
+    emit_signal("changed");
 }
 
 const Variant HNInputCurve3D::get_output(int p_port) const {

@@ -34,6 +34,7 @@ void HoodieNode::construct_property() {
 } */
 
 void HoodieNode::_bind_methods() {
+    ADD_SIGNAL(MethodInfo("changed", PropertyInfo(Variant::OBJECT, "HoodieNode")));
 }
 
 bool HoodieNode::update(bool p_inputs_updated, const Array &p_inputs) {

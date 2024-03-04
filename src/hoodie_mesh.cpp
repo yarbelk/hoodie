@@ -231,7 +231,7 @@ void HoodieMesh::add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_positi
     n.node = p_node;
     n.position = p_position;
 
-    // n.node->connect_changed(queue_update)
+    n.node->connect("changed", callable_mp(this, &HoodieMesh::_queue_update));
 
     graph.nodes[p_id] = n;
 
@@ -244,7 +244,7 @@ void HoodieMesh::set_node_position(id_t p_id, const Vector2 &p_position) {
 }
 
 void HoodieMesh::remove_node(id_t p_id) {
-    // TODO: graph.nodes[p_id].node->disconnect_changed()
+    graph.nodes[p_id].node->disconnect("changed", callable_mp(this, &HoodieMesh::_queue_update));
 
     graph.nodes.erase(p_id);
 
