@@ -11,7 +11,7 @@ class HNInputValue : public HoodieNode {
 
 private:
     // Input
-    float float_val;
+    float float_val = 1.00;
     // Output
     Array value_arr;
 
@@ -30,6 +30,7 @@ public:
 
     int get_property_input_count() const override;
     Variant::Type get_property_input_type(vec_size_t p_prop) const override;
+    Variant get_property_input(vec_size_t p_port) const override;
     void set_property_input(vec_size_t p_prop, Variant p_input) override;
 
     const Variant get_output(int p_port) const override;
