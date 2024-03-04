@@ -9,8 +9,19 @@ void HNMeshGrid::_process(const Array &p_inputs) {
 
     // float& x = default_size.x;
     // float& z = default_size.y;
-    float x = 5;
-    float z = 5;
+    float x = 1;
+    float z = 1;
+
+    if (p_inputs.size() > 0) {
+        if (p_inputs[0].get_type() == Variant::ARRAY) {
+            Array a = p_inputs[0];
+            x = (float)a[0];
+        }
+        if (p_inputs[1].get_type() == Variant::ARRAY) {
+            Array a = p_inputs[1];
+            z = (float)a[0];
+        }
+    }
 
     PackedVector3Array vertices;
     PackedInt32Array indices;

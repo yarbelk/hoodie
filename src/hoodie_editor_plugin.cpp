@@ -565,6 +565,8 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
 
     // INPUT
 
+    add_options.push_back(AddOption("Input Value", "Input/Constant", "HNInputValue"));
+
     add_options.push_back(AddOption("Input Curve3D", "Input", "HNInputCurve3D"));
 
     // MESH
