@@ -1,19 +1,24 @@
-#ifndef HOODIE_HNOUTPUT_H
-#define HOODIE_HNOUTPUT_H
+#ifndef HOODIE_HNCURVETOMESH_H
+#define HOODIE_HNCURVETOMESH_H
 
 #include "hoodie_node.h"
 
 namespace godot
 {
-    
-class HNOutput : public HoodieNode {
-    GDCLASS(HNOutput, HoodieNode)
+
+class HNCurveToMesh : public HoodieNode {
+    GDCLASS(HNCurveToMesh, HoodieNode)
 
 private:
-    Array output_arr;
+    // Input
+    Array curve;
+    Array profile;
+    bool shape_is_closed;
+    // Output
+    Array mesh;
 
 public:
-	void _process(const Array &p_inputs) override;
+    void _process(const Array &p_inputs) override;
 
     String get_caption() const override;
 
@@ -27,7 +32,8 @@ public:
 
     const Variant get_output(int p_port) const override;
 };
-
+    
 } // namespace godot
 
-#endif // HOODIE_HNOUTPUT_H
+
+#endif // HOODIE_HNCURVETOMESH_H

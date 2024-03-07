@@ -1,16 +1,21 @@
-#ifndef HOODIE_HNOUTPUT_H
-#define HOODIE_HNOUTPUT_H
+#ifndef HOODIE_HNMESHLINE_H
+#define HOODIE_HNMESHLINE_H
 
 #include "hoodie_node.h"
 
 namespace godot
 {
     
-class HNOutput : public HoodieNode {
-    GDCLASS(HNOutput, HoodieNode)
+class HNMeshLine : public HoodieNode {
+    GDCLASS(HNMeshLine, HoodieNode)
 
 private:
-    Array output_arr;
+    // Input
+    int count = 1;
+    Vector3 start = Vector3(0,0,0);
+    Vector3 offset = Vector3(1,0,0);
+    // Output
+    Array mesh_line;
 
 public:
 	void _process(const Array &p_inputs) override;
@@ -30,4 +35,4 @@ public:
 
 } // namespace godot
 
-#endif // HOODIE_HNOUTPUT_H
+#endif // HOODIE_HNMESHLINE_H

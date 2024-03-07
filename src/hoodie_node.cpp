@@ -1,5 +1,7 @@
 #include "hoodie_node.h"
 
+#include <godot_cpp/variant/utility_functions.hpp>
+
 using namespace godot;
 
 void HoodieNode::mark_dirty() {
@@ -7,15 +9,7 @@ void HoodieNode::mark_dirty() {
     // TODO: emit_changed?
 }
 
-void HoodieNode::set_position(Vector2 p_pos) {
-    position = p_pos;
-}
-
-Vector2 HoodieNode::get_position() const {
-    return position;
-}
-
-void HoodieNode::set_status(ProcessStatus p_status) {
+void HoodieNode::set_status(const ProcessStatus &p_status) {
     status = p_status;
 }
 
@@ -23,15 +17,8 @@ HoodieNode::ProcessStatus HoodieNode::get_status() const {
     return status;
 }
 
-HoodieNode::id_t HoodieNode::get_id() {
-    return id;
-}
-
-void HoodieNode::set_id(HoodieNode::id_t p_id) {
-    id = p_id;
-}
-
-void HoodieNode::set_property(Property p_property) {
+// TODO: delete this
+/* void HoodieNode::set_property(const Property &p_property) {
     property = p_property;
 }
 
@@ -44,14 +31,29 @@ String HoodieNode::get_property_hint() const {
 }
 
 void HoodieNode::construct_property() {
-}
+} */
 
 void HoodieNode::_bind_methods() {
+    ADD_SIGNAL(MethodInfo("changed", PropertyInfo(Variant::OBJECT, "HoodieNode")));
 }
 
-bool HoodieNode::update(const Array &p_inputs) {
-    // TODO: implement update
-    return false;
+bool HoodieNode::update(bool p_inputs_updated, const Array &p_inputs) {
+    bool updated = dirty || p_inputs_updated;
+    dirty = false;
+
+    if (updated) {
+        _process(p_inputs);
+    }
+
+    return updated;
+}
+
+void HoodieNode::_process(const Array &p_inputs) {
+    UtilityFunctions::print("Base HoodieNode _process() call.");
+}
+
+String HoodieNode::get_caption() const {
+    return "Hoodie Node";
 }
 
 int HoodieNode::get_input_port_count() const {
@@ -76,6 +78,51 @@ HoodieNode::PortType HoodieNode::get_output_port_type(int p_port) const {
 
 String HoodieNode::get_output_port_name(int p_port) const {
     return "";
+}
+
+int HoodieNode::get_property_input_count() const {
+    return 0;
+}
+
+Variant::Type HoodieNode::get_property_input_type(vec_size_t p_prop) const {
+    return Variant::NIL;
+}
+
+String HoodieNode::get_property_input_hint(vec_size_t p_prop) const {
+    return "";
+}
+
+Variant HoodieNode::get_property_input(vec_size_t p_port) const {
+    return Variant();
+}
+
+void HoodieNode::set_property_input(vec_size_t p_prop, Variant p_input) {
+}
+
+const Variant HoodieNode::get_output(int p_port) const {
+    return Variant();
+}
+
+bool HoodieNode::is_output_port_connected(vec_size_t p_port) const {
+    if (connected_output_ports.has(p_port)) {
+        return connected_output_ports[p_port];
+    }
+    return false;
+}
+
+void HoodieNode::set_output_port_connected(vec_size_t p_port, bool p_connected) {
+    connected_output_ports[p_port] = p_connected;
+}
+
+bool HoodieNode::is_input_port_connected(vec_size_t p_port) const {
+    if (connected_input_ports.has(p_port)) {
+        return connected_input_ports[p_port];
+    }
+    return false;
+}
+
+void HoodieNode::set_input_port_connected(vec_size_t p_port, bool p_connected) {
+    connected_input_ports[p_port] = p_connected;
 }
 
 HoodieNode::HoodieNode() {

@@ -1,24 +1,22 @@
-#ifndef HOODIE_HNINPUTCURVE3D_H
-#define HOODIE_HNINPUTCURVE3D_H
+#ifndef HOODIE_HNINPUTVALUE_H
+#define HOODIE_HNINPUTVALUE_H
 
 #include "hoodie_node.h"
 
-#include <godot_cpp/classes/curve3d.hpp>
-
 namespace godot
 {
-    
-class HNInputCurve3D : public HoodieNode {
-    GDCLASS(HNInputCurve3D, HoodieNode)
+
+class HNInputValue : public HoodieNode {
+    GDCLASS(HNInputValue, HoodieNode)
 
 private:
-	Ref<Curve3D> curve;
-	Array packed_curve;
-
-	void _curve_changed();
+    // Input
+    float float_val = 1.00;
+    // Output
+    Array value_arr;
 
 public:
-	void _process(const Array &p_inputs) override;
+    void _process(const Array &p_inputs) override;
 
     String get_caption() const override;
 
@@ -32,13 +30,13 @@ public:
 
     int get_property_input_count() const override;
     Variant::Type get_property_input_type(vec_size_t p_prop) const override;
-    String get_property_input_hint(vec_size_t p_prop) const override;
     Variant get_property_input(vec_size_t p_port) const override;
     void set_property_input(vec_size_t p_prop, Variant p_input) override;
 
     const Variant get_output(int p_port) const override;
 };
-
+    
 } // namespace godot
 
-#endif // HOODIE_HNINPUTCURVE3D_H
+
+#endif // HOODIE_HNINPUTVALUE_H

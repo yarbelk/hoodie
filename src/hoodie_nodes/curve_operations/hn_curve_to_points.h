@@ -1,19 +1,25 @@
-#ifndef HOODIE_HNOUTPUT_H
-#define HOODIE_HNOUTPUT_H
+#ifndef HOODIE_HNCURVETOPOINTS_H
+#define HOODIE_HNCURVETOPOINTS_H
 
 #include "hoodie_node.h"
 
 namespace godot
 {
-    
-class HNOutput : public HoodieNode {
-    GDCLASS(HNOutput, HoodieNode)
+
+class HNCurveToPoints : public HoodieNode {
+    GDCLASS(HNCurveToPoints, HoodieNode)
 
 private:
-    Array output_arr;
+    // Input
+
+    // Output
+    PackedVector3Array points;
+    PackedVector3Array tangents;
+    PackedVector3Array normals;
+    PackedFloat32Array tilts;
 
 public:
-	void _process(const Array &p_inputs) override;
+    void _process(const Array &p_inputs) override;
 
     String get_caption() const override;
 
@@ -27,7 +33,8 @@ public:
 
     const Variant get_output(int p_port) const override;
 };
-
+    
 } // namespace godot
 
-#endif // HOODIE_HNOUTPUT_H
+
+#endif // HOODIE_HNCURVETOPOINTS_H

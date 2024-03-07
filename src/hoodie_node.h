@@ -1,19 +1,32 @@
 #ifndef HOODIE_HOODIENODE_H
 #define HOODIE_HOODIENODE_H
 
+#include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 
 namespace godot
 {
 
 class HoodieNode : public Resource {
     GDCLASS(HoodieNode, Resource)
+
+    friend class HoodieGraphPlugin;
     friend class HoodieEditorPlugin;
     friend class HoodieMesh;
 
-    typedef uint32_t id_t;
+protected:
+    // typedef uint32_t id_t;
+    typedef int id_t;
+    typedef uint32_t vec_size_t;
 
+private:
+    HashMap<vec_size_t, bool> connected_input_ports;
+    HashMap<vec_size_t, bool> connected_output_ports;
+
+// TODO: delete this
+/*
 protected:
     struct Property {
         Variant::Type type;
@@ -38,6 +51,7 @@ protected:
               name(p_name),
               description(p_description) {}
     };
+*/
 
 public:
     enum PortType {
@@ -48,6 +62,9 @@ public:
 		PORT_TYPE_VECTOR_3D,
 		PORT_TYPE_VECTOR_4D,
 		PORT_TYPE_BOOLEAN,
+        PORT_TYPE_COLOR,
+        PORT_TYPE_STRING,
+        PORT_TYPE_GEOMETRY,
         PORT_TYPE_ARRAY,
         PORT_TYPE_MAX,
     };
@@ -60,35 +77,29 @@ public:
     };
 
 private:
-    id_t id;
-    Property property;
-    Vector<Socket> input_sockets;
-    Vector<Socket> output_sockets;
-
-    Vector2 position;
+    // TODO: delete this
+    // Property property;
+    // Vector<Socket> input_sockets;
+    // Vector<Socket> output_sockets;
 
     ProcessStatus status;
-    bool dirty = false;
+    bool dirty = true;
 
+protected:
     void mark_dirty();
 
 protected:
     static void _bind_methods();
 
 public:
-    void set_position(Vector2 p_pos);
-    Vector2 get_position() const;
-    void set_status(ProcessStatus p_status);
+    void set_status(const ProcessStatus &p_status);
     ProcessStatus get_status() const;
 
-    id_t get_id();
-    void set_id(id_t p_id);
-
     // Property stuff
-    void set_property(Property p_property);
-    Variant::Type get_property_type() const;
-    String get_property_hint() const;
-    virtual void construct_property();
+    // void set_property(const Property &p_property);
+    // Variant::Type get_property_type() const;
+    // String get_property_hint() const;
+    // virtual void construct_property();
     // virtual void set_input(Variant p_input);
     // virtual Variant get_input();
 
@@ -98,7 +109,11 @@ public:
 
     // virtual void construct_sockets();
     
-    virtual bool update(const Array &p_inputs);
+    virtual bool update(bool p_inputs_updated, const Array &p_inputs);
+
+    virtual void _process(const Array &p_inputs);
+
+    virtual String get_caption() const;
 
 	virtual int get_input_port_count() const;
 	virtual PortType get_input_port_type(int p_port) const;
@@ -107,6 +122,19 @@ public:
     virtual int get_output_port_count() const;
 	virtual PortType get_output_port_type(int p_port) const;
 	virtual String get_output_port_name(int p_port) const;
+
+    virtual int get_property_input_count() const;
+    virtual Variant::Type get_property_input_type(vec_size_t p_prop) const;
+    virtual String get_property_input_hint(vec_size_t p_prop) const;
+    virtual Variant get_property_input(vec_size_t p_port) const;
+    virtual void set_property_input(vec_size_t p_port, Variant p_input);
+
+    virtual const Variant get_output(int p_port) const;
+
+    bool is_output_port_connected(vec_size_t p_port) const;
+	void set_output_port_connected(vec_size_t p_port, bool p_connected);
+	bool is_input_port_connected(vec_size_t p_port) const;
+	void set_input_port_connected(vec_size_t p_port, bool p_connected);
 
     HoodieNode();
 };
