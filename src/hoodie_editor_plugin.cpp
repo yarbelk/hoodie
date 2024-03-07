@@ -355,8 +355,14 @@ void HoodieEditorPlugin::_add_node(int idx) {
     HoodieNode *hn = Object::cast_to<HoodieNode>(v);
     hnode = Ref<HoodieNode>(hn);
     id_t valid_id = hoodie_mesh->get_valid_node_id();
-    hoodie_mesh.ptr()->add_node(hnode, position, valid_id);
-    graph_plugin->add_node(valid_id, false);
+
+    EditorUndoRedoManager *undo_redo = get_undo_redo();
+    undo_redo->create_action("Add Node to Hoodie Mesh");
+    undo_redo->add_do_method(hoodie_mesh.ptr(), "add_node", hnode, position, valid_id);
+    undo_redo->add_undo_method(hoodie_mesh.ptr(), "remove_node", valid_id);
+    undo_redo->add_do_method(graph_plugin.ptr(), "add_node", valid_id, false);
+    undo_redo->add_undo_method(graph_plugin.ptr(), "remove_node", valid_id, false);
+    undo_redo->commit_action();
 }
 
 void HoodieEditorPlugin::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, id_t p_node) {
