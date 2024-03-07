@@ -595,6 +595,7 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
 
     graph_edit = memnew(GraphEdit);
     main_split->add_child(graph_edit);
+    graph_edit->set_right_disconnects(true);
 
     add_node = memnew(MenuButton);
     add_node->set_text("Add node...");
