@@ -330,7 +330,12 @@ void HoodieMesh::_bind_methods() {
     ClassDB::bind_method(D_METHOD("disconnect_nodes", "l_node", "l_port", "r_node", "r_port"), &HoodieMesh::disconnect_nodes);
     ClassDB::bind_method(D_METHOD("connect_nodes_forced", "l_node", "l_port", "r_node", "r_port"), &HoodieMesh::connect_nodes_forced);
 
+    ClassDB::bind_method(D_METHOD("set_graph_offset", "offset"), &HoodieMesh::set_graph_offset);
+    ClassDB::bind_method(D_METHOD("get_graph_offset"), &HoodieMesh::get_graph_offset);
+
     ClassDB::bind_method(D_METHOD("_update"), &HoodieMesh::_update);
+
+    ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "graph_offset", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_graph_offset", "get_graph_offset");
 }
 
 bool HoodieMesh::_set(const StringName &p_name, const Variant &p_value) {
@@ -587,6 +592,14 @@ void HoodieMesh::disconnect_nodes(id_t p_from_node, vec_size_t p_from_port, id_t
 bool HoodieMesh::is_port_types_compatible(int p_a, int p_b) const {
     // return MAX(0, p_a - (int)HoodieNode::PORT_TYPE_BOOLEAN) == (MAX(0, p_b - (int)HoodieNode::PORT_TYPE_BOOLEAN));
     return p_a == p_b;
+}
+
+void HoodieMesh::set_graph_offset(const Vector2 &p_offset) {
+    graph_offset = p_offset;
+}
+
+Vector2 HoodieMesh::get_graph_offset() const {
+    return graph_offset;
 }
 
 HoodieMesh::HoodieMesh() {

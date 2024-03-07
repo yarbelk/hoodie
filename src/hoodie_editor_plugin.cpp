@@ -256,8 +256,9 @@ void HoodieEditorPlugin::_menu_item_pressed(int index) {
     }
 }
 
+// TODO: delete this?
 void HoodieEditorPlugin::_add_button_pressed() {
-    place = Vector2(10.0, 50.0);
+    // place = Vector2(10.0, 50.0);
 }
 
 void HoodieEditorPlugin::_add_popup_pressed(int index) {
@@ -277,7 +278,7 @@ void HoodieEditorPlugin::_update_graph() {
         return;
     }
 
-    // TODO: graph_edit->set_scroll_offset();
+    graph_edit->set_scroll_offset(hoodie_mesh->get_graph_offset());
 
     graph_edit->clear_connections();
     // Remove all nodes.
@@ -339,12 +340,22 @@ void HoodieEditorPlugin::_update_options_menu() {
 
 void HoodieEditorPlugin::_add_node(int idx) {
     // TODO: godot source code visual_shader_editor_plugin.cpp _add_node()
+    Point2 position = graph_edit->get_scroll_offset();
+
+    if (saved_node_pos_dirty) {
+        position += saved_node_pos;
+    } else {
+        position += graph_edit->get_size() * 0.5;
+    }
+    position /= graph_edit->get_zoom();
+    saved_node_pos_dirty = false;
+
     Ref<HoodieNode> hnode;
     Variant v = ClassDB::instantiate(StringName(add_options[idx].type));
     HoodieNode *hn = Object::cast_to<HoodieNode>(v);
     hnode = Ref<HoodieNode>(hn);
     id_t valid_id = hoodie_mesh->get_valid_node_id();
-    hoodie_mesh.ptr()->add_node(hnode, place, valid_id);
+    hoodie_mesh.ptr()->add_node(hnode, position, valid_id);
     graph_plugin->add_node(valid_id, false);
 }
 
@@ -511,6 +522,7 @@ void HoodieEditorPlugin::_notification(int what) {
         case NOTIFICATION_POSTINITIALIZE: {
             graph_edit->connect("connection_request", callable_mp(this, &HoodieEditorPlugin::_connection_request), CONNECT_DEFERRED);
             graph_edit->connect("disconnection_request", callable_mp(this, &HoodieEditorPlugin::_disconnection_request), CONNECT_DEFERRED);
+            graph_edit->connect("scroll_offset_changed", callable_mp(this, &HoodieEditorPlugin::_scroll_changed));
             graph_edit->connect("delete_nodes_request", callable_mp(this, &HoodieEditorPlugin::_delete_nodes_request));
 
             file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_menu_item_pressed));
@@ -520,6 +532,18 @@ void HoodieEditorPlugin::_notification(int what) {
             _update_options_menu();
         } break;
     }
+}
+
+void HoodieEditorPlugin::_scroll_changed(const Vector2 &p_scroll) {
+    if (updating) {
+        return;
+    }
+    if (hoodie_mesh.is_null() || !hoodie_mesh.is_valid()) {
+        return;
+    }
+    updating = true;
+    hoodie_mesh->set_graph_offset(p_scroll);
+    updating = false;
 }
 
 void HoodieEditorPlugin::_make_visible(bool visible) {
@@ -553,6 +577,8 @@ void HoodieEditorPlugin::_edit(Object *object) {
         }
         hoodie_mesh = Ref<HoodieMesh>(hm);
         graph_plugin->register_hoodie_mesh(hoodie_mesh.ptr());
+
+        hoodie_mesh->set_graph_offset(graph_edit->get_scroll_offset());
 
         _update_nodes();
     } else {

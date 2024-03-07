@@ -87,7 +87,8 @@ class HoodieEditorPlugin : public EditorPlugin {
 
     Button *button = nullptr;
 
-    Vector2 place;
+    Point2 saved_node_pos;
+    bool saved_node_pos_dirty = false;
 
     // void _window_changed(bool p_visible);
 
@@ -132,6 +133,8 @@ class HoodieEditorPlugin : public EditorPlugin {
 
 	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
 	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
+
+    void _scroll_changed(const Vector2 &p_scroll);
 
     void _delete_nodes(const List<HoodieMesh::id_t> &p_nodes);
     void _delete_node_request(HoodieMesh::id_t p_node);

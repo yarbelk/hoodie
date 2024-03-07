@@ -120,6 +120,9 @@ public:
     // void rebuild();
     void get_node_connections(List<Connection> *r_connections) const;
 
+    void set_graph_offset(const Vector2 &p_offset);
+    Vector2 get_graph_offset() const;
+
     HoodieMesh();
 };
     
