@@ -252,6 +252,7 @@ void HoodieEditorPlugin::_menu_item_pressed(int index) {
                 E.value.node->update(true, Array());
             }
             */
+            UtilityFunctions::print("HoodieMesh get_graph_offset() " + hoodie_mesh->get_graph_offset());
         } break;
     }
 }
