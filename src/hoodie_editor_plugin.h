@@ -57,6 +57,8 @@ public:
     void set_node_position(id_t p_id, const Vector2 &p_position);
 
     void _on_range_value_changed(double p_val, id_t p_id, vec_size_t p_port_id);
+    // Used when using editor spin sliders to update a vector input property (e.g. HNInputVector3D)
+    void _on_vector_range_value_changed(double p_val, id_t p_id, vec_size_t p_port_id, int p_xyzw);
 
     HoodieGraphPlugin();
     ~HoodieGraphPlugin();

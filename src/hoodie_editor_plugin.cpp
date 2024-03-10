@@ -140,6 +140,7 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 
     // Adding Properties fields.
     VBoxContainer *props_vb = memnew(VBoxContainer);
+    int slider_count = 0;
     for (int i = 0; i < hoodie_node->get_property_input_count(); i++) {
         switch (hoodie_node->get_property_input_type(i)) {
             case Variant::INT:
@@ -155,7 +156,7 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
                     ess->set_allow_lesser(true);
                     ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, i));
                     Link &link = links[p_id];
-                    link.ranges[i] = ess;
+                    link.ranges[slider_count++] = ess;
                 }
                 break;
             case Variant::FLOAT:
@@ -171,7 +172,26 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
                     ess->set_allow_lesser(true);
                     ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, i));
                     Link &link = links[p_id];
-                    link.ranges[i] = ess;
+                    link.ranges[slider_count++] = ess;
+                }
+                break;
+            case Variant::VECTOR3:
+                {
+                    Vector3 v3 = hoodie_node->get_property_input(i);
+                    for (int v = 0; v < 3; v++) {
+                        EditorSpinSlider *ess = memnew(EditorSpinSlider);
+                        props_vb->add_child(ess);
+                        ess->set_custom_minimum_size(Size2(65, 0));
+                        ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                        ess->set_value(v3[v]);
+                        ess->set_step(0.01);
+                        ess->set_hide_slider(true);
+                        ess->set_allow_greater(true);
+                        ess->set_allow_lesser(true);
+                        ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_vector_range_value_changed).bind(p_id, i, v));
+                        Link &link = links[p_id];
+                        link.ranges[slider_count++] = ess;
+                    }
                 }
                 break;
             case Variant::OBJECT:
@@ -242,6 +262,57 @@ void HoodieGraphPlugin::set_node_position(id_t p_id, const Vector2 &p_position) 
 void HoodieGraphPlugin::_on_range_value_changed(double p_val, id_t p_id, vec_size_t p_prop_id) {
     Link &link = links[p_id];
     link.hoodie_node->set_property_input(p_prop_id, Variant(p_val));
+    link.hoodie_node->mark_dirty();
+    editor->hoodie_mesh->_queue_update();
+}
+
+void HoodieGraphPlugin::_on_vector_range_value_changed(double p_val, id_t p_id, vec_size_t p_prop_id, int p_xyzw) {
+    Link &link = links[p_id];
+
+    TypedArray<double> arr;
+    Variant::Type t = link.hoodie_node->get_property_input_type(p_prop_id);
+    Variant vector = link.hoodie_node->get_property_input(p_prop_id);
+    switch (t) {
+        case Variant::VECTOR2:
+        {
+            arr.push_back(((Vector2)vector).x);
+            arr.push_back(((Vector2)vector).y);
+        }
+        break;
+        case Variant::VECTOR3:
+        {
+            arr.push_back(((Vector3)vector).x);
+            arr.push_back(((Vector3)vector).y);
+            arr.push_back(((Vector3)vector).z);
+        }
+        break;
+        case Variant::VECTOR4:
+        {
+            arr.push_back(((Vector4)vector).x);
+            arr.push_back(((Vector4)vector).y);
+            arr.push_back(((Vector4)vector).z);
+            arr.push_back(((Vector4)vector).w);
+        }
+        break;
+    }
+
+    for (int i = 0; i < arr.size(); i++) {
+        if (i == p_xyzw) {
+            arr[i] = p_val;
+        }
+    }
+
+    if (arr.size() == 2) {
+        Vector2 v = Vector2(arr[0], arr[1]);
+        link.hoodie_node->set_property_input(p_prop_id, Variant(v));
+    } else if (arr.size() == 3) {
+        Vector3 v = Vector3(arr[0], arr[1], arr[2]);
+        link.hoodie_node->set_property_input(p_prop_id, Variant(v));
+    } else if (arr.size() == 4) {
+        Vector4 v = Vector4(arr[0], arr[1], arr[2], arr[3]);
+        link.hoodie_node->set_property_input(p_prop_id, Variant(v));
+    }
+
     link.hoodie_node->mark_dirty();
     editor->hoodie_mesh->_queue_update();
 }
@@ -661,6 +732,7 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
 
     add_options.push_back(AddOption("Input Value", "Input/Constant", "HNInputValue"));
     add_options.push_back(AddOption("Input Integer", "Input/Constant", "HNInputInteger"));
+    add_options.push_back(AddOption("Input Vector3D", "Input/Constant", "HNInputVector3D"));
 
     add_options.push_back(AddOption("Input Curve3D", "Input", "HNInputCurve3D"));
 
