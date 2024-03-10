@@ -12,7 +12,7 @@ void HNInputVector3D::_process(const Array &p_inputs) {
 }
 
 String HNInputVector3D::get_caption() const {
-    return "Value";
+    return "Vector3D";
 }
 
 int HNInputVector3D::get_input_port_count() const {
