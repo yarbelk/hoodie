@@ -9,6 +9,7 @@
 #include "hoodie_nodes/curve_operations/hn_curve_to_points.h"
 #include "hoodie_nodes/input/hn_input_curve_3d.h"
 #include "hoodie_nodes/input_constant/hn_input_value.h"
+#include "hoodie_nodes/input_constant/hn_input_integer.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_grid.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_line.h"
 #include "hoodie_nodes/output/hn_output.h"
@@ -27,6 +28,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNCurveToPoints>();
 		ClassDB::register_class<HNInputCurve3D>();
 		ClassDB::register_class<HNInputValue>();
+		ClassDB::register_class<HNInputInteger>();
 		ClassDB::register_class<HNMeshGrid>();
 		ClassDB::register_class<HNMeshLine>();
 		ClassDB::register_class<HNOutput>();

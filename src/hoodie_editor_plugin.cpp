@@ -142,6 +142,22 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     VBoxContainer *props_vb = memnew(VBoxContainer);
     for (int i = 0; i < hoodie_node->get_property_input_count(); i++) {
         switch (hoodie_node->get_property_input_type(i)) {
+            case Variant::INT:
+                {
+                    EditorSpinSlider *ess = memnew(EditorSpinSlider);
+                    props_vb->add_child(ess);
+                    ess->set_custom_minimum_size(Size2(65, 0));
+                    ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                    ess->set_value(hoodie_node->get_property_input(i));
+                    ess->set_step(1);
+                    ess->set_hide_slider(true);
+                    ess->set_allow_greater(true);
+                    ess->set_allow_lesser(true);
+                    ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, i));
+                    Link &link = links[p_id];
+                    link.ranges[i] = ess;
+                }
+                break;
             case Variant::FLOAT:
                 {
                     EditorSpinSlider *ess = memnew(EditorSpinSlider);
@@ -644,6 +660,7 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     // INPUT
 
     add_options.push_back(AddOption("Input Value", "Input/Constant", "HNInputValue"));
+    add_options.push_back(AddOption("Input Integer", "Input/Constant", "HNInputInteger"));
 
     add_options.push_back(AddOption("Input Curve3D", "Input", "HNInputCurve3D"));
 
