@@ -333,6 +333,7 @@ void HoodieMesh::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_graph_offset", "offset"), &HoodieMesh::set_graph_offset);
     ClassDB::bind_method(D_METHOD("get_graph_offset"), &HoodieMesh::get_graph_offset);
 
+    ClassDB::bind_method(D_METHOD("_queue_update"), &HoodieMesh::_queue_update);
     ClassDB::bind_method(D_METHOD("_update"), &HoodieMesh::_update);
 
     ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "graph_offset", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_graph_offset", "get_graph_offset");

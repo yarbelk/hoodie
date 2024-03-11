@@ -2,6 +2,21 @@
 
 using namespace godot;
 
+void HNInputInteger::set_int_value(const int p_value) {
+    int_val = p_value;
+}
+
+int HNInputInteger::get_int_value() const {
+    return int_val;
+}
+
+void HNInputInteger::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("set_int_value", "value"), &HNInputInteger::set_int_value);
+    ClassDB::bind_method(D_METHOD("get_int_value"), &HNInputInteger::get_int_value);
+
+    ADD_PROPERTY(PropertyInfo(Variant::INT, "int_value", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_int_value", "get_int_value");
+}
+
 void HNInputInteger::_process(const Array &p_inputs) {
     UtilityFunctions::print("HNInputInteger _process() call.");
 
@@ -53,6 +68,17 @@ Variant HNInputInteger::get_property_input(vec_size_t p_port) const {
 
 void HNInputInteger::set_property_input(vec_size_t p_prop, Variant p_input) {
     int_val = (int)p_input;
+}
+
+Vector<StringName> HNInputInteger::get_editable_properties() const {
+    Vector<StringName> props;
+    props.push_back("int_value");
+    // TODO: VisualShaderNodeIntParameter::get_editable_properties()
+    return props;
+}
+
+HashMap<StringName, String> HNInputInteger::get_editable_properties_names() const {
+    return HashMap<StringName, String>();
 }
 
 const Variant HNInputInteger::get_output(int p_port) const {

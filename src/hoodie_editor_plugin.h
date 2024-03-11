@@ -16,9 +16,26 @@
 #include "godot_cpp/classes/spin_box.hpp"
 #include "godot_cpp/classes/editor_spin_slider.hpp"
 #include "godot_cpp/classes/editor_property.hpp"
+#include "godot_cpp/classes/editor_inspector.hpp"
 
 namespace godot
 {
+
+class HoodieNodePlugin : public RefCounted {
+    GDCLASS(HoodieNodePlugin, RefCounted);
+
+protected:
+    HoodieEditorPlugin *hmeditor = nullptr;
+
+protected:
+    static void _bind_methods();
+
+    // TODO: GDVIRTUAL2RC(Object *, _create_editor, Ref<Resource>, Ref<VisualShaderNode>)
+
+public:
+    void set_editor(HoodieEditorPlugin *p_editor);
+    virtual Control *create_editor(const Ref<Resource> &p_parent_resoruce, const Ref<HoodieNode> &p_node);
+};
 
 class HoodieGraphPlugin : public RefCounted {
     GDCLASS(HoodieGraphPlugin, RefCounted);
@@ -142,6 +159,10 @@ class HoodieEditorPlugin : public EditorPlugin {
     void _delete_node_request(HoodieMesh::id_t p_node);
     void _delete_nodes_request(const TypedArray<StringName> &p_nodes);
 
+    void _change_node_property(id_t p_id, vec_size_t p_prop_id, Variant p_val);
+
+    // plugins purpose is for showing custom properties UI in hoodie graph nodes.
+    Vector<Ref<HoodieNodePlugin>> plugins;
     Ref<HoodieGraphPlugin> graph_plugin;
 
 protected:
@@ -149,6 +170,9 @@ protected:
     void _notification(int what);
 
 public:
+    void add_plugin(const Ref<HoodieNodePlugin> &p_plugin);
+    void remove_plugin(const Ref<HoodieNodePlugin> &p_plugin);
+
     HoodieGraphPlugin *get_graph_plugin() { return graph_plugin.ptr(); }
 
     // virtual String get_name() const override { return "Hoodie"; }
@@ -169,6 +193,54 @@ public:
     // void edit(HoodieMesh *p_hoodie_mesh);
     HoodieEditorPlugin();
 };
+
+// A RefCounted that creates a Control
+class HoodieNodePluginDefault : public HoodieNodePlugin {
+    GDCLASS(HoodieNodePluginDefault, HoodieNodePlugin);
+
+public:
+    virtual Control *create_editor(const Ref<Resource> &p_parent_resource, const Ref<HoodieNode> &p_node) override;
+};
+
+class HoodieNodePluginInputEditor : public Label {
+    GDCLASS(HoodieNodePluginInputEditor, Label)
+
+    HoodieEditorPlugin *editor = nullptr;
+    // TODO: Ref<HoodieNodeParameterRef> parameter_ref;
+
+public:
+    void _notification(int p_what);
+    void setup(HoodieEditorPlugin *p_editor);
+
+protected:
+    static void _bind_methods();
+};
+
+class HoodieNodePluginDefaultEditor : public VBoxContainer {
+    GDCLASS(HoodieNodePluginDefaultEditor, VBoxContainer);
+
+    HoodieEditorPlugin *editor = nullptr;
+    Ref<Resource> parent_resource;
+    int node_id = 0;
+
+protected:
+    static void _bind_methods();
+
+public:
+    void _property_changed(const Variant &p_value, const String &p_property, Control *p_property_control, const String &p_field, bool p_changing);
+    void _node_changed();
+    void _resource_selected(const String &p_path, Ref<Resource> p_resource);
+    void _open_inspector(Ref<Resource> p_resource);
+
+    bool updating = false;
+    Ref<HoodieNode> node;
+    Vector<Control *> properties;
+    Vector<Label *> prop_names;
+
+    void _show_prop_names(bool p_show);
+    void setup(HoodieEditorPlugin *p_editor, Ref<Resource> p_parent_resource, Vector<Control *> p_properties, const Vector<StringName> &p_names, const HashMap<StringName, String> &p_overrided_names, Ref<HoodieNode> p_node);
+};
+
     
 } // namespace godot
 

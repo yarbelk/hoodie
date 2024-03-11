@@ -34,6 +34,9 @@ void HoodieNode::construct_property() {
 } */
 
 void HoodieNode::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("mark_dirty"), &HoodieNode::mark_dirty);
+    ClassDB::bind_method(D_METHOD("set_property_input", "id", "value"), &HoodieNode::set_property_input);
+
     ADD_SIGNAL(MethodInfo("changed", PropertyInfo(Variant::OBJECT, "HoodieNode")));
 }
 
@@ -97,6 +100,14 @@ Variant HoodieNode::get_property_input(vec_size_t p_port) const {
 }
 
 void HoodieNode::set_property_input(vec_size_t p_prop, Variant p_input) {
+}
+
+Vector<StringName> HoodieNode::get_editable_properties() const {
+    return Vector<StringName>();
+}
+
+HashMap<StringName, String> HoodieNode::get_editable_properties_names() const {
+    return HashMap<StringName, String>();
 }
 
 const Variant HoodieNode::get_output(int p_port) const {

@@ -45,8 +45,12 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 // #ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
 		// In GDExtension we have to explicitely register all classes deriving from Object even if they are not exposed
+		ClassDB::register_internal_class<HoodieNodePlugin>();
 		ClassDB::register_internal_class<HoodieGraphPlugin>();
 		ClassDB::register_internal_class<HoodieEditorPlugin>();
+		ClassDB::register_internal_class<HoodieNodePluginDefault>();
+		ClassDB::register_internal_class<HoodieNodePluginInputEditor>();
+		ClassDB::register_internal_class<HoodieNodePluginDefaultEditor>();
 
 		EditorPlugins::add_by_type<HoodieEditorPlugin>();
 	}
