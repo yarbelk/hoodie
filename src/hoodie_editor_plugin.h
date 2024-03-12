@@ -220,7 +220,7 @@ class HoodieNodePluginDefaultEditor : public VBoxContainer {
     GDCLASS(HoodieNodePluginDefaultEditor, VBoxContainer);
 
     HoodieEditorPlugin *editor = nullptr;
-    Ref<Resource> parent_resource;
+    Ref<HoodieMesh> parent_resource;
     int node_id = 0;
 
 protected:
@@ -238,7 +238,7 @@ public:
     Vector<Label *> prop_names;
 
     void _show_prop_names(bool p_show);
-    void setup(HoodieEditorPlugin *p_editor, Ref<Resource> p_parent_resource, Vector<Control *> p_properties, const Vector<StringName> &p_names, const HashMap<StringName, String> &p_overrided_names, Ref<HoodieNode> p_node);
+    void setup(HoodieEditorPlugin *p_editor, Ref<HoodieMesh> p_parent_resource, Vector<Control *> p_properties, const Vector<StringName> &p_names, const HashMap<StringName, String> &p_overrided_names, Ref<HoodieNode> p_node);
 };
 
     

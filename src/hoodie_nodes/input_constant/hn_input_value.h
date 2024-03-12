@@ -16,6 +16,13 @@ private:
     Array value_arr;
 
 public:
+    void set_float_value(const float p_value);
+    float get_float_value() const;
+
+protected:
+    static void _bind_methods();
+
+public:
     void _process(const Array &p_inputs) override;
 
     String get_caption() const override;
@@ -32,6 +39,9 @@ public:
     Variant::Type get_property_input_type(vec_size_t p_prop) const override;
     Variant get_property_input(vec_size_t p_port) const override;
     void set_property_input(vec_size_t p_prop, Variant p_input) override;
+
+    Vector<StringName> get_editable_properties() const override;
+    HashMap<StringName, String> get_editable_properties_names() const override;
 
     const Variant get_output(int p_port) const override;
 };

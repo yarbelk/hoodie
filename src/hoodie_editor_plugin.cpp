@@ -183,38 +183,6 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     int slider_count = 0;
     for (int i = 0; i < hoodie_node->get_property_input_count(); i++) {
         switch (hoodie_node->get_property_input_type(i)) {
-            case Variant::INT:
-                {
-                    // EditorSpinSlider *ess = memnew(EditorSpinSlider);
-                    // props_vb->add_child(ess);
-                    // ess->set_custom_minimum_size(Size2(65, 0));
-                    // ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-                    // ess->set_value(hoodie_node->get_property_input(i));
-                    // ess->set_step(1);
-                    // ess->set_hide_slider(true);
-                    // ess->set_allow_greater(true);
-                    // ess->set_allow_lesser(true);
-                    // ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, i));
-                    // Link &link = links[p_id];
-                    // link.ranges[slider_count++] = ess;
-                }
-                break;
-            case Variant::FLOAT:
-                {
-                    EditorSpinSlider *ess = memnew(EditorSpinSlider);
-                    props_vb->add_child(ess);
-                    ess->set_custom_minimum_size(Size2(65, 0));
-                    ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-                    ess->set_value(hoodie_node->get_property_input(i));
-                    ess->set_step(0.01);
-                    ess->set_hide_slider(true);
-                    ess->set_allow_greater(true);
-                    ess->set_allow_lesser(true);
-                    ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, i));
-                    Link &link = links[p_id];
-                    link.ranges[slider_count++] = ess;
-                }
-                break;
             case Variant::VECTOR3:
                 {
                     Vector3 v3 = hoodie_node->get_property_input(i);
@@ -868,23 +836,26 @@ void HoodieNodePluginDefaultEditor::_property_changed(const Variant &p_value, co
 
     updating = true;
     undo_redo->create_action(vformat("Edit Hoodie Node Property: %s", p_property), UndoRedo::MERGE_ENDS);
+
     undo_redo->add_do_property(node.ptr(), p_property, p_value);
-    undo_redo->add_do_method(p_property_control, "set_value_no_signal", p_value);
     undo_redo->add_undo_property(node.ptr(), p_property, node->get(p_property));
 
+    // Change values of the UI Control nodes
     EditorSpinSlider *ess = (EditorSpinSlider*)p_property_control;
     if (ess) {
-        Variant old = ess->get_value();
-        int old_int = ess->get_value();
-        // undo_redo->add_undo_method(p_property_control, "set_value_no_signal", old_int);
+        undo_redo->add_do_method(p_property_control, "set_value_no_signal", p_value);
         undo_redo->add_undo_method(p_property_control, "set_value_no_signal", node->get(p_property));
     }
+
+    undo_redo->add_do_method(node.ptr(), "mark_dirty");
+    undo_redo->add_undo_method(node.ptr(), "mark_dirty");
+    undo_redo->add_do_method(parent_resource.ptr(), "_queue_update");
+    undo_redo->add_undo_method(parent_resource.ptr(), "_queue_update");
 
     // TODO: if (p_value.get_type() == Variant::OBJECT)
     // TODO: if (p_property != "constant")
 
     undo_redo->commit_action();
-
     updating = false;
 }
 
@@ -913,7 +884,7 @@ void HoodieNodePluginDefaultEditor::_show_prop_names(bool p_show) {
     }
 }
 
-void HoodieNodePluginDefaultEditor::setup(HoodieEditorPlugin *p_editor, Ref<Resource> p_parent_resource, Vector<Control *> p_properties, const Vector<StringName> &p_names, const HashMap<StringName, String> &p_overrided_names, Ref<HoodieNode> p_node) {
+void HoodieNodePluginDefaultEditor::setup(HoodieEditorPlugin *p_editor, Ref<HoodieMesh> p_parent_resource, Vector<Control *> p_properties, const Vector<StringName> &p_names, const HashMap<StringName, String> &p_overrided_names, Ref<HoodieNode> p_node) {
     editor = p_editor;
     parent_resource = p_parent_resource;
     updating = false;
@@ -951,7 +922,8 @@ void HoodieNodePluginDefaultEditor::setup(HoodieEditorPlugin *p_editor, Ref<Reso
         // properties[i]->connect("property_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed));
 
         if (properties[i]->is_class("EditorSpinSlider")) {
-            properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind("int_value", properties[i], "", false));
+            // properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind("int_value", properties[i], "", false));
+            properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         }
 
         // properties[i]->set_object_and_property(node.ptr(), p_names[i]);
@@ -983,6 +955,7 @@ Control *HoodieNodePluginDefault::create_editor(const Ref<Resource> &p_parent_re
     //     return editor;
     // }
 
+    // Every HoodieNode with input properties needs to override get_editable_properties()
     Vector<StringName> properties = p_node->get_editable_properties();
     if (properties.size() == 0) {
         return nullptr;
@@ -1018,23 +991,13 @@ Control *HoodieNodePluginDefault::create_editor(const Ref<Resource> &p_parent_re
         return nullptr;
     }
 
+    // Clear properties as we will push back properties again later.
     properties.clear();
 
     Ref<HoodieNode> node = p_node;
     Vector<Control *> editors;
 
     for (int i = 0; i < pinfo.size(); i++) {
-        // EditorProperty *prop = EditorInspector::instantiate_property_editor(node.ptr(), pinfo[i].type, pinfo[i].name, pinfo[i].hint, pinfo[i].hint_string, pinfo[i].usage);
-
-        // EditorProperty *prop;
-        // if (!prop) {
-        //     return nullptr;
-        // }
-
-        // if (Object::cast_to<EditorPropertyVector3>(prop)) {
-        //     // prop->set_custom_minimum_size();
-        // }
-
         if (pinfo[i].type == Variant::Type::INT) {
             EditorSpinSlider *ess = memnew(EditorSpinSlider);
             ess->set_custom_minimum_size(Size2(65, 0));
@@ -1044,7 +1007,16 @@ Control *HoodieNodePluginDefault::create_editor(const Ref<Resource> &p_parent_re
             ess->set_hide_slider(true);
             ess->set_allow_greater(true);
             ess->set_allow_lesser(true);
-
+            editors.push_back(ess);
+        } else if (pinfo[i].type == Variant::Type::FLOAT) {
+            EditorSpinSlider *ess = memnew(EditorSpinSlider);
+            ess->set_custom_minimum_size(Size2(65, 0));
+            ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            ess->set_value(p_node->get_property_input(i));
+            ess->set_step(0.01);
+            ess->set_hide_slider(true);
+            ess->set_allow_greater(true);
+            ess->set_allow_lesser(true);
             editors.push_back(ess);
         }
         properties.push_back(pinfo[i].name);

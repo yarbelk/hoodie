@@ -27,7 +27,7 @@ void HNInputInteger::_process(const Array &p_inputs) {
 }
 
 String HNInputInteger::get_caption() const {
-    return "Value";
+    return "Input Integer";
 }
 
 int HNInputInteger::get_input_port_count() const {
