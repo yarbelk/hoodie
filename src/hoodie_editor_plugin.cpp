@@ -183,25 +183,6 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     int slider_count = 0;
     for (int i = 0; i < hoodie_node->get_property_input_count(); i++) {
         switch (hoodie_node->get_property_input_type(i)) {
-            case Variant::VECTOR3:
-                {
-                    Vector3 v3 = hoodie_node->get_property_input(i);
-                    for (int v = 0; v < 3; v++) {
-                        EditorSpinSlider *ess = memnew(EditorSpinSlider);
-                        props_vb->add_child(ess);
-                        ess->set_custom_minimum_size(Size2(65, 0));
-                        ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-                        ess->set_value(v3[v]);
-                        ess->set_step(0.01);
-                        ess->set_hide_slider(true);
-                        ess->set_allow_greater(true);
-                        ess->set_allow_lesser(true);
-                        ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_vector_range_value_changed).bind(p_id, i, v));
-                        Link &link = links[p_id];
-                        link.ranges[slider_count++] = ess;
-                    }
-                }
-                break;
             case Variant::OBJECT:
                 {
                     if (hoodie_node->get_class() == "HNInputCurve3D") {

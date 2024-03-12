@@ -2,6 +2,43 @@
 
 using namespace godot;
 
+void HNInputVector3D::set_x_value(const float p_value) {
+    vector_val.x = p_value;
+}
+
+float HNInputVector3D::get_x_value() const {
+    return vector_val.x;
+}
+
+void HNInputVector3D::set_y_value(const float p_value) {
+    vector_val.y = p_value;
+}
+
+float HNInputVector3D::get_y_value() const {
+    return vector_val.y;
+}
+
+void HNInputVector3D::set_z_value(const float p_value) {
+    vector_val.z = p_value;
+}
+
+float HNInputVector3D::get_z_value() const {
+    return vector_val.z;
+}
+
+void HNInputVector3D::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("set_x_value", "value"), &HNInputVector3D::set_x_value);
+    ClassDB::bind_method(D_METHOD("get_x_value"), &HNInputVector3D::get_x_value);
+    ClassDB::bind_method(D_METHOD("set_y_value", "value"), &HNInputVector3D::set_y_value);
+    ClassDB::bind_method(D_METHOD("get_y_value"), &HNInputVector3D::get_y_value);
+    ClassDB::bind_method(D_METHOD("set_z_value", "value"), &HNInputVector3D::set_z_value);
+    ClassDB::bind_method(D_METHOD("get_z_value"), &HNInputVector3D::get_z_value);
+
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "x_value", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_x_value", "get_x_value");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "y_value", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_y_value", "get_y_value");
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "z_value", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_z_value", "get_z_value");
+}
+
 void HNInputVector3D::_process(const Array &p_inputs) {
     UtilityFunctions::print("HNInputValue _process() call.");
 
@@ -53,6 +90,18 @@ Variant HNInputVector3D::get_property_input(vec_size_t p_port) const {
 
 void HNInputVector3D::set_property_input(vec_size_t p_prop, Variant p_input) {
     vector_val = (Vector3)p_input;
+}
+
+Vector<StringName> HNInputVector3D::get_editable_properties() const {
+    Vector<StringName> props;
+    props.push_back("x_value");
+    props.push_back("y_value");
+    props.push_back("z_value");
+    return props;
+}
+
+HashMap<StringName, String> HNInputVector3D::get_editable_properties_names() const {
+    return HashMap<StringName, String>();
 }
 
 const Variant HNInputVector3D::get_output(int p_port) const {
