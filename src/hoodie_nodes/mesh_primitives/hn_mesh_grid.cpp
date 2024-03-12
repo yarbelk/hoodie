@@ -7,8 +7,6 @@ using namespace godot;
 void HNMeshGrid::_process(const Array &p_inputs) {
     UtilityFunctions::print("HNMeshGrid _process() call.");
 
-    // float& x = default_size.x;
-    // float& z = default_size.y;
     float x = 1;
     float z = 1;
 
@@ -60,9 +58,9 @@ HNMeshGrid::PortType HNMeshGrid::get_input_port_type(int p_port) const {
         case 1:
             return PortType::PORT_TYPE_SCALAR;
         case 2:
-            return PortType::PORT_TYPE_SCALAR_INT;
+            return PortType::PORT_TYPE_SCALAR_UINT;
         case 3:
-            return PortType::PORT_TYPE_SCALAR_INT;
+            return PortType::PORT_TYPE_SCALAR_UINT;
         default:
             return PortType::PORT_TYPE_SCALAR;
     }

@@ -592,7 +592,22 @@ void HoodieMesh::disconnect_nodes(id_t p_from_node, vec_size_t p_from_port, id_t
 
 bool HoodieMesh::is_port_types_compatible(int p_a, int p_b) const {
     // return MAX(0, p_a - (int)HoodieNode::PORT_TYPE_BOOLEAN) == (MAX(0, p_b - (int)HoodieNode::PORT_TYPE_BOOLEAN));
-    return p_a == p_b;
+    if (p_a == p_b) {
+        return true;
+    }
+
+    HoodieNode::PortType a = (HoodieNode::PortType)p_a;
+    HoodieNode::PortType b = (HoodieNode::PortType)p_b;
+
+    if (a == HoodieNode::PortType::PORT_TYPE_SCALAR_INT && b == HoodieNode::PortType::PORT_TYPE_SCALAR_UINT) {
+        return true;
+    }
+
+    if (a == HoodieNode::PortType::PORT_TYPE_SCALAR_UINT && b == HoodieNode::PortType::PORT_TYPE_SCALAR_INT) {
+        return true;
+    }
+
+    return false;
 }
 
 void HoodieMesh::set_graph_offset(const Vector2 &p_offset) {
