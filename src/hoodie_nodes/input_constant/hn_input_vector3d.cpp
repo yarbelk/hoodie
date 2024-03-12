@@ -77,19 +77,33 @@ String HNInputVector3D::get_output_port_name(int p_port) const {
 }
 
 int HNInputVector3D::get_property_input_count() const {
-    return 1;
+    return 3;
 }
 
 Variant::Type HNInputVector3D::get_property_input_type(vec_size_t p_prop) const {
-    return Variant::VECTOR3;
+    return Variant::FLOAT;
 }
 
 Variant HNInputVector3D::get_property_input(vec_size_t p_port) const {
-    return Variant(vector_val);
+    switch (p_port) {
+        case 0:
+            return Variant(get_x_value());
+        case 1:
+            return Variant(get_y_value());
+        case 2:
+            return Variant(get_z_value());
+    }
 }
 
 void HNInputVector3D::set_property_input(vec_size_t p_prop, Variant p_input) {
-    vector_val = (Vector3)p_input;
+    switch (p_prop) {
+        case 0:
+            vector_val.x = p_input;
+        case 1:
+            vector_val.y = p_input;
+        case 2:
+            vector_val.z = p_input;
+    }
 }
 
 Vector<StringName> HNInputVector3D::get_editable_properties() const {

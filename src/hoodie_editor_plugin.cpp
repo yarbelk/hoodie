@@ -983,21 +983,21 @@ Control *HoodieNodePluginDefault::create_editor(const Ref<Resource> &p_parent_re
             EditorSpinSlider *ess = memnew(EditorSpinSlider);
             ess->set_custom_minimum_size(Size2(65, 0));
             ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-            ess->set_value(p_node->get_property_input(i));
             ess->set_step(1);
             ess->set_hide_slider(true);
             ess->set_allow_greater(true);
             ess->set_allow_lesser(true);
+            ess->set_value(p_node->get_property_input(i));
             editors.push_back(ess);
         } else if (pinfo[i].type == Variant::Type::FLOAT) {
             EditorSpinSlider *ess = memnew(EditorSpinSlider);
             ess->set_custom_minimum_size(Size2(65, 0));
             ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-            ess->set_value(p_node->get_property_input(i));
             ess->set_step(0.01);
             ess->set_hide_slider(true);
             ess->set_allow_greater(true);
             ess->set_allow_lesser(true);
+            ess->set_value(p_node->get_property_input(i));
             editors.push_back(ess);
         }
         properties.push_back(pinfo[i].name);

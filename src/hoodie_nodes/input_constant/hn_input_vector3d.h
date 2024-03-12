@@ -11,7 +11,7 @@ class HNInputVector3D : public HoodieNode {
 
 private:
     // Input
-    Vector3 vector_val = Vector3(0.00, 0.00, 0.00);
+    Vector3 vector_val = Vector3(1.00, 0.00, 0.00);
     // Output
     Array value_arr;
 
