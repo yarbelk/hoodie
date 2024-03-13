@@ -129,6 +129,9 @@ public:
     virtual Variant get_property_input(vec_size_t p_port) const;
     virtual void set_property_input(vec_size_t p_port, Variant p_input);
 
+    virtual Vector<StringName> get_editable_properties() const;
+    virtual HashMap<StringName, String> get_editable_properties_names() const;
+
     virtual const Variant get_output(int p_port) const;
 
     bool is_output_port_connected(vec_size_t p_port) const;

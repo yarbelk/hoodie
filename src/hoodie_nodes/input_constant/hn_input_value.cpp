@@ -2,10 +2,24 @@
 
 using namespace godot;
 
+void HNInputValue::set_float_value(const float p_value) {
+    float_val = p_value;
+}
+
+float HNInputValue::get_float_value() const {
+    return float_val;
+}
+
+void HNInputValue::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("set_float_value", "value"), &HNInputValue::set_float_value);
+    ClassDB::bind_method(D_METHOD("get_float_value"), &HNInputValue::get_float_value);
+
+    ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "float_value", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_float_value", "get_float_value");
+}
+
 void HNInputValue::_process(const Array &p_inputs) {
     UtilityFunctions::print("HNInputValue _process() call.");
 
-    // float x = 20.0;
     float x = float_val;
 
     value_arr.clear();
@@ -13,7 +27,7 @@ void HNInputValue::_process(const Array &p_inputs) {
 }
 
 String HNInputValue::get_caption() const {
-    return "Value";
+    return "Input Value";
 }
 
 int HNInputValue::get_input_port_count() const {
@@ -54,6 +68,16 @@ Variant HNInputValue::get_property_input(vec_size_t p_port) const {
 
 void HNInputValue::set_property_input(vec_size_t p_prop, Variant p_input) {
     float_val = (float)p_input;
+}
+
+Vector<StringName> HNInputValue::get_editable_properties() const {
+    Vector<StringName> props;
+    props.push_back("float_value");
+    return props;
+}
+
+HashMap<StringName, String> HNInputValue::get_editable_properties_names() const {
+    return HashMap<StringName, String>();
 }
 
 const Variant HNInputValue::get_output(int p_port) const {

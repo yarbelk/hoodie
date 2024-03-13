@@ -5,6 +5,22 @@
 
 using namespace godot;
 
+void HoodieNodePlugin::set_editor(HoodieEditorPlugin *p_editor) {
+    hmeditor = p_editor;
+}
+
+Control *HoodieNodePlugin::create_editor(const Ref<Resource> &p_parent_resource, const Ref<HoodieNode> &p_node) {
+    Object *ret = nullptr;
+    // TODO: GDVirtual_ca
+    return Object::cast_to<Control>(ret);
+}
+
+void HoodieNodePlugin::_bind_methods() {
+    // TODO: GDVIRTUAL_BIND
+}
+
+///////////////////
+
 HoodieGraphPlugin::HoodieGraphPlugin() {
 }
 
@@ -98,6 +114,7 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 
     graph_node->connect("dragged", callable_mp(editor, &HoodieEditorPlugin::_node_dragged).bind(p_id));
 
+    // Adding Output and Input ports
     int j = 0;
 
     // Adding Output ports.
@@ -138,26 +155,34 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
         j++;
     }
 
+    // Adding custom editors (e.g. Integer property)
+    Control *custom_editor;
+    int port_offset = 1;
+
+    Control *content_offset = memnew(Control);
+    content_offset->set_custom_minimum_size(Size2(0, 5));
+    graph_node->add_child(content_offset);
+
+    for (int i = 0; i < editor->plugins.size(); i++) {
+        hoodie_node->set_meta("id", p_id);
+        custom_editor = editor->plugins.write[i]->create_editor(hoodie_mesh, hoodie_node);
+        hoodie_node->remove_meta("id");
+        // if (custom_editor) {
+        //     if (hoodie_node->is_show_prop_names())
+        // }
+    }
+
+    if (custom_editor) {
+        custom_editor->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+        graph_node->add_child(custom_editor);
+        // TODO: necessary if you need further use of custom_editor = nullptr;
+    }
+
     // Adding Properties fields.
     VBoxContainer *props_vb = memnew(VBoxContainer);
+    int slider_count = 0;
     for (int i = 0; i < hoodie_node->get_property_input_count(); i++) {
         switch (hoodie_node->get_property_input_type(i)) {
-            case Variant::FLOAT:
-                {
-                    EditorSpinSlider *ess = memnew(EditorSpinSlider);
-                    props_vb->add_child(ess);
-                    ess->set_custom_minimum_size(Size2(65, 0));
-                    ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-                    ess->set_value(hoodie_node->get_property_input(i));
-                    ess->set_step(0.01);
-                    ess->set_hide_slider(true);
-                    ess->set_allow_greater(true);
-                    ess->set_allow_lesser(true);
-                    ess->connect("value_changed", callable_mp(this, &HoodieGraphPlugin::_on_range_value_changed).bind(p_id, i));
-                    Link &link = links[p_id];
-                    link.ranges[i] = ess;
-                }
-                break;
             case Variant::OBJECT:
                 {
                     if (hoodie_node->get_class() == "HNInputCurve3D") {
@@ -225,7 +250,61 @@ void HoodieGraphPlugin::set_node_position(id_t p_id, const Vector2 &p_position) 
 
 void HoodieGraphPlugin::_on_range_value_changed(double p_val, id_t p_id, vec_size_t p_prop_id) {
     Link &link = links[p_id];
-    link.hoodie_node->set_property_input(p_prop_id, Variant(p_val));
+
+    // link.hoodie_node->set_property_input(p_prop_id, Variant(p_val));
+    // link.hoodie_node->mark_dirty();
+    // editor->hoodie_mesh->_queue_update();
+
+    editor->_change_node_property(p_id, p_prop_id, Variant(p_val));
+}
+
+void HoodieGraphPlugin::_on_vector_range_value_changed(double p_val, id_t p_id, vec_size_t p_prop_id, int p_xyzw) {
+    Link &link = links[p_id];
+
+    TypedArray<double> arr;
+    Variant::Type t = link.hoodie_node->get_property_input_type(p_prop_id);
+    Variant vector = link.hoodie_node->get_property_input(p_prop_id);
+    switch (t) {
+        case Variant::VECTOR2:
+        {
+            arr.push_back(((Vector2)vector).x);
+            arr.push_back(((Vector2)vector).y);
+        }
+        break;
+        case Variant::VECTOR3:
+        {
+            arr.push_back(((Vector3)vector).x);
+            arr.push_back(((Vector3)vector).y);
+            arr.push_back(((Vector3)vector).z);
+        }
+        break;
+        case Variant::VECTOR4:
+        {
+            arr.push_back(((Vector4)vector).x);
+            arr.push_back(((Vector4)vector).y);
+            arr.push_back(((Vector4)vector).z);
+            arr.push_back(((Vector4)vector).w);
+        }
+        break;
+    }
+
+    for (int i = 0; i < arr.size(); i++) {
+        if (i == p_xyzw) {
+            arr[i] = p_val;
+        }
+    }
+
+    if (arr.size() == 2) {
+        Vector2 v = Vector2(arr[0], arr[1]);
+        link.hoodie_node->set_property_input(p_prop_id, Variant(v));
+    } else if (arr.size() == 3) {
+        Vector3 v = Vector3(arr[0], arr[1], arr[2]);
+        link.hoodie_node->set_property_input(p_prop_id, Variant(v));
+    } else if (arr.size() == 4) {
+        Vector4 v = Vector4(arr[0], arr[1], arr[2], arr[3]);
+        link.hoodie_node->set_property_input(p_prop_id, Variant(v));
+    }
+
     link.hoodie_node->mark_dirty();
     editor->hoodie_mesh->_queue_update();
 }
@@ -252,12 +331,14 @@ void HoodieEditorPlugin::_menu_item_pressed(int index) {
                 E.value.node->update(true, Array());
             }
             */
+            UtilityFunctions::print("HoodieMesh get_graph_offset() " + hoodie_mesh->get_graph_offset());
         } break;
     }
 }
 
+// TODO: delete this?
 void HoodieEditorPlugin::_add_button_pressed() {
-    place = Vector2(10.0, 50.0);
+    // place = Vector2(10.0, 50.0);
 }
 
 void HoodieEditorPlugin::_add_popup_pressed(int index) {
@@ -277,7 +358,7 @@ void HoodieEditorPlugin::_update_graph() {
         return;
     }
 
-    // TODO: graph_edit->set_scroll_offset();
+    graph_edit->set_scroll_offset(hoodie_mesh->get_graph_offset());
 
     graph_edit->clear_connections();
     // Remove all nodes.
@@ -339,13 +420,29 @@ void HoodieEditorPlugin::_update_options_menu() {
 
 void HoodieEditorPlugin::_add_node(int idx) {
     // TODO: godot source code visual_shader_editor_plugin.cpp _add_node()
+    Point2 position = graph_edit->get_scroll_offset();
+
+    if (saved_node_pos_dirty) {
+        position += saved_node_pos;
+    } else {
+        position += graph_edit->get_size() * 0.5;
+    }
+    position /= graph_edit->get_zoom();
+    saved_node_pos_dirty = false;
+
     Ref<HoodieNode> hnode;
     Variant v = ClassDB::instantiate(StringName(add_options[idx].type));
     HoodieNode *hn = Object::cast_to<HoodieNode>(v);
     hnode = Ref<HoodieNode>(hn);
     id_t valid_id = hoodie_mesh->get_valid_node_id();
-    hoodie_mesh.ptr()->add_node(hnode, place, valid_id);
-    graph_plugin->add_node(valid_id, false);
+
+    EditorUndoRedoManager *undo_redo = get_undo_redo();
+    undo_redo->create_action("Add Node to Hoodie Mesh");
+    undo_redo->add_do_method(hoodie_mesh.ptr(), "add_node", hnode, position, valid_id);
+    undo_redo->add_undo_method(hoodie_mesh.ptr(), "remove_node", valid_id);
+    undo_redo->add_do_method(graph_plugin.ptr(), "add_node", valid_id, false);
+    undo_redo->add_undo_method(graph_plugin.ptr(), "remove_node", valid_id, false);
+    undo_redo->commit_action();
 }
 
 void HoodieEditorPlugin::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, id_t p_node) {
@@ -502,6 +599,20 @@ void HoodieEditorPlugin::_delete_nodes_request(const TypedArray<StringName> &p_n
     undo_redo->commit_action();
 }
 
+void HoodieEditorPlugin::_change_node_property(id_t p_id, vec_size_t p_prop_id, Variant p_val) {
+    Variant old_val = hoodie_mesh->graph.nodes[p_id].node->get_property_input(p_prop_id);
+
+    EditorUndoRedoManager *undo_redo = get_undo_redo();
+    undo_redo->create_action("Change Hoodie Node property value");
+    undo_redo->add_do_method(hoodie_mesh->graph.nodes[p_id].node.ptr(), "set_property_input", p_prop_id, p_val);
+    undo_redo->add_undo_method(hoodie_mesh->graph.nodes[p_id].node.ptr(), "set_property_input", p_prop_id, old_val);
+    undo_redo->add_do_method(hoodie_mesh->graph.nodes[p_id].node.ptr(), "mark_dirty");
+    undo_redo->add_undo_method(hoodie_mesh->graph.nodes[p_id].node.ptr(), "mark_dirty");
+    undo_redo->add_do_method(hoodie_mesh.ptr(), "_queue_update");
+    undo_redo->add_undo_method(hoodie_mesh.ptr(), "_queue_update");
+    undo_redo->commit_action();
+}
+
 void HoodieEditorPlugin::_bind_methods() {
     ClassDB::bind_method(D_METHOD("_nodes_dragged"), &HoodieEditorPlugin::_nodes_dragged);
 }
@@ -511,6 +622,7 @@ void HoodieEditorPlugin::_notification(int what) {
         case NOTIFICATION_POSTINITIALIZE: {
             graph_edit->connect("connection_request", callable_mp(this, &HoodieEditorPlugin::_connection_request), CONNECT_DEFERRED);
             graph_edit->connect("disconnection_request", callable_mp(this, &HoodieEditorPlugin::_disconnection_request), CONNECT_DEFERRED);
+            graph_edit->connect("scroll_offset_changed", callable_mp(this, &HoodieEditorPlugin::_scroll_changed));
             graph_edit->connect("delete_nodes_request", callable_mp(this, &HoodieEditorPlugin::_delete_nodes_request));
 
             file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_menu_item_pressed));
@@ -520,6 +632,29 @@ void HoodieEditorPlugin::_notification(int what) {
             _update_options_menu();
         } break;
     }
+}
+
+void HoodieEditorPlugin::_scroll_changed(const Vector2 &p_scroll) {
+    if (updating) {
+        return;
+    }
+    if (hoodie_mesh.is_null() || !hoodie_mesh.is_valid()) {
+        return;
+    }
+    updating = true;
+    hoodie_mesh->set_graph_offset(p_scroll);
+    updating = false;
+}
+
+void HoodieEditorPlugin::add_plugin(const Ref<HoodieNodePlugin> &p_plugin) {
+    if (plugins.has(p_plugin)) {
+        return;
+    }
+    plugins.push_back(p_plugin);
+}
+
+void HoodieEditorPlugin::remove_plugin(const Ref<HoodieNodePlugin> &p_plugin) {
+    plugins.erase(p_plugin);
 }
 
 void HoodieEditorPlugin::_make_visible(bool visible) {
@@ -553,6 +688,8 @@ void HoodieEditorPlugin::_edit(Object *object) {
         }
         hoodie_mesh = Ref<HoodieMesh>(hm);
         graph_plugin->register_hoodie_mesh(hoodie_mesh.ptr());
+
+        hoodie_mesh->set_graph_offset(graph_edit->get_scroll_offset());
 
         _update_nodes();
     } else {
@@ -611,6 +748,8 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     // INPUT
 
     add_options.push_back(AddOption("Input Value", "Input/Constant", "HNInputValue"));
+    add_options.push_back(AddOption("Input Integer", "Input/Constant", "HNInputInteger"));
+    add_options.push_back(AddOption("Input Vector3D", "Input/Constant", "HNInputVector3D"));
 
     add_options.push_back(AddOption("Input Curve3D", "Input", "HNInputCurve3D"));
 
@@ -634,6 +773,236 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
 
     _make_visible(false);
 
+    Ref<HoodieNodePluginDefault> default_plugin;
+    default_plugin.instantiate();
+    default_plugin->set_editor(this);
+    add_plugin(default_plugin);
+
     graph_plugin.instantiate();
     graph_plugin->set_editor(this);
+}
+
+////////////////
+
+void HoodieNodePluginInputEditor::_notification(int p_what) {
+    switch (p_what) {
+        case NOTIFICATION_READY: {
+            // TODO: connect("item_selected")
+        } break;
+    }
+}
+
+void HoodieNodePluginInputEditor::setup(HoodieEditorPlugin *p_editor) {
+    editor = p_editor;
+    // parameter_ref = p_parameter_ref;
+
+    set_text("HOODIE NODE PLUGIN INPUT EDITOR");
+}
+
+void HoodieNodePluginInputEditor::_bind_methods() {
+}
+
+////////////////
+
+void HoodieNodePluginDefaultEditor::_property_changed(const Variant &p_value, const String &p_property, Control *p_property_control, const String &p_field = "", bool p_changing = false) {
+    if (p_changing) {
+        return;
+    }
+
+    if (!editor) {
+        return;
+    }
+
+    EditorUndoRedoManager *undo_redo = editor->get_undo_redo();
+
+    updating = true;
+    undo_redo->create_action(vformat("Edit Hoodie Node Property: %s", p_property), UndoRedo::MERGE_ENDS);
+
+    undo_redo->add_do_property(node.ptr(), p_property, p_value);
+    undo_redo->add_undo_property(node.ptr(), p_property, node->get(p_property));
+
+    // Change values of the UI Control nodes
+    EditorSpinSlider *ess = (EditorSpinSlider*)p_property_control;
+    if (ess) {
+        undo_redo->add_do_method(p_property_control, "set_value_no_signal", p_value);
+        undo_redo->add_undo_method(p_property_control, "set_value_no_signal", node->get(p_property));
+    }
+
+    undo_redo->add_do_method(node.ptr(), "mark_dirty");
+    undo_redo->add_undo_method(node.ptr(), "mark_dirty");
+    undo_redo->add_do_method(parent_resource.ptr(), "_queue_update");
+    undo_redo->add_undo_method(parent_resource.ptr(), "_queue_update");
+
+    // TODO: if (p_value.get_type() == Variant::OBJECT)
+    // TODO: if (p_property != "constant")
+
+    undo_redo->commit_action();
+    updating = false;
+}
+
+void HoodieNodePluginDefaultEditor::_node_changed() {
+    if (updating) {
+        return;
+    }
+    for (int i = 0; i < properties.size(); i++) {
+        // properties[i]->update_property();
+    }
+}
+
+void HoodieNodePluginDefaultEditor::_resource_selected(const String &p_path, Ref<Resource> p_resource) {
+    _open_inspector(p_resource);
+}
+
+void HoodieNodePluginDefaultEditor::_open_inspector(Ref<Resource> p_resource) {
+    // TODO: InspectorDock class is not exposed in GDExtension
+    // InspectorDock::get_inspector_singleton()->edit(p_resource.ptr());
+    UtilityFunctions::push_error("_open_inspector NOT IMPLEMENTED!");
+}
+
+void HoodieNodePluginDefaultEditor::_show_prop_names(bool p_show) {
+    for (int i = 0; i < prop_names.size(); i++) {
+        prop_names[i]->set_visible(p_show);
+    }
+}
+
+void HoodieNodePluginDefaultEditor::setup(HoodieEditorPlugin *p_editor, Ref<HoodieMesh> p_parent_resource, Vector<Control *> p_properties, const Vector<StringName> &p_names, const HashMap<StringName, String> &p_overrided_names, Ref<HoodieNode> p_node) {
+    editor = p_editor;
+    parent_resource = p_parent_resource;
+    updating = false;
+    node = p_node;
+    properties = p_properties;
+
+    node_id = (int)p_node->get_meta("id");
+    
+    for (int i = 0; i < p_properties.size(); i++) {
+        HBoxContainer *hbox = memnew(HBoxContainer);
+        hbox->set_h_size_flags(SIZE_EXPAND_FILL);
+        add_child(hbox);
+
+        Label *prop_name = memnew(Label);
+        String prop_name_str = p_names[i];
+        if (p_overrided_names.has(p_names[i])) {
+            prop_name_str = String(p_overrided_names[p_names[i]]) + ":";
+        } else {
+            prop_name_str = prop_name_str.capitalize() + ":";
+        }
+        prop_name->set_text(prop_name_str);
+        prop_name->set_visible(false);
+        hbox->add_child(prop_name);
+        prop_names.push_back(prop_name);
+
+        p_properties[i]->set_h_size_flags(SIZE_EXPAND_FILL);
+        hbox->add_child(p_properties[i]);
+
+        // TODO: necessary?
+        // bool res_prop = Object::cast_to<EditorPropertyResource>(p_properties[i]);
+        // if (res_prop) {
+        // 	p_properties[i]->connect("resource_selected", callable_mp(this, &VisualShaderNodePluginDefaultEditor::_resource_selected));
+        // }
+
+        // properties[i]->connect("property_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed));
+
+        if (properties[i]->is_class("EditorSpinSlider")) {
+            // properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind("int_value", properties[i], "", false));
+            properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
+        }
+
+        // properties[i]->set_object_and_property(node.ptr(), p_names[i]);
+        // properties[i]->update_property();
+    }
+    node->connect("changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_node_changed));
+}
+
+void HoodieNodePluginDefaultEditor::_bind_methods() {
+    // TODO: ClassDB::bind_method("_show_prop_names", &HoodieNodePluginDefaultEditor::_show_prop_names); // Used with call_deferred.
+}
+
+////////////////
+
+Control *HoodieNodePluginDefault::create_editor(const Ref<Resource> &p_parent_resource, const Ref<HoodieNode> &p_node) {
+    // TODO: necessary?
+    // Ref<HoodieNode> p_parent_node = Ref<HoodieNode>(p_parent_resource.ptr());
+
+    // if (!p_parent_node.is_valid()) {
+    //     return nullptr;
+    // }
+
+    // TODO: necessary for our case?
+    // if (p_node->is_class("HoodieNode")) {
+    //     UtilityFunctions::print("HoodieNodePluginDefault::create_editor is_class HoodieNode");
+    //     HoodieNodePluginInputEditor *editor = memnew(HoodieNodePluginInputEditor);
+    //     // ditor->setup(hmeditor, p_node);
+    //     editor->setup(hmeditor);
+    //     return editor;
+    // }
+
+    // Every HoodieNode with input properties needs to override get_editable_properties()
+    Vector<StringName> properties = p_node->get_editable_properties();
+    if (properties.size() == 0) {
+        return nullptr;
+    }
+
+    // property_list will contain unexpected values, not only your own ADD_PROPERTYs...
+    TypedArray<Dictionary> property_list = p_node->get_property_list();
+    List<PropertyInfo> props;
+    for (int i = 0; i < property_list.size(); i++) {
+        Dictionary d = property_list[i];
+        PropertyInfo pi;
+        pi.name = d["name"];
+        pi.class_name = d["class_name"];
+        pi.type = (Variant::Type)(int)d["type"];
+        pi.hint = d["hint"];
+        pi.hint_string = d["hint_string"];
+        pi.usage = d["usage"];
+        props.push_back(pi);
+    }
+
+    Vector<PropertyInfo> pinfo;
+
+    // ...that's why we need to search for the right ones.
+    for (const PropertyInfo &E : props) {
+        for (int i = 0; i < properties.size(); i++) {
+            if (E.name == String(properties[i])) {
+                pinfo.push_back(E);
+            }
+        }
+    }
+
+    if (pinfo.size() == 0) {
+        return nullptr;
+    }
+
+    // Clear properties as we will push back properties again later.
+    properties.clear();
+
+    Ref<HoodieNode> node = p_node;
+    Vector<Control *> editors;
+
+    for (int i = 0; i < pinfo.size(); i++) {
+        if (pinfo[i].type == Variant::Type::INT) {
+            EditorSpinSlider *ess = memnew(EditorSpinSlider);
+            ess->set_custom_minimum_size(Size2(65, 0));
+            ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            ess->set_step(1);
+            ess->set_hide_slider(true);
+            ess->set_allow_greater(true);
+            ess->set_allow_lesser(true);
+            ess->set_value(p_node->get_property_input(i));
+            editors.push_back(ess);
+        } else if (pinfo[i].type == Variant::Type::FLOAT) {
+            EditorSpinSlider *ess = memnew(EditorSpinSlider);
+            ess->set_custom_minimum_size(Size2(65, 0));
+            ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            ess->set_step(0.01);
+            ess->set_hide_slider(true);
+            ess->set_allow_greater(true);
+            ess->set_allow_lesser(true);
+            ess->set_value(p_node->get_property_input(i));
+            editors.push_back(ess);
+        }
+        properties.push_back(pinfo[i].name);
+    }
+    HoodieNodePluginDefaultEditor *editor = memnew(HoodieNodePluginDefaultEditor);
+    editor->setup(hmeditor, p_parent_resource, editors, properties, p_node->get_editable_properties_names(), p_node);
+    return editor;
 }

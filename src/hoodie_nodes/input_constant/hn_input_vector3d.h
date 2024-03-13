@@ -1,23 +1,27 @@
-#ifndef HOODIE_HNINPUTVALUE_H
-#define HOODIE_HNINPUTVALUE_H
+#ifndef HOODIE_HNINPUTVECTOR3D_H
+#define HOODIE_HNINPUTVECTOR3D_H
 
 #include "hoodie_node.h"
 
 namespace godot
 {
 
-class HNInputValue : public HoodieNode {
-    GDCLASS(HNInputValue, HoodieNode)
+class HNInputVector3D : public HoodieNode {
+    GDCLASS(HNInputVector3D, HoodieNode)
 
 private:
     // Input
-    float float_val = 1.00;
+    Vector3 vector_val = Vector3(1.00, 0.00, 0.00);
     // Output
     Array value_arr;
 
 public:
-    void set_float_value(const float p_value);
-    float get_float_value() const;
+    void set_x_value(const float p_value);
+    float get_x_value() const;
+    void set_y_value(const float p_value);
+    float get_y_value() const;
+    void set_z_value(const float p_value);
+    float get_z_value() const;
 
 protected:
     static void _bind_methods();
@@ -49,4 +53,4 @@ public:
 } // namespace godot
 
 
-#endif // HOODIE_HNINPUTVALUE_H
+#endif // HOODIE_HNINPUTVECTOR3D_H
