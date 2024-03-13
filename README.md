@@ -1,5 +1,7 @@
 # Hoodie - Visual Scripting Procedural Geometry for Godot Engine 4
 
+![hoodie_logo_2023_1_Page 3](https://github.com/GreenCrowDev/hoodie/assets/62719360/dcb5f7d7-e848-45fb-bf7f-4bcee3c27a38)
+
 Hoodie is a **plugin** for Godot Engine 4 that offers a **visual scripting** interface for generating **procedural geometry**.
 
 Design parametric mesh geometry using a visual scripting language and iterate quickly over changes:
@@ -56,6 +58,8 @@ Once you managed to install all the necessary tools, follow these next steps:
 
 ## Getting Started
 
+<img src="https://github.com/GreenCrowDev/hoodie/assets/62719360/173d784f-09a8-4115-93d0-1a6b11e0e54d" width="480">
+
 Before you can use Hoodie's visual scripting interface, you need to set up the right nodes, then you'll be ready to go!
 
 1. If you haven't already done so, create a new **3D Scene** and open it.
@@ -71,6 +75,8 @@ Before you can use Hoodie's visual scripting interface, you need to set up the r
 11. You can tweak the size of the plane connecting `Add node... > Input > Constant > Input Value` to the `Mesh Grid`, and see its changes in real time.
 
 ### Extrude a line along a path (road-like geometry)
+
+<img src="https://github.com/GreenCrowDev/hoodie/assets/62719360/0b24efc5-8e55-4e3e-be4c-673566ff1411" width="480">
 
 1. Create a `Path3D` node in your **3D Scene** and proceed to model a curve with the designated tools.
 2. While the `Path3D` is selected, go to the **Inspector** and open the `Curve3D` option button, then click on **Copy**.
