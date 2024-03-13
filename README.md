@@ -24,7 +24,7 @@ You can start using Hoodie by directly downloading binary files, or you can comp
 
 At this time only Windows is supported, but you can [compile it yourself](#compile-from-source) to make it work on different platforms.
 
-1. Download the latest binary from the Releases page on GitHub.
+1. Download the latest binary from the [Releases](https://github.com/GreenCrowDev/hoodie/releases) page on GitHub.
 2. Open the folder of your Godot Engine game project, and create a `bin` folder if it doesn't exists yet.
 3. Copy the downloaded files in the newly created `bin` folder. The folder structure should now look something like this:
 
