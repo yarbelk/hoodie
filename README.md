@@ -12,6 +12,10 @@ create algorithms with nodes and utilize parameters to customize and fine-tune t
 Hoodie is an open-source project licensed under the MIT License, free to use in your projects.
 If you find it useful for yourself and the community, you may consider supporting its development through [this Gumroad page](https://greencrowdev.gumroad.com/l/hoodie), which also offers additional perks.
 
+## Devlogs
+
+This project also has a series of dedicated video devlogs that you can watch [here on YouTube](https://www.youtube.com/watch?v=_GJQfH5vNs8&list=PL_rPTnOU23F0o3Mf9EDbX-SqA3ET970jT&pp=gAQBiAQB).
+
 ## Installation
 
 You can start using Hoodie by directly downloading binary files, or you can compile it yourself.
