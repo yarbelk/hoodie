@@ -1,8 +1,9 @@
-# Hoodie - Visual Scripting Procedural Geometry for Godot 4
+# Hoodie - Visual Scripting Procedural Geometry for Godot Engine 4
 
-Hoodie is a plugin for Godot 4 that offers a visual scripting interface for generating procedural geometry.
+Hoodie is a **plugin** for Godot Engine 4 that offers a **visual scripting** interface for generating **procedural geometry**.
+
 Design parametric mesh geometry using a visual scripting language and iterate quickly over changes:
-create algorithms with nodes and utilize parameters to customize and fine-tune the generated mesh.
+create algorithms with nodes and utilize parameters to customize and fine-tune the generated mesh for your own use cases.
 
 ## Support this project
 
@@ -15,17 +16,76 @@ You can start using Hoodie by directly downloading binary files, or you can comp
 
 ### Direct Download
 
+At this time only Windows is supported, but you can [compile it yourself](#compile-from-source) to make it work on different platforms.
+
 1. Download the latest binary from the Releases page on GitHub.
-2. WIP
+2. Open the folder of your Godot Engine game project, and create a `bin` folder if it doesn't exists yet.
+3. Copy the downloaded files in the newly created `bin` folder. The folder structure should now look something like this:
+
+```
+<your-project-folder-name>/
+│
+├── .godot/
+│
+├── bin/
+│   ├── hoodie.gdextension
+│   ├── libhoodie.windows.template_release.x86_64.dll
+```
+
+4. You're now ready to go! Read [Getting Started](#getting-started) for a quick tutorial of the plugin.
 
 ### Compile from Source
 
+In case your platform isn't included in the shipped binaries, you need to compile the project by yourself from source.
+
+Since this is a Godot GDExtension plugin, the compiling procedure is the same as the one for Godot Engine itself, as stated [here](https://docs.godotengine.org/it/4.x/tutorials/scripting/gdextension/gdextension_cpp_example.html#setting-up-the-project) on the official documentation.
+On this [page](https://docs.godotengine.org/it/4.x/contributing/development/compiling/index.html#toc-devel-compiling) you'll find detailed guides about how to build for each platform.
+
+Generally you want these tools to be installed:
+* A C++ compiler
+* Python 3.6+
+* SCons 3.0+
+
+Once you managed to install all the necessary tools, follow these next steps:
+
 1. Clone this project repository.
-2. WIP
+2. Open the terminal and navigate to the repository folder.
+3. Launch command `scons target=template_release` (SCons will automatically recognize the OS you're working on, but you can specify it and additional parameters if needed).
+4. The resulting binary files will be located in the repository at the `hoodie/demo/bin` folder.
+5. At this point you can just follow the [Direct Download section](#direct-download) starting from **step 2** (you simply need to put the generated binaries in the correct game project folder).
 
 ## Getting Started
 
-WIP
+Before you can use Hoodie's visual scripting interface, you need to set up the right nodes, then you'll be ready to go!
+
+1. If you haven't already done so, create a new **3D Scene** and open it.
+2. **'Add Child Node...'** with **CTRL+A** or the **'+'** button from the Scene panel, and choose `MeshInstance3D`.
+3. Once you have the new `MeshInstance3D` selected, head over to the **Inspector** and create a new `HoodieMesh` through the **'Mesh'** property, selecting **'New HoodieMesh'**.
+4. Now that the **'Mesh'** property is filled with a new `HoodieMesh`, click on the `HoodieMesh` option button to start editing it.
+5. The **Hoodie** panel will appear in the bottom control panel, and there you will be able to use visual scripting to create your algorithms through nodes.
+6. Start by adding an `Output` node with the **'Add node...'** popup menu at the top left of the Hoodie editor.
+7. `Add node... > Mesh > Primitives > Mesh Grid`.
+8. Connect the `Mesh` output slot of the `Mesh Grid` node to the `Geometry` input slot of the `Output` node.
+9. You will now see a 1x1 plane show up in the viewport.
+10. **Congratulations!** You just created your first Hoodie procedural geometry! 🥳
+11. You can tweak the size of the plane connecting `Add node... > Input > Constant > Input Value` to the `Mesh Grid`, and see its changes in real time.
+
+### Extrude a line along a path (road-like geometry)
+
+1. Create a `Path3D` node in your **3D Scene** and proceed to model a curve with the designated tools.
+2. While the `Path3D` is selected, go to the **Inspector** and open the `Curve3D` option button, then click on **Copy**.
+3. Go back to the Hoodie editor, and create a `Input Curve3D` node from `Add node... > Input > Input Curve3D`.
+4. Go to the **Inspector**, and you'll see a new property group has appeared: **Inputs**.
+5. Expand the **Inputs** property group and a `Curve3D` property will appear, where the label name is the *id* of the `Input Curve3D` node you added earlier.
+6. Click on the `Curve3D` property option button, and then click on **Paste** in order to paste the copied `Curve3D`.
+7. Now that the curve has been correctly referenced, we need a couple of other nodes to generate a geometry along the path.
+8. `Add node... > Mesh > Primitives > Mesh Line`: this will be the extruded geometry along the path.
+9. `Add node... > Curve > Operations > Curve to Mesh`.
+10. Connect the `Curve3D` output slot of the `Input Curve3D` node to the `Curve3D` input slot of the `Curve to Mesh` node.
+11. Connect the `Mesh` output slot of the `Input Curve3D` node to the `Profile` input slot of the `Curve to Mesh` node.
+12. Connect the `Mesh` output slot of the `Curve to Mesh` node to the `Geometry` input slot of the `Output` node.
+13. You will now see a mesh along the path you designed earlier! 🥳
+14. You can now tweak the input values for your needs, for example with a `Add node.. > Input > Constant > Input Vector3D` node.
 
 ## Known issues
 
