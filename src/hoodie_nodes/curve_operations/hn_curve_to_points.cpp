@@ -17,7 +17,7 @@ int HNCurveToPoints::get_input_port_count() const {
 }
 
 HNCurveToPoints::PortType HNCurveToPoints::get_input_port_type(int p_port) const {
-    return PortType::PORT_TYPE_GEOMETRY;
+    return PortType::PORT_TYPE_CURVE;
 }
 
 String HNCurveToPoints::get_input_port_name(int p_port) const {

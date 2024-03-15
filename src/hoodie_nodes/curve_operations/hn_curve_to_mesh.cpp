@@ -176,7 +176,7 @@ int HNCurveToMesh::get_input_port_count() const {
 HNCurveToMesh::PortType HNCurveToMesh::get_input_port_type(int p_port) const {
     switch (p_port) {
         case 0:
-            return PortType::PORT_TYPE_GEOMETRY;
+            return PortType::PORT_TYPE_CURVE;
         case 1:
             return PortType::PORT_TYPE_GEOMETRY;
         case 2:
