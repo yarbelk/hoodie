@@ -66,6 +66,7 @@ public:
         PORT_TYPE_STRING,
         PORT_TYPE_GEOMETRY,
         PORT_TYPE_ARRAY,
+        PORT_TYPE_CURVE,
         PORT_TYPE_MAX,
     };
 
