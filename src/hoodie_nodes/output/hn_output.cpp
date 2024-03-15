@@ -16,12 +16,20 @@ void HNOutput::_process(const Array &p_inputs) {
         if (p_inputs[0].get_type() == Variant::ARRAY) {
             Array surface = p_inputs[0];
 
+            if (surface.size() != ArrayMesh::ARRAY_MAX) {
+                return;
+            }
+            
             output_arr[ArrayMesh::ARRAY_VERTEX] = surface[ArrayMesh::ARRAY_VERTEX];
             output_arr[ArrayMesh::ARRAY_NORMAL] = surface[ArrayMesh::ARRAY_NORMAL];
             output_arr[ArrayMesh::ARRAY_TANGENT] = surface[ArrayMesh::ARRAY_TANGENT];
             output_arr[ArrayMesh::ARRAY_COLOR] = surface[ArrayMesh::ARRAY_COLOR];
             output_arr[ArrayMesh::ARRAY_TEX_UV] = surface[ArrayMesh::ARRAY_TEX_UV];
             output_arr[ArrayMesh::ARRAY_TEX_UV2] = surface[ArrayMesh::ARRAY_TEX_UV2];
+            output_arr[ArrayMesh::ARRAY_CUSTOM0] = surface[ArrayMesh::ARRAY_CUSTOM0];
+            output_arr[ArrayMesh::ARRAY_CUSTOM1] = surface[ArrayMesh::ARRAY_CUSTOM1];
+            output_arr[ArrayMesh::ARRAY_CUSTOM2] = surface[ArrayMesh::ARRAY_CUSTOM2];
+            output_arr[ArrayMesh::ARRAY_CUSTOM3] = surface[ArrayMesh::ARRAY_CUSTOM3];
             output_arr[ArrayMesh::ARRAY_BONES] = surface[ArrayMesh::ARRAY_BONES];
             output_arr[ArrayMesh::ARRAY_WEIGHTS] = surface[ArrayMesh::ARRAY_WEIGHTS];
             output_arr[ArrayMesh::ARRAY_INDEX] = surface[ArrayMesh::ARRAY_INDEX];
