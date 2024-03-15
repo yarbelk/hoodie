@@ -14,9 +14,14 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
     PackedVector3Array normals;
     PackedFloat32Array tilts;
 
-    if (curve.is_valid()) {
-        packed_curve.clear();
+    points.resize(0);
+    tangents.resize(0);
+    normals.resize(0);
+    tilts.resize(0);
 
+    packed_curve.clear();
+
+    if (curve.is_valid()) {
         points = curve->get_baked_points();
         normals = curve->get_baked_up_vectors();
 
@@ -35,17 +40,12 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
         // TODO: implement normals
 
         tilts = curve->get_baked_tilts();
-
-        packed_curve.push_back(points);
-        packed_curve.push_back(tangents);
-        packed_curve.push_back(normals);
-        packed_curve.push_back(tilts);
-    } else {
-        points.resize(0);
-        tangents.resize(0);
-        normals.resize(0);
-        tilts.resize(0);
     }
+
+    packed_curve.push_back(points);
+    packed_curve.push_back(tangents);
+    packed_curve.push_back(normals);
+    packed_curve.push_back(tilts);
 }
 
 String HNInputCurve3D::get_caption() const {
@@ -69,7 +69,7 @@ int HNInputCurve3D::get_output_port_count() const {
 }
 
 HNInputCurve3D::PortType HNInputCurve3D::get_output_port_type(int p_port) const {
-    return PortType::PORT_TYPE_GEOMETRY;
+    return PortType::PORT_TYPE_CURVE;
 }
 
 String HNInputCurve3D::get_output_port_name(int p_port) const {

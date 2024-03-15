@@ -89,6 +89,7 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 		Color(0.34, 0.65, 1.00), // string
 		Color(0.00, 0.84, 0.64), // geometry
 		Color(0.00, 0.00, 0.00), // array
+		Color(0.00, 0.84, 0.64), // curve
 		Color(1.0, 1.0, 0.0), // max
 	};
 
