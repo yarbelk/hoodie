@@ -13,6 +13,7 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
     PackedVector2Array uvs;
     PackedInt32Array indices;
 
+    mesh.clear();
     mesh.resize(ArrayMesh::ARRAY_MAX);
 
     // Input parsing
