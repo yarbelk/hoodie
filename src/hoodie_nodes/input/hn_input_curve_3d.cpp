@@ -27,13 +27,17 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
 
         // Calculate tangents
         PackedVector3Array ts;
-        for (int i = 0; i < points.size(); i++)
-        {
-            Vector3 origin, next;
-            origin = points[i];
-            next = points[i == points.size() - 1 ? i-1 : i+1];
-            Vector3 t = (next - origin).normalized();
-            ts.push_back(t);
+        if (points.size() < 2) {
+            ts.push_back(normals[0]);
+        } else {
+            for (int i = 0; i < points.size(); i++)
+            {
+                Vector3 origin, next;
+                origin = points[i];
+                next = points[i == points.size() - 1 ? i-1 : i+1];
+                Vector3 t = (next - origin).normalized();
+                ts.push_back(t);
+            }
         }
         tangents = ts;
 
