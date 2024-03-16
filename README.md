@@ -92,7 +92,7 @@ Before you can use Hoodie's visual scripting interface, you need to set up the r
 8. `Add node... > Mesh > Primitives > Mesh Line`: this will be the extruded geometry along the path.
 9. `Add node... > Curve > Operations > Curve to Mesh`.
 10. Connect the `Curve3D` output slot of the `Input Curve3D` node to the `Curve3D` input slot of the `Curve to Mesh` node.
-11. Connect the `Mesh` output slot of the `Input Curve3D` node to the `Profile` input slot of the `Curve to Mesh` node.
+11. Connect the `Mesh` output slot of the `Mesh Line` node to the `Profile` input slot of the `Curve to Mesh` node.
 12. Connect the `Mesh` output slot of the `Curve to Mesh` node to the `Geometry` input slot of the `Output` node.
 13. You will now see a mesh along the path you designed earlier! 🥳
 14. You can now tweak the input values for your needs, for example with a `Add node.. > Input > Constant > Input Vector3D` node.
