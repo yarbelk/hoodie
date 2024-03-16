@@ -235,6 +235,10 @@ void HoodieMesh::add_node(const Ref<HoodieNode> &p_node, const Vector2 &p_positi
 
     graph.nodes[p_id] = n;
 
+    if (p_node->get_property_input_count() > 0) {
+        notify_property_list_changed();
+    }
+
     _queue_update();
 }
 
@@ -246,6 +250,8 @@ void HoodieMesh::set_node_position(id_t p_id, const Vector2 &p_position) {
 void HoodieMesh::remove_node(id_t p_id) {
     // TODO: not sure why this avoids a out of bounds error. Check this with 4.3 and surface_remove()
     _remove_orphan_surfaces();
+
+    int prop_count = graph.nodes[p_id].node->get_property_input_count();
 
     graph.nodes[p_id].node->disconnect("changed", callable_mp(this, &HoodieMesh::_queue_update));
 
@@ -266,6 +272,10 @@ void HoodieMesh::remove_node(id_t p_id) {
             graph.connections.erase(E);
         }
         E = N;
+    }
+
+    if (prop_count > 0) {
+        notify_property_list_changed();
     }
 
     _queue_update();
