@@ -64,7 +64,7 @@ void HoodieMesh::_update() {
         }
 
         String name = String::num_int64(E.key);
-        id_t surface_id = surface_find_by_name(name);
+        int32_t surface_id = surface_find_by_name(name);
         if (surface_id != -1) {
             _remove_surface_dumb(surface_id);
         }
@@ -115,7 +115,7 @@ void HoodieMesh::_remove_orphan_surfaces() {
         // Iterate over all nodes
         for (const KeyValue<id_t, Node> &E : graph.nodes) {
             String node_name = String::num_int64(E.key);
-            if (node_name == surface_name) {
+            if ((node_name == surface_name) && (E.value.node->get_output_port_count() == 0)) {
                 // Found the node with the same name of the surface
                 node_found = true;
             }
@@ -244,6 +244,9 @@ void HoodieMesh::set_node_position(id_t p_id, const Vector2 &p_position) {
 }
 
 void HoodieMesh::remove_node(id_t p_id) {
+    // TODO: not sure why this avoids a out of bounds error. Check this with 4.3 and surface_remove()
+    _remove_orphan_surfaces();
+
     graph.nodes[p_id].node->disconnect("changed", callable_mp(this, &HoodieMesh::_queue_update));
 
     graph.nodes.erase(p_id);
