@@ -28,6 +28,7 @@ Thumbs.db
 
 *.dll
 *.pdb
+*.ilk
 
 # ignore other demo addons installed
 /demo/addons/plugin_refresher/
