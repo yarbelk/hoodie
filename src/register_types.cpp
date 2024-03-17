@@ -13,6 +13,8 @@
 #include "hoodie_nodes/input_constant/hn_input_vector3d.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_grid.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_line.h"
+#include "hoodie_nodes/utilities_mesh/hn_compose_mesh.h"
+#include "hoodie_nodes/utilities_mesh/hn_decompose_mesh.h"
 #include "hoodie_nodes/output/hn_output.h"
 
 #include <gdextension_interface.h>
@@ -33,6 +35,8 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNInputVector3D>();
 		ClassDB::register_class<HNMeshGrid>();
 		ClassDB::register_class<HNMeshLine>();
+		ClassDB::register_class<HNComposeMesh>();
+		ClassDB::register_class<HNDecomposeMesh>();
 		ClassDB::register_class<HNOutput>();
 
 		// Setup engine after classes are registered.
