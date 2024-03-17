@@ -9,6 +9,7 @@
 #include <godot_cpp/templates/rb_map.hpp>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/templates/local_vector.hpp>
+#include <godot_cpp/classes/material.hpp>
 
 namespace godot
 {
@@ -68,6 +69,9 @@ private:
     TypedArray<Dictionary> _get_node_connections() const;
 
     Vector2 graph_offset;
+
+    // Store materials for undo redo purposes.
+    RBMap<id_t, Ref<Material>> materials;
 
     // HoodieIdManager<id_t> id_manager;
     // HashMap<id_t, Ref<HoodieNode>> hoodie_nodes;
