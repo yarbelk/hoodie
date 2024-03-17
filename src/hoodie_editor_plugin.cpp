@@ -764,6 +764,11 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     add_options.push_back(AddOption("Mesh Grid", "Mesh/Primitives", "HNMeshGrid"));
     add_options.push_back(AddOption("Mesh Line", "Mesh/Primitives", "HNMeshLine"));
 
+    // UTILITIES
+
+    add_options.push_back(AddOption("Compose Mesh", "Utilities/Mesh", "HNComposeMesh"));
+    add_options.push_back(AddOption("Decompose Mesh", "Utilities/Mesh", "HNDecomposeMesh"));
+
     // OUTPUT
 
     add_options.push_back(AddOption("Output", "Output", "HNOutput"));
