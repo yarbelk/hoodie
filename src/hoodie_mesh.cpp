@@ -377,14 +377,20 @@ bool HoodieMesh::_set(const StringName &p_name, const Variant &p_value) {
             return true;
         }
     } else if (prop_name.begins_with("inputs/")) {
-        String index = prop_name.get_slicec('/', 1);
+        String input_prop_name = prop_name.get_slicec('/', 1);
+        String index = input_prop_name.get_slicec('[', 1).get_slicec(']', 0);
+        String prop_index = input_prop_name.get_slicec('[', 2).get_slicec(']', 0);
+
         id_t id = index.to_int();
+        int prop_id = prop_index.to_int();
 
         for (const KeyValue<id_t, Node> &E : graph.nodes) {
             if (E.key == id) {
                 for (int i = 0; i < E.value.node->get_property_input_count(); i++) {
-                    E.value.node->set_property_input(i, p_value);
-                    return true;
+                    if (i == prop_id) {
+                        E.value.node->set_property_input(i, p_value);
+                        return true;
+                    }
                 }
             }
         }
@@ -420,14 +426,20 @@ bool HoodieMesh::_get(const StringName &p_name, Variant &r_ret) const {
             return true;
         }
     } else if (prop_name.begins_with("inputs/")) {
-        String index = prop_name.get_slicec('/', 1);
+        String input_prop_name = prop_name.get_slicec('/', 1);
+        String index = input_prop_name.get_slicec('[', 1).get_slicec(']', 0);
+        String prop_index = input_prop_name.get_slicec('[', 2).get_slicec(']', 0);
+
         id_t id = index.to_int();
+        int prop_id = prop_index.to_int();
 
         for (const KeyValue<id_t, Node> &E : graph.nodes) {
             if (E.key == id) {
                 for (int i = 0; i < E.value.node->get_property_input_count(); i++) {
-                    r_ret = Variant(E.value.node->get_property_input(i));
-                    return true;
+                    if (i == prop_id) {
+                        r_ret = Variant(E.value.node->get_property_input(i));
+                        return true;
+                    }
                 }
             }
         }
@@ -446,22 +458,24 @@ void HoodieMesh::_get_property_list(List<PropertyInfo> *p_list) const {
     }
     p_list->push_back(PropertyInfo(Variant::PACKED_INT32_ARRAY, "nodes/connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR));
 
-    // Display properties.
-    // FIXME: this probably needs a revision, as it uses a simple int index to reference the node of the property.
+    // Display input properties.
+    // String name will be something like "inputs/[0] Node Caption [0] Curve3D"
     for (const KeyValue<id_t, Node> &E : graph.nodes) {
+        String node_name = "[" + itos(E.key) + "] " + E.value.node->get_caption();
+
         for (int i = 0; i < E.value.node->get_property_input_count(); i++) {
+            String prop_name = "[" + itos(i) + "] " + E.value.node->get_property_input_hint(i);
             Variant::Type type = E.value.node->get_property_input_type(i);
-            String node_name = E.value.node->get_class() + " [" + itos(E.key) + "]";
 
             if (type != Variant::OBJECT || type == Variant::NIL) {
                 continue;
             }
 
-            String prop_name = "inputs/";
-            prop_name += itos(E.key);
+            String name = "inputs/";
+            name += node_name + " " + prop_name;
 
             if (type == GDEXTENSION_VARIANT_TYPE_OBJECT) {
-                p_list->push_back(PropertyInfo(type, prop_name, PROPERTY_HINT_RESOURCE_TYPE, E.value.node->get_property_input_hint(i)));
+                p_list->push_back(PropertyInfo(type, name, PROPERTY_HINT_RESOURCE_TYPE, E.value.node->get_property_input_hint(i)));
             }
         }
     }
