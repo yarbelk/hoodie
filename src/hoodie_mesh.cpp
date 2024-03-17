@@ -2,6 +2,7 @@
 
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/classes/material.hpp>
 
 using namespace godot;
 
@@ -45,8 +46,6 @@ void HoodieMesh::_update() {
 
     _remove_orphan_surfaces();
 
-    // TODO: the issue is taking track of the previous materials, that now are gone...
-
     for (const KeyValue<id_t, Node> &E : graph.nodes) {
         E.value.node->set_status(HoodieNode::ProcessStatus::PENDING);
     }
@@ -63,10 +62,18 @@ void HoodieMesh::_update() {
             continue;
         }
 
+        Ref<Material> material;
+
         String name = String::num_int64(E.key);
         int32_t surface_id = surface_find_by_name(name);
         if (surface_id != -1) {
+            material = surface_get_material(surface_id);
             _remove_surface_dumb(surface_id);
+        }
+
+        // Recover stored material for undo redo purposes.
+        if (material.is_null()) {
+            material = materials[E.key];
         }
 
         Variant surface = E.value.node->get_output(0);
@@ -77,19 +84,23 @@ void HoodieMesh::_update() {
             Array arr = surface;
 
             if (arr.size() != ArrayMesh::ARRAY_MAX) {
-                UtilityFunctions::print("Output node is not returning a correctly sized array!\n");
+                UtilityFunctions::push_warning("Output node is not returning a correctly sized array!\n");
             } else if (arr[ArrayMesh::ARRAY_VERTEX].get_type() != Variant::PACKED_VECTOR3_ARRAY) {
-                UtilityFunctions::print("Output node array ARRAY_VERTEX is not of POOL_VECTOR3_ARRAY type!\n");
+                UtilityFunctions::push_warning("Output node array ARRAY_VERTEX is not of POOL_VECTOR3_ARRAY type!\n");
             } else if (((PackedVector3Array)arr[ArrayMesh::ARRAY_VERTEX]).size() == 0) {
-                UtilityFunctions::print("No vertices in output node ARRAY_VERTEX array!");
+                UtilityFunctions::push_warning("No vertices in output node ARRAY_VERTEX array!");
             } else if (arr[ArrayMesh::ARRAY_INDEX].get_type() != Variant::PACKED_INT32_ARRAY) {
-                UtilityFunctions::print("No indices in final node ARRAY_INDEX array!");
+                UtilityFunctions::push_warning("No indices in final node ARRAY_INDEX array!");
             } else {
-                // TODO: apply material stuff
-                // Ref<Material> material;
+                // All requirements passed. Add valid surface.
                 int32_t new_surface_id = get_surface_count();
                 add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
                 surface_set_name(new_surface_id, name);
+                if (material.is_valid()) {
+                    surface_set_material(new_surface_id, material);
+                    // Store material for undo redo purposes.
+                    materials[E.key] = material;
+                }
             }
         }
     }
@@ -101,13 +112,11 @@ void HoodieMesh::_remove_orphan_surfaces() {
     // Basically you want to check if there's a node (usually a Output HoodieNode) that generates that surface, giving it its name
     // (e.g. Node name: 0 (it's the id), Surface name: 0)
     // If the node 0 is not there anymore, we need to remove that surface.
-    // TODO: implement surface_remove() that will be available in Godot 4.3
-
-    // std::map<id_t, Ref<HoodieNode>>::iterator it;
 
     // In this array we will store the arrays with which we will reconstruct the surfaces to keep
     Array surf_arrays_to_keep;
     Array surf_names;
+    Array materials;
     // Iterate over all surfaces
     for (int64_t s = get_surface_count() - 1; s >= 0; s--) {
         String surface_name = surface_get_name(s);
@@ -124,6 +133,7 @@ void HoodieMesh::_remove_orphan_surfaces() {
             // We want to keep this surface, so we store its arrays and name
             surf_arrays_to_keep.push_back(surface_get_arrays(s));
             surf_names.push_back(surface_name);
+            materials.push_back(surface_get_material(s));
         }
     }
     // We stored all the surfaces to keep, time to clear...
@@ -132,6 +142,7 @@ void HoodieMesh::_remove_orphan_surfaces() {
     for (int64_t i = 0; i < surf_arrays_to_keep.size(); i++) {
         add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, surf_arrays_to_keep[i]);
         surface_set_name(i, surf_names[i]);
+        surface_set_material(i, materials[i]);
     }
 }
 
