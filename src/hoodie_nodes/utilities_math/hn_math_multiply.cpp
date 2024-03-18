@@ -14,12 +14,18 @@ void HNMathMultiply::_process(const Array &p_inputs) {
     Array fac_0 = p_inputs[0];
     Array fac_1 = p_inputs[1];
 
+    while (fac_0.size() < fac_1.size()) {
+        fac_0.push_back(fac_0[fac_0.size() - 1]);
+    }
+
+    while (fac_1.size() < fac_0.size()) {
+        fac_1.push_back(fac_1[fac_1.size() - 1]);
+    }
+
     for (int i = 0; i < fac_0.size(); i++) {
-        float safe_fac_1 = 1;
-        if (i < fac_1.size()) {
-            safe_fac_1 = fac_1[i];
-        }
-        multiplied_arr.push_back((float)fac_0[i] * safe_fac_1);
+        const float a = (float)fac_0[i];
+        const float b = (float)fac_1[i];
+        multiplied_arr.push_back(a * b);
     }
 }
 

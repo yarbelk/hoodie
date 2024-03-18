@@ -218,7 +218,7 @@ bool HoodieMesh::_update_node(id_t p_id, Ref<HoodieNode> p_node) {
 
                 // TODO: implement data conversion
 
-                if (l_type != r_type) {
+                if (!is_port_types_compatible((int)l_type, (int)r_type)) {
                     UtilityFunctions::print("l_type and r_type type don't match!");
                     l_data = Variant();
                 }
