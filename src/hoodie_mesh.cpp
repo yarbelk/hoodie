@@ -654,6 +654,14 @@ bool HoodieMesh::is_port_types_compatible(int p_a, int p_b) const {
         return true;
     }
 
+    if (a == HoodieNode::PortType::PORT_TYPE_VECTOR_2D && b == HoodieNode::PortType::PORT_TYPE_VECTOR_3D) {
+        return true;
+    }
+
+    if (a == HoodieNode::PortType::PORT_TYPE_VECTOR_3D && b == HoodieNode::PortType::PORT_TYPE_VECTOR_2D) {
+        return true;
+    }
+
     return false;
 }
 

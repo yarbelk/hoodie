@@ -766,6 +766,13 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
 
     // UTILITIES
 
+    add_options.push_back(AddOption("Multiply", "Utilities/Math", "HNMathMultiply"));
+
+    add_options.push_back(AddOption("Combine XYZ", "Utilities/Vector", "HNCombineXYZ"));
+    add_options.push_back(AddOption("Separate XYZ", "Utilities/Vector", "HNSeparateXYZ"));
+    add_options.push_back(AddOption("Combine XY", "Utilities/Vector", "HNCombineXY"));
+    add_options.push_back(AddOption("Separate XY", "Utilities/Vector", "HNSeparateXY"));
+
     add_options.push_back(AddOption("Compose Mesh", "Utilities/Mesh", "HNComposeMesh"));
     add_options.push_back(AddOption("Decompose Mesh", "Utilities/Mesh", "HNDecomposeMesh"));
 
