@@ -219,7 +219,7 @@ bool HoodieMesh::_update_node(id_t p_id, Ref<HoodieNode> p_node) {
                 // TODO: implement data conversion
 
                 if (l_type != r_type) {
-                    UtilityFunctions::print("l_node and r_node type don't match!");
+                    UtilityFunctions::print("l_type and r_type type don't match!");
                     l_data = Variant();
                 }
 
@@ -646,18 +646,23 @@ bool HoodieMesh::is_port_types_compatible(int p_a, int p_b) const {
         return true;
     }
 
-    if (a == HoodieNode::PortType::PORT_TYPE_SCALAR_INT && b == HoodieNode::PortType::PORT_TYPE_SCALAR_UINT) {
+    // DATA
+    if (a == HoodieNode::PortType::PORT_TYPE_DATA || b == HoodieNode::PortType::PORT_TYPE_DATA) {
         return true;
     }
 
+    // INT UINT
+    if (a == HoodieNode::PortType::PORT_TYPE_SCALAR_INT && b == HoodieNode::PortType::PORT_TYPE_SCALAR_UINT) {
+        return true;
+    }
     if (a == HoodieNode::PortType::PORT_TYPE_SCALAR_UINT && b == HoodieNode::PortType::PORT_TYPE_SCALAR_INT) {
         return true;
     }
 
+    // VECTOR2D VECTOR3D
     if (a == HoodieNode::PortType::PORT_TYPE_VECTOR_2D && b == HoodieNode::PortType::PORT_TYPE_VECTOR_3D) {
         return true;
     }
-
     if (a == HoodieNode::PortType::PORT_TYPE_VECTOR_3D && b == HoodieNode::PortType::PORT_TYPE_VECTOR_2D) {
         return true;
     }

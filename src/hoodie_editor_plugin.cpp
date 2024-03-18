@@ -90,6 +90,7 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 		Color(0.00, 0.84, 0.64), // geometry
 		Color(0.00, 0.00, 0.00), // array
 		Color(0.00, 0.84, 0.64), // curve
+		Color(1.0, 1.0, 1.0), // data
 		Color(1.0, 1.0, 0.0), // max
 	};
 
@@ -765,6 +766,8 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     add_options.push_back(AddOption("Mesh Line", "Mesh/Primitives", "HNMeshLine"));
 
     // UTILITIES
+
+    add_options.push_back(AddOption("Repeat Data", "Utilities/Data", "HNRepeatData"));
 
     add_options.push_back(AddOption("Multiply", "Utilities/Math", "HNMathMultiply"));
 

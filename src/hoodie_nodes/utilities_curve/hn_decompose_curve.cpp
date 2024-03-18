@@ -18,13 +18,15 @@ void HNDecomposeCurve::_process(const Array &p_inputs) {
 
     Array inputs = p_inputs;
 
+    Array in_0 = inputs[0];
+
     // TODO: unnecessary step?
-    Array in_points = inputs[0];
-    Array in_tangents = inputs[1];
-    Array in_normals = inputs[2];
-    Array in_tilts = inputs[3];
-    Array in_lenghts = inputs[4];
-    Array in_factors = inputs[5];
+    Array in_points = in_0[0];
+    Array in_tangents = in_0[1];
+    Array in_normals = in_0[2];
+    Array in_tilts = in_0[3];
+    Array in_lenghts = in_0[4];
+    Array in_factors = in_0[5];
 
     out_points = in_points;
     out_tangents = in_tangents;
