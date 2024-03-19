@@ -1,7 +1,6 @@
 #ifndef HOODIE_HOODIEMESH_H
 #define HOODIE_HOODIEMESH_H
 
-#include "hoodie_id_manager.h"
 #include "hoodie_node.h"
 
 #include <godot_cpp/classes/array_mesh.hpp>
@@ -73,15 +72,11 @@ private:
     // Store materials for undo redo purposes.
     RBMap<id_t, Ref<Material>> materials;
 
-    // HoodieIdManager<id_t> id_manager;
-    // HashMap<id_t, Ref<HoodieNode>> hoodie_nodes;
-    // Vector<Connection> connections;
-
     mutable SafeFlag dirty;
     void _queue_update();
 
     void _update();
-    // _update utils
+    // _update utils.
     void _remove_orphan_surfaces();
     void _remove_surface_dumb(id_t p_id);
 
