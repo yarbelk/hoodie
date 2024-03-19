@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNMathMultiply::_process(const Array &p_inputs) {
-    UtilityFunctions::print("Math Multiply _process() call.");
-
     multiplied_arr.clear();
 
     if (p_inputs.size() == 0) {

@@ -7,8 +7,6 @@ void HNInputCurve3D::_curve_changed() {
 }
 
 void HNInputCurve3D::_process(const Array &p_inputs) {
-    UtilityFunctions::print("HNInputCurve3D _process() call.");
-
     PackedVector3Array points;
     PackedVector3Array tangents;
     PackedVector3Array normals;
@@ -156,8 +154,6 @@ void HNInputCurve3D::set_property_input(vec_size_t p_prop, Variant p_input) {
         curve->connect("changed", callable_mp((HoodieNode*)this, &HNInputCurve3D::mark_dirty));
         curve->connect("changed", callable_mp((Object*)this, &HNInputCurve3D::emit_signal<>).bind("changed"));
     }
-
-    UtilityFunctions::print("Input Curve Node point count: ", curve->get_point_count());
 
     mark_dirty();
     emit_signal("changed");

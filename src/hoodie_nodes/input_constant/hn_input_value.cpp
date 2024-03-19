@@ -18,8 +18,6 @@ void HNInputValue::_bind_methods() {
 }
 
 void HNInputValue::_process(const Array &p_inputs) {
-    UtilityFunctions::print("HNInputValue _process() call.");
-
     float x = float_val;
 
     value_arr.clear();

@@ -40,8 +40,6 @@ void HNInputVector3D::_bind_methods() {
 }
 
 void HNInputVector3D::_process(const Array &p_inputs) {
-    UtilityFunctions::print("HNInputValue _process() call.");
-
     Vector3 x = vector_val;
 
     value_arr.clear();

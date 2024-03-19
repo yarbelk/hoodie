@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNDecomposeCurve::_process(const Array &p_inputs) {
-    UtilityFunctions::print("Decompose Mesh _process() call.");
-
     out_points.clear();
     out_tangents.clear();
     out_normals.clear();

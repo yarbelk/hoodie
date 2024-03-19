@@ -328,7 +328,7 @@ void HoodieEditorPlugin::_on_popup_request(Vector2 &p_position) {
 void HoodieEditorPlugin::_menu_item_pressed(int index) {
     switch (index) {
         case FILE_NEW: {
-            UtilityFunctions::print("FILE_NEW not implemented.");
+            UtilityFunctions::push_warning("FILE_NEW not implemented.");
         } break;
         case FILE_PRINTDEBUG: {
             HoodieMesh *hm = hoodie_mesh.ptr();
@@ -337,16 +337,12 @@ void HoodieEditorPlugin::_menu_item_pressed(int index) {
             debug += "; ";
             debug += "connections.size() = " + String::num_int64(hm->graph.connections.size());
             UtilityFunctions::print(debug);
-            /*
-            for (const KeyValue<HoodieMesh::id_t, HoodieMesh::Node> &E : hm->graph.nodes) {
-                E.value.node->update(true, Array());
-            }
-            */
             UtilityFunctions::print("HoodieMesh get_graph_offset() " + hoodie_mesh->get_graph_offset());
         } break;
         case OPTIONS_VERBOSE: {
             verbose_mode = !verbose_mode;
             options_menu->get_popup()->set_item_checked(options_menu->get_popup()->get_item_index(OPTIONS_VERBOSE), verbose_mode);
+            hoodie_mesh->set_verbose_mode(verbose_mode);
         } break;
     }
 }
@@ -817,6 +813,7 @@ void HoodieEditorPlugin::_edit(Object *object) {
         graph_plugin->register_hoodie_mesh(hoodie_mesh.ptr());
 
         hoodie_mesh->set_graph_offset(graph_edit->get_scroll_offset());
+        hoodie_mesh->set_verbose_mode(verbose_mode);
 
         _update_nodes();
     } else {
@@ -1012,7 +1009,7 @@ void HoodieNodePluginDefaultEditor::_resource_selected(const String &p_path, Ref
 void HoodieNodePluginDefaultEditor::_open_inspector(Ref<Resource> p_resource) {
     // TODO: InspectorDock class is not exposed in GDExtension
     // InspectorDock::get_inspector_singleton()->edit(p_resource.ptr());
-    UtilityFunctions::push_error("_open_inspector NOT IMPLEMENTED!");
+    UtilityFunctions::push_warning("_open_inspector NOT IMPLEMENTED!");
 }
 
 void HoodieNodePluginDefaultEditor::_show_prop_names(bool p_show) {

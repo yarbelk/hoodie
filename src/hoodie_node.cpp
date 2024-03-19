@@ -50,7 +50,6 @@ bool HoodieNode::update(bool p_inputs_updated, const Array &p_inputs) {
 }
 
 void HoodieNode::_process(const Array &p_inputs) {
-    UtilityFunctions::print("Base HoodieNode _process() call.");
 }
 
 String HoodieNode::get_caption() const {

@@ -18,8 +18,6 @@ void HNInputInteger::_bind_methods() {
 }
 
 void HNInputInteger::_process(const Array &p_inputs) {
-    UtilityFunctions::print("HNInputInteger _process() call.");
-
     int x = int_val;
 
     value_arr.clear();

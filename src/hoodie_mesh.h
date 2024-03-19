@@ -72,6 +72,10 @@ private:
     // Store materials for undo redo purposes.
     RBMap<id_t, Ref<Material>> materials;
 
+    bool verbose_mode = false;
+    bool get_verbose_mode() const;
+    void set_verbose_mode(bool p_mode);
+
     mutable SafeFlag dirty;
     void _queue_update();
 

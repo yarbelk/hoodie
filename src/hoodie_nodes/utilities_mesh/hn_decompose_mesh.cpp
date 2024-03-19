@@ -5,8 +5,6 @@
 using namespace godot;
 
 void HNDecomposeMesh::_process(const Array &p_inputs) {
-    UtilityFunctions::print("Decompose Mesh _process() call.");
-
     arr_vertex.clear();
     arr_normal.clear();
     arr_tangent.clear();

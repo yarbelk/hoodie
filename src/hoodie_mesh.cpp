@@ -6,6 +6,14 @@
 
 using namespace godot;
 
+bool HoodieMesh::get_verbose_mode() const {
+    return verbose_mode;
+}
+
+void HoodieMesh::set_verbose_mode(bool p_mode) {
+    verbose_mode = p_mode;
+}
+
 TypedArray<Dictionary> HoodieMesh::_get_node_connections() const {
     const Graph *g = &graph;
 
@@ -79,7 +87,7 @@ void HoodieMesh::_update() {
         Variant surface = E.value.node->get_output(0);
 
         if (surface.get_type() != Variant::ARRAY) {
-            UtilityFunctions::print("Output node is not returing a Variant::ARRAY");
+            UtilityFunctions::push_warning("Output node is not returing a Variant::ARRAY");
         } else {
             Array arr = surface;
 
@@ -104,7 +112,12 @@ void HoodieMesh::_update() {
             }
         }
     }
-    UtilityFunctions::print("Update end. Surface count: ", get_surface_count());
+
+#ifdef TOOLS_ENABLED
+    if (verbose_mode) {
+        UtilityFunctions::print("HoodieMesh update end. Surface count: " + itos(get_surface_count()) + ".");
+    }
+#endif // TOOLS_ENABLED
 }
 
 // TODO: replace this with surface_remove in Godot 4.3
@@ -168,16 +181,29 @@ bool HoodieMesh::_update_node(id_t p_id, Ref<HoodieNode> p_node) {
     switch (p_node->get_status())
     {
         case HoodieNode::ProcessStatus::INPROGRESS: 
-            UtilityFunctions::print("Found circular dependency in procedural mesh!");
+            UtilityFunctions::push_warning("Found circular dependency in procedural mesh!");
             return false;
         case HoodieNode::ProcessStatus::UNCHANGED:
-            UtilityFunctions::print("Node unchanged.");
+#ifdef TOOLS_ENABLED
+            if (verbose_mode) {
+                UtilityFunctions::print("[" + itos(p_id) + "] " + p_node->get_caption() + " node unchanged.");
+            }
+#endif // TOOLS_ENABLED
             return false;
         case HoodieNode::ProcessStatus::CHANGED:
-            UtilityFunctions::print("Node already processed.");
+#ifdef TOOLS_ENABLED
+            if (verbose_mode) {
+                UtilityFunctions::print("[" + itos(p_id) + "] " + p_node->get_caption() + " node already processed.");
+            }
+#endif // TOOLS_ENABLED
             return true;
         case HoodieNode::ProcessStatus::PENDING:
-            UtilityFunctions::print("Node status pending: proceeding updating the node (now in progress)...");
+#ifdef TOOLS_ENABLED
+            if (verbose_mode) {
+                UtilityFunctions::print("[" + itos(p_id) + "] " + p_node->get_caption() + " node status pending: updating the node...");
+            }
+#endif // TOOLS_ENABLED
+            
             bool updated = false;
             Array inputs;
 
@@ -189,7 +215,7 @@ bool HoodieMesh::_update_node(id_t p_id, Ref<HoodieNode> p_node) {
 
                 // TODO: implement more than one l_port
                 if (l_ports.size() > 1) {
-                    UtilityFunctions::print("More than one l_port NOT IMPLEMENTED.");
+                    UtilityFunctions::push_warning("More than one l_port NOT IMPLEMENTED.");
                     continue;
                 } else if (l_ports.size() == 0) {
                     inputs.push_back(Variant());
@@ -199,7 +225,7 @@ bool HoodieMesh::_update_node(id_t p_id, Ref<HoodieNode> p_node) {
                 // Make sure l_node is valid
                 RBMap<id_t, Node>::ConstIterator E = graph.nodes.find(l_ports[0].node);
                 if (!E) {
-                    UtilityFunctions::print("l_node not found.");
+                    UtilityFunctions::push_warning("l_node not found.");
                     continue;
                 }
 
@@ -219,7 +245,7 @@ bool HoodieMesh::_update_node(id_t p_id, Ref<HoodieNode> p_node) {
                 // TODO: implement data conversion
 
                 if (!is_port_types_compatible((int)l_type, (int)r_type)) {
-                    UtilityFunctions::print("l_type and r_type type don't match!");
+                    UtilityFunctions::push_warning("l_port type and r_port type type don't match!");
                     l_data = Variant();
                 }
 
@@ -625,11 +651,11 @@ bool HoodieMesh::is_port_types_compatible(int p_a, int p_b) const {
     HoodieNode::PortType b = (HoodieNode::PortType)p_b;
 
     if (a == HoodieNode::PortType::PORT_TYPE_CURVE && b == HoodieNode::PortType::PORT_TYPE_GEOMETRY) {
-        UtilityFunctions::push_warning("Curve type and Geometry type NOT compatible.");
+        UtilityFunctions::push_warning("Curve type and Geometry type are NOT compatible.");
     }
 
     if (a == HoodieNode::PortType::PORT_TYPE_GEOMETRY && b == HoodieNode::PortType::PORT_TYPE_CURVE) {
-        UtilityFunctions::push_warning("Curve type and Geometry type NOT compatible.");
+        UtilityFunctions::push_warning("Curve type and Geometry type are NOT compatible.");
     }
 
     if (a == b) {
