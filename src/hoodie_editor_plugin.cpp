@@ -766,7 +766,7 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     add_options.push_back(AddOption("Mesh Line", "Mesh/Primitives", "HNMeshLine"));
 
     // UTILITIES
-
+  
     add_options.push_back(AddOption("Repeat Data", "Utilities/Data", "HNRepeatData"));
 
     add_options.push_back(AddOption("Multiply", "Utilities/Math", "HNMathMultiply"));

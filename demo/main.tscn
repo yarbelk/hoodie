@@ -32,6 +32,12 @@ x_value = 0.0
 
 [sub_resource type="HNMathMultiply" id="HNMathMultiply_xa6hh"]
 
+[sub_resource type="HNDecomposeMesh" id="HNDecomposeMesh_ibx4r"]
+
+[sub_resource type="HNComposeMesh" id="HNComposeMesh_bsxnf"]
+
+[sub_resource type="HNMeshGrid" id="HNMeshGrid_gxd2f"]
+
 [sub_resource type="HNInputCurve3D" id="HNInputCurve3D_wwtty"]
 
 [sub_resource type="HNCurveToMesh" id="HNCurveToMesh_2qi4x"]
