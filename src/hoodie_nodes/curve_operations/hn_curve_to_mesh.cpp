@@ -127,13 +127,13 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
     int triangle_index = 0;
     for (int p = 0; p < path_size; p++)
     {
-        // Construct frame with vectors taken from the Curve3D and tilt
+        // Construct frame with vectors taken from the Curve3D and tilt.
         Transform3D frame;
         if (p < path_size - 1) {
             frame = Transform3D(-curve_tan[p].cross(curve_nor[p]).normalized(), curve_nor[p], curve_tan[p], curve_pos[p]);
             frame.rotate_basis(frame.basis.get_column(2), curve_tilt[p]);
         } else {
-            // Not sure why, but last row need to be mirrored
+            // Not sure why, but the last row need to be mirrored.
             frame = Transform3D(curve_tan[p].cross(curve_nor[p]).normalized(), curve_nor[p], curve_tan[p], curve_pos[p]);
             frame.rotate_basis(frame.basis.get_column(2), -curve_tilt[p]);
         }
@@ -143,7 +143,7 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
             int index = p * shape_verts_size + s;
             vertices[index] = frame.xform(profile_pos[s]);
             normals[index] = curve_nor[p];
-            // normals[index] = frame.basis.get_column(3);
+            uvs[index] = Vector2(p, s);
             if (p > path_size - 2) continue;
             if (s > shape_verts_size - 2) continue;
             int i = p * shape_verts_size + s * 2;

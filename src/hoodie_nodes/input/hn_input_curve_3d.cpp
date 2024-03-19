@@ -13,16 +13,26 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
     PackedVector3Array tangents;
     PackedVector3Array normals;
     PackedFloat32Array tilts;
+    PackedFloat32Array lengths;
+    PackedFloat32Array factors;
 
     points.resize(0);
     tangents.resize(0);
     normals.resize(0);
     tilts.resize(0);
+    lengths.resize(0);
+    factors.resize(0);
 
     packed_curve.clear();
 
     if (curve.is_valid()) {
         points = curve->get_baked_points();
+
+        const int p_size = points.size();
+        if (p_size == 0) {
+            return;
+        }
+
         normals = curve->get_baked_up_vectors();
 
         // Calculate tangents
@@ -44,12 +54,33 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
         // TODO: implement normals
 
         tilts = curve->get_baked_tilts();
+
+        // Length of the curve at that point (from the start).
+        float curve_length = 0;
+        lengths.push_back(curve_length);
+        {
+            Vector3 prev_pt = points[0];
+            for (int i = 1; i < points.size(); i++) {
+                Vector3 pt = points[i];
+                curve_length += (pt - prev_pt).length();
+                prev_pt = pt;
+
+                lengths.push_back(curve_length);
+            }
+        }
+
+        // Factors: float 0 to 1
+        for (int i = 0; i < points.size(); i++) {
+            factors.push_back(i / (p_size - 1));
+        }
     }
 
     packed_curve.push_back(points);
     packed_curve.push_back(tangents);
     packed_curve.push_back(normals);
     packed_curve.push_back(tilts);
+    packed_curve.push_back(lengths);
+    packed_curve.push_back(factors);
 }
 
 String HNInputCurve3D::get_caption() const {
