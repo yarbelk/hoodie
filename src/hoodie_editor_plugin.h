@@ -115,6 +115,7 @@ class HoodieEditorPlugin : public EditorPlugin {
 
     // void _window_changed(bool p_visible);
 
+    void _on_popup_request(Vector2 &p_position);
     void _menu_item_pressed(int index);
     void _add_button_pressed();
     void _add_popup_pressed(int index);
