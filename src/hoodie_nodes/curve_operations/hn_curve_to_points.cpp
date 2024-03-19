@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNCurveToPoints::_process(const Array &p_inputs) {
-    UtilityFunctions::print("HNInputValue _process() call.");
-
     // TODO: implement curve_to_points _process
 }
 

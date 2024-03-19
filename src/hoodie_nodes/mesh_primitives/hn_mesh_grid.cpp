@@ -5,8 +5,6 @@
 using namespace godot;
 
 void HNMeshGrid::_process(const Array &p_inputs) {
-    UtilityFunctions::print("HNMeshGrid _process() call.");
-
     float x = 1;
     float z = 1;
 

@@ -5,8 +5,6 @@
 using namespace godot;
 
 void HNCurveToMesh::_process(const Array &p_inputs) {
-    UtilityFunctions::print("HNInputValue _process() call.");
-
     PackedVector3Array vertices;
     PackedVector3Array normals;
     PackedFloat32Array tangents;
@@ -52,9 +50,6 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
     const int total_verts = shape_verts_size * path_size;
     // const int total_indices = 3 * (path_size - 1) * shape_verts_size;
     const int total_indices = 2 * 3 * (path_size - 1) * (shape_verts_size - 1);
-
-    UtilityFunctions::print("path_size: ", path_size);
-    UtilityFunctions::print("shape_size: ", shape_size, "; shape_verts_size: ", shape_verts_size);
 
     // Check stuff.
     if (shape_size <= 1) {
@@ -119,7 +114,6 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
             shape_length += (pt - prev_pt).length();
             prev_pt = pt;
         }
-        UtilityFunctions::print("Shape length: ", shape_length);
     }
     
     // Extrusion
@@ -156,9 +150,6 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
         }
     }
 
-    // UtilityFunctions::print("Vertices: ", vertices);
-    // UtilityFunctions::print("Indices: ", indices);
-    
     mesh[ArrayMesh::ARRAY_VERTEX] = vertices;
     mesh[ArrayMesh::ARRAY_NORMAL] = normals;
     mesh[ArrayMesh::ARRAY_TANGENT] = tangents;

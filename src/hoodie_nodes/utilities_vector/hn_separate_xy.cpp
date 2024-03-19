@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNSeparateXY::_process(const Array &p_inputs) {
-    UtilityFunctions::print("Separate XY _process() call.");
-
     out_x.clear();
     out_y.clear();
 
@@ -15,11 +13,6 @@ void HNSeparateXY::_process(const Array &p_inputs) {
     Array in_arr = p_inputs;
 
     Array in_arr_vectors = in_arr[0];
-
-    // UtilityFunctions::print("Separate XYZ input[0].size = " + itos(in.size()));
-    UtilityFunctions::print("Separate XY input.size = " + itos(in_arr.size()));
-    UtilityFunctions::print("Separate XY in_arr_vectors.size = " + itos(in_arr_vectors.size()));
-    // UtilityFunctions::print("Separate XY in_arr[0] type = " + Variant::get_type_name(in_arr[0].get_type()));
 
     if (in_arr_vectors.size() == 0) {
         return;

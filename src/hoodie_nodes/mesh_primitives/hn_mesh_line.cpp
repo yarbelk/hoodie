@@ -5,8 +5,6 @@
 using namespace godot;
 
 void HNMeshLine::_process(const Array &p_inputs) {
-    UtilityFunctions::print("HNMeshLine _process() call.");
-
     count = 1;
     start = Vector3(0,0,0);
     offset = Vector3(1,0,0);

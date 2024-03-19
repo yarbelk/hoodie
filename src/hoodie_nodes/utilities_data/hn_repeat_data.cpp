@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNRepeatData::_process(const Array &p_inputs) {
-    UtilityFunctions::print("Repeat Data _process() call.");
-
     out_repeated.clear();
 
     if (p_inputs.size() == 0) {

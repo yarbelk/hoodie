@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNSeparateXYZ::_process(const Array &p_inputs) {
-    UtilityFunctions::print("Separate XYZ _process() call.");
-
     out_x.clear();
     out_y.clear();
     out_z.clear();
@@ -18,12 +16,6 @@ void HNSeparateXYZ::_process(const Array &p_inputs) {
     Array in = p_inputs[0];
 
     Array in_arr_vectors = in_arr[0];
-
-    // Works with vanilla Input Vector3D node
-    // UtilityFunctions::print("Separate XYZ input[0].size = " + itos(in.size()));
-    UtilityFunctions::print("Separate XYZ input.size = " + itos(in_arr.size()));
-    UtilityFunctions::print("Separate XYZ in_arr_vectors.size = " + itos(in_arr_vectors.size()));
-    UtilityFunctions::print("Separate XYZ in_arr[0] type = " + Variant::get_type_name(in_arr[0].get_type()));
 
     if (in_arr_vectors.size() == 0) {
         return;

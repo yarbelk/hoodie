@@ -1,8 +1,9 @@
 #include "register_types.h"
 
-// https://github.com/Zylann/godot_voxel/blob/f14552ea8ae9dfd54ea9b988dc205837bcfffdda/register_types.cpp
-
+#ifdef TOOLS_ENABLED
 #include "hoodie_editor_plugin.h"
+#endif // TOOLS_ENABLED
+
 #include "hoodie_mesh.h"
 #include "hoodie_node.h"
 #include "hoodie_nodes/curve_operations/hn_curve_to_mesh.h"
@@ -59,8 +60,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		// run tests?
 	}
 
-// TODO: how to manage TOOLS_ENABLED? is it necessary?
-// #ifdef TOOLS_ENABLED
+#ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
 		// In GDExtension we have to explicitely register all classes deriving from Object even if they are not exposed
 		ClassDB::register_internal_class<HoodieNodePlugin>();
@@ -72,7 +72,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 
 		EditorPlugins::add_by_type<HoodieEditorPlugin>();
 	}
-// #endif
+#endif // TOOLS_ENABLED
 }
 
 void uninitialize_hoodie_module(ModuleInitializationLevel p_level) {
@@ -80,9 +80,11 @@ void uninitialize_hoodie_module(ModuleInitializationLevel p_level) {
 
 	}
 
+#ifdef TOOLS_ENABLED
 	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
 
 	}
+#endif // TOOLS_ENABLED
 }
 
 extern "C" {

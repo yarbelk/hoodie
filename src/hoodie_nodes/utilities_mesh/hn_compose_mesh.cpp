@@ -5,8 +5,6 @@
 using namespace godot;
 
 void HNComposeMesh::_process(const Array &p_inputs) {
-    UtilityFunctions::print("Compose Mesh _process() call.");
-
     out_mesh.clear();
     out_mesh.resize(ArrayMesh::ARRAY_MAX);
 

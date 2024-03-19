@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNCombineXYZ::_process(const Array &p_inputs) {
-    UtilityFunctions::print("Combine XYZ _process() call.");
-
     out_xyz.clear();
 
     if (p_inputs.size() == 0) {

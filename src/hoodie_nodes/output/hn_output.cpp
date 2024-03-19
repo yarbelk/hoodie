@@ -5,8 +5,6 @@
 using namespace godot;
 
 void HNOutput::_process(const Array &p_inputs) {
-    UtilityFunctions::print("Output _process() call.");
-
     // TODO: optimize output _process function
 
     output_arr.clear();
