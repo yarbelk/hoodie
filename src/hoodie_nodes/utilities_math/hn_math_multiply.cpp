@@ -11,8 +11,8 @@ void HNMathMultiply::_process(const Array &p_inputs) {
         return;
     }
 
-    Array fac_0 = p_inputs[0];
-    Array fac_1 = p_inputs[1];
+    Array fac_0 = p_inputs[0].duplicate();
+    Array fac_1 = p_inputs[1].duplicate();
 
     while (fac_0.size() < fac_1.size()) {
         fac_0.push_back(fac_0[fac_0.size() - 1]);
