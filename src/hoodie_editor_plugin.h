@@ -6,7 +6,10 @@
 #include "godot_cpp/classes/h_split_container.hpp"
 #include "godot_cpp/classes/v_box_container.hpp"
 #include "godot_cpp/classes/h_box_container.hpp"
+#include "godot_cpp/classes/scroll_container.hpp"
 #include "godot_cpp/classes/menu_button.hpp"
+#include "godot_cpp/classes/tab_container.hpp"
+#include "godot_cpp/classes/tab_bar.hpp"
 #include "godot_cpp/classes/popup_menu.hpp"
 #include "godot_cpp/classes/label.hpp"
 #include "godot_cpp/classes/graph_edit.hpp"
@@ -100,6 +103,7 @@ class HoodieEditorPlugin : public EditorPlugin {
     // VBoxContainer *left_container = nullptr;
     // Label *label_title = nullptr;
     MenuButton *file_menu = nullptr;
+    TabContainer *hn_inspector = nullptr;
     GraphEdit *graph_edit = nullptr;
     MenuButton *add_node = nullptr;
     PopupMenu *add_popup = nullptr;
@@ -149,6 +153,12 @@ class HoodieEditorPlugin : public EditorPlugin {
 	void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, id_t p_node);
     void _nodes_dragged();
     bool updating = false;
+
+    void _node_selected(id_t p_node);
+    void _node_deselected(id_t p_node);
+
+    void _populate_hoodie_node_tab_inspector(id_t p_node);
+    void _depopulate_hoodie_node_tab_inspector();
 
 	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
 	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);

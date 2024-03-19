@@ -116,6 +116,9 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 
     graph_node->connect("dragged", callable_mp(editor, &HoodieEditorPlugin::_node_dragged).bind(p_id));
 
+    graph_node->connect("node_selected", callable_mp(editor, &HoodieEditorPlugin::_node_selected).bind(p_id));
+    graph_node->connect("node_deselected", callable_mp(editor, &HoodieEditorPlugin::_node_deselected).bind(p_id));
+
     // Adding Output and Input ports
     int j = 0;
 
@@ -472,6 +475,116 @@ void HoodieEditorPlugin::_nodes_dragged() {
     undo_redo->commit_action();
 }
 
+void HoodieEditorPlugin::_node_selected(id_t p_node) {
+    _populate_hoodie_node_tab_inspector(p_node);
+}
+
+void HoodieEditorPlugin::_node_deselected(id_t p_node) {
+    _depopulate_hoodie_node_tab_inspector();
+}
+
+void HoodieEditorPlugin::_populate_hoodie_node_tab_inspector(id_t p_node) {
+    // Show node data for debug purposes in the custom inspector panel
+    Ref<HoodieNode> node = hoodie_mesh->get_node(p_node);
+
+    bool is_final_output = false;
+    Array mesh_output;
+    int count;
+
+    if (node->get_output_port_count() == 0) {
+        is_final_output = true;
+        mesh_output = node->get_output(0);
+        count  = 13;
+    } else {
+        count = node->get_output_port_count();
+    }
+
+    for (int i = 0; i < count; i++) {
+        ScrollContainer *scroll_container = memnew(ScrollContainer);
+        scroll_container->set_name(node->get_output_port_name(i));
+        scroll_container->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+        hn_inspector->add_child(scroll_container);
+
+        Array output_data;
+
+        if (is_final_output) {
+            output_data = mesh_output[i];
+        } else {
+            output_data = node->get_output(i);
+        }
+
+        String data_string = "";
+
+        for (int j = 0; j < output_data.size(); j++) {
+            String j_data_string = "[" + itos(j) + "] ";
+
+            switch (output_data[j].get_type()) {
+                case Variant::Type::INT:
+                    {
+                        int val = (int)output_data[j];
+                        j_data_string += itos(val);
+                    }
+                    break;
+                case Variant::Type::FLOAT:
+                    {
+                        float f = (float)output_data[j];
+                        j_data_string += String::num(f, 3);
+                    }
+                    break;
+                case Variant::Type::VECTOR4:
+                    {
+                        Vector4 vec = output_data[j];
+                        String vec_string = "( ";
+                        vec_string += String::num(vec.x, 3) + " , ";
+                        vec_string += String::num(vec.y, 3) + " , ";
+                        vec_string += String::num(vec.z, 3) + " , ";
+                        vec_string += String::num(vec.w, 3) + " )";
+                        j_data_string += vec_string;
+                    }
+                    break;
+                case Variant::Type::VECTOR3:
+                    {
+                        Vector3 vec = output_data[j];
+                        String vec_string = "( ";
+                        vec_string += String::num(vec.x, 3) + " , ";
+                        vec_string += String::num(vec.y, 3) + " , ";
+                        vec_string += String::num(vec.z, 3) + " )";
+                        j_data_string += vec_string;
+                    }
+                    break;
+                case Variant::Type::VECTOR2:
+                    {
+                        Vector2 vec = output_data[j];
+                        String vec_string = "( ";
+                        vec_string += String::num(vec.x, 3) + " , ";
+                        vec_string += String::num(vec.y, 3) + " )";
+                        j_data_string += vec_string;
+                    }
+                    break;
+            }
+
+            data_string += j_data_string + "\n";
+        }
+
+        Label *data_label = memnew(Label);
+        data_label->set_text(data_string);
+        scroll_container->add_child(data_label);
+    }
+}
+
+void HoodieEditorPlugin::_depopulate_hoodie_node_tab_inspector() {
+    // Remove inspector panel debug data nodes
+    Vector<Node*> children;
+
+    for (int i = 0; i < hn_inspector->get_child_count(); i++) {
+        children.push_back(hn_inspector->get_child(i));
+    }
+
+    for (int i = 0; i < children.size(); i++) {
+        memdelete(children[i]);
+    }
+}
+
 void HoodieEditorPlugin::_connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
     id_t l_node = p_from.to_int();
     vec_size_t l_port = p_from_index;
@@ -722,12 +835,18 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     VBoxContainer *vb = memnew(VBoxContainer);
     HBoxContainer *menu_hb = memnew(HBoxContainer);
     vb->add_child(menu_hb);
+
     file_menu = memnew(MenuButton);
     file_menu->set_text("File");
     file_menu->set_shortcut_context(main_split);
     file_menu->get_popup()->add_item("New", FILE_NEW);
     file_menu->get_popup()->add_item("Print debug", FILE_PRINTDEBUG);
     menu_hb->add_child(file_menu);
+
+    // TabContainer for debug purposes
+    hn_inspector = memnew(TabContainer);
+    hn_inspector->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+    vb->add_child(hn_inspector);
 
     main_split->add_child(vb);
     vb->set_custom_minimum_size(Size2(200, 300));

@@ -58,10 +58,68 @@ int HNOutput::get_output_port_count() const {
 }
 
 HNOutput::PortType HNOutput::get_output_port_type(int p_port) const {
+    switch (p_port) {
+        case 0:
+            return PortType::PORT_TYPE_VECTOR_3D;
+        case 1:
+            return PortType::PORT_TYPE_VECTOR_3D;
+        case 2:
+            return PortType::PORT_TYPE_VECTOR_3D;
+        case 3:
+            return PortType::PORT_TYPE_VECTOR_4D;
+        case 4:
+            return PortType::PORT_TYPE_VECTOR_2D;
+        case 5:
+            return PortType::PORT_TYPE_VECTOR_2D;
+        case 6:
+            return PortType::PORT_TYPE_SCALAR_INT;
+        case 7:
+            return PortType::PORT_TYPE_SCALAR_INT;
+        case 8:
+            return PortType::PORT_TYPE_SCALAR_INT;
+        case 9:
+            return PortType::PORT_TYPE_SCALAR_INT;
+        case 10:
+            return PortType::PORT_TYPE_SCALAR;
+        case 11:
+            return PortType::PORT_TYPE_SCALAR;
+        case 12:
+            return PortType::PORT_TYPE_SCALAR_INT;
+    }
+
     return PortType::PORT_TYPE_SCALAR;
 }
 
 String HNOutput::get_output_port_name(int p_port) const {
+    switch (p_port) {
+        case 0:
+            return "Vertex";
+        case 1:
+            return "Normal";
+        case 2:
+            return "Tangent";
+        case 3:
+            return "Color";
+        case 4:
+            return "Tex UV";
+        case 5:
+            return "Tex UV 2";
+        case 6:
+            return "Custom 0";
+        case 7:
+            return "Custom 1";
+        case 8:
+            return "Custom 2";
+        case 9:
+            return "Custom 3";
+        case 10:
+            return "Bones";
+        case 11:
+            return "Weights";
+        case 12:
+            return "Index";
+    }
+
     return "";
 }
 
