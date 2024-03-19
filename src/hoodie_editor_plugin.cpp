@@ -319,6 +319,12 @@ HoodieGraphPlugin::~HoodieGraphPlugin() {
 
 ///////////////////
 
+void HoodieEditorPlugin::_on_popup_request(Vector2 &p_position) {
+    saved_node_pos = p_position;
+    saved_node_pos_dirty = true;
+    add_popup->popup_on_parent(Rect2(graph_edit->get_global_position() + p_position, Vector2(1, 1)));
+}
+
 void HoodieEditorPlugin::_menu_item_pressed(int index) {
     switch (index) {
         case FILE_NEW: {
@@ -738,6 +744,7 @@ void HoodieEditorPlugin::_notification(int what) {
             graph_edit->connect("connection_request", callable_mp(this, &HoodieEditorPlugin::_connection_request), CONNECT_DEFERRED);
             graph_edit->connect("disconnection_request", callable_mp(this, &HoodieEditorPlugin::_disconnection_request), CONNECT_DEFERRED);
             graph_edit->connect("scroll_offset_changed", callable_mp(this, &HoodieEditorPlugin::_scroll_changed));
+            graph_edit->connect("popup_request", callable_mp(this, &HoodieEditorPlugin::_on_popup_request));
             graph_edit->connect("delete_nodes_request", callable_mp(this, &HoodieEditorPlugin::_delete_nodes_request));
 
             file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_menu_item_pressed));
