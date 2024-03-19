@@ -315,16 +315,6 @@ HoodieMesh::id_t HoodieMesh::get_valid_node_id() const {
     return graph.nodes.size() ? MAX(1, graph.nodes.back()->key() + 1) : 1;
 }
 
-void HoodieMesh::add_connection(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port) {
-}
-
-void HoodieMesh::remove_connection(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port) {
-}
-
-Vector<HoodieMesh::Connection> HoodieMesh::get_connections() {
-    return Vector<HoodieMesh::Connection>();
-}
-
 const Vector<HoodieMesh::NodePortPair> HoodieMesh::get_left_ports(id_t p_r_node, vec_size_t p_r_port) const {
     size_t max = graph.connections.size();
     if (max == 0) {

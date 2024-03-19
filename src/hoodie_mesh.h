@@ -95,10 +95,6 @@ private:
     Vector<id_t> get_nodes_id_list() const;
     id_t get_valid_node_id() const;
 
-    void add_connection(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port);
-    void remove_connection(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port);
-    Vector<Connection> get_connections();
-
     const Vector<NodePortPair> get_left_ports(id_t p_r_node, vec_size_t p_r_port) const;
 
 protected:
