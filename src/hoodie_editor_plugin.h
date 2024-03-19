@@ -96,13 +96,15 @@ class HoodieEditorPlugin : public EditorPlugin {
 
     enum {
         FILE_NEW,
-        FILE_PRINTDEBUG
+        FILE_PRINTDEBUG,
+        OPTIONS_VERBOSE,
     };
 
     HSplitContainer *main_split = nullptr;
     // VBoxContainer *left_container = nullptr;
     // Label *label_title = nullptr;
     MenuButton *file_menu = nullptr;
+    MenuButton *options_menu = nullptr;
     TabContainer *hn_inspector = nullptr;
     GraphEdit *graph_edit = nullptr;
     MenuButton *add_node = nullptr;
@@ -112,6 +114,8 @@ class HoodieEditorPlugin : public EditorPlugin {
 
     Point2 saved_node_pos;
     bool saved_node_pos_dirty = false;
+
+    bool verbose_mode = false;
 
     // void _window_changed(bool p_visible);
 

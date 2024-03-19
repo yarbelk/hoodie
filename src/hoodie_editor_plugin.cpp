@@ -344,6 +344,10 @@ void HoodieEditorPlugin::_menu_item_pressed(int index) {
             */
             UtilityFunctions::print("HoodieMesh get_graph_offset() " + hoodie_mesh->get_graph_offset());
         } break;
+        case OPTIONS_VERBOSE: {
+            verbose_mode = !verbose_mode;
+            options_menu->get_popup()->set_item_checked(options_menu->get_popup()->get_item_index(OPTIONS_VERBOSE), verbose_mode);
+        } break;
     }
 }
 
@@ -748,6 +752,7 @@ void HoodieEditorPlugin::_notification(int what) {
             graph_edit->connect("delete_nodes_request", callable_mp(this, &HoodieEditorPlugin::_delete_nodes_request));
 
             file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_menu_item_pressed));
+            options_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_menu_item_pressed));
             add_node->connect("pressed", callable_mp(this, &HoodieEditorPlugin::_add_button_pressed));
             add_popup->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_add_popup_pressed));
 
@@ -849,6 +854,13 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     file_menu->get_popup()->add_item("New", FILE_NEW);
     file_menu->get_popup()->add_item("Print debug", FILE_PRINTDEBUG);
     menu_hb->add_child(file_menu);
+
+    options_menu = memnew(MenuButton);
+    options_menu->set_text("Options");
+    options_menu->set_shortcut_context(main_split);
+    options_menu->get_popup()->add_check_item("Verbose mode", OPTIONS_VERBOSE);
+    options_menu->get_popup()->set_item_checked(options_menu->get_popup()->get_item_index(OPTIONS_VERBOSE), verbose_mode);
+    menu_hb->add_child(options_menu);
 
     // TabContainer for debug purposes
     hn_inspector = memnew(TabContainer);
