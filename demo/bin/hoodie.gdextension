@@ -3,6 +3,9 @@
 entry_symbol = "hoodie_library_init"
 compatibility_minimum = "4.2"
 
+[icons]
+HoodieMesh = "res://bin/hoodie.svg"
+
 [libraries]
 
 macos.debug = "res://bin/libhoodie.macos.editor.dev.framework"
