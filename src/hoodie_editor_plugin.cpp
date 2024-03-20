@@ -890,6 +890,10 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
 
     add_options.push_back(AddOption("Input Curve3D", "Input", "HNInputCurve3D"));
 
+    // GEOMETRY
+
+    add_options.push_back(AddOption("Transform Geometry", "Geometry/Operations", "HNTransformGeometry"));
+
     // CURVE
 
     add_options.push_back(AddOption("Curve to Mesh", "Curve/Operations", "HNCurveToMesh"));
