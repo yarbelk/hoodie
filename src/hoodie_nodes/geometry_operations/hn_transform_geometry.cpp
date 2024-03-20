@@ -15,19 +15,38 @@ void HNTransformGeometry::_process(const Array &p_inputs) {
     PackedVector3Array mesh_verts = out[0];
 
     // Translate, Rotate, Scale
-    Array translation = p_inputs[1].duplicate();
-    Array rotation = p_inputs[2].duplicate();
-    Array scale = p_inputs[3].duplicate();
+    Array translations = p_inputs[1].duplicate();
+    Array rotations = p_inputs[2].duplicate();
+    Array scales = p_inputs[3].duplicate();
 
-    if (translation.size() > 0) {
-        Transform3D transform = Transform3D(Basis(), translation[0]);
+    Transform3D transform;
+    Basis basis;
 
-        for (int i = 0; i < mesh_verts.size(); i++) {
-            Vector3 v = mesh_verts[i];
-            mesh_verts[i] = transform.xform(v);
-        }
+    Vector3 translation_vector = Vector3(0, 0, 0);
+    Quaternion rotation_quaternion;
+    Vector3 scale_vector = Vector3(1, 1, 1);
+
+    if (translations.size() > 0) {
+        translation_vector = translations[0];
     }
 
+    if (rotations.size() > 0) {
+        // rotation_quaternion = ...
+    }
+
+    if (scales.size() > 0) {
+        scale_vector = scales[0];
+    }
+
+    basis = Basis(basis.get_quaternion(), scale_vector);
+
+    transform = Transform3D(basis, translation_vector);
+
+    for (int i = 0; i < mesh_verts.size(); i++) {
+        Vector3 v = mesh_verts[i];
+        mesh_verts[i] = transform.xform(v);
+    }
+    
     out[0] = mesh_verts;
 }
 
