@@ -13,10 +13,12 @@ private:
     // Input
 
     // Output
-    PackedVector3Array points;
-    PackedVector3Array tangents;
-    PackedVector3Array normals;
-    PackedFloat32Array tilts;
+    Array out_points;
+    Array out_tangents;
+    Array out_normals;
+    Array out_tilts;
+    Array out_lengths;
+    Array out_factors;
 
 public:
     void _process(const Array &p_inputs) override;

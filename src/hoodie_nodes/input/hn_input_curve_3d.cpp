@@ -69,7 +69,7 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
 
         // Factors: float 0 to 1
         for (int i = 0; i < points.size(); i++) {
-            factors.push_back(i / (p_size - 1));
+            factors.push_back((float)i / (p_size - 1));
         }
     }
 

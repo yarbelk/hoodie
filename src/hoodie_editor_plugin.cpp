@@ -911,8 +911,6 @@ HoodieEditorPlugin::HoodieEditorPlugin() {
     add_options.push_back(AddOption("Combine XY", "Utilities/Vector", "HNCombineXY"));
     add_options.push_back(AddOption("Separate XY", "Utilities/Vector", "HNSeparateXY"));
 
-    add_options.push_back(AddOption("Decompose Curve", "Utilities/Curve", "HNDecomposeCurve"));
-
     add_options.push_back(AddOption("Compose Mesh", "Utilities/Mesh", "HNComposeMesh"));
     add_options.push_back(AddOption("Decompose Mesh", "Utilities/Mesh", "HNDecomposeMesh"));
 
