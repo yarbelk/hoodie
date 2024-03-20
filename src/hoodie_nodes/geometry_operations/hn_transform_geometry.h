@@ -16,6 +16,7 @@ private:
     Array out;
 
 public:
+    static Quaternion from_euler(const Vector3 &p_euler);
 
 protected:
     // static void _bind_methods();
