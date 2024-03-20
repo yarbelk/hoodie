@@ -1,6 +1,7 @@
 #include "hn_mesh_cube.h"
 
 #include <godot_cpp/classes/array_mesh.hpp>
+#include "hn_mesh_grid.h"
 
 using namespace godot;
 
@@ -38,147 +39,73 @@ void HNMeshCube::_process(const Array &p_inputs) {
         }
     }
 
-    size_x = size_x * 0.5;
-    size_y = size_y * 0.5;
-    size_z = size_z * 0.5;
+    // size_x = size_x * 0.5;
+    // size_y = size_y * 0.5;
+    // size_z = size_z * 0.5;
 
     PackedVector3Array vertices;
     PackedVector3Array normals;
     PackedVector2Array uvs;
     PackedInt32Array indices;
 
-    // Vertices
-    vertices.resize(24);
-    // Front face.
-    vertices[0] = Vector3(-size_x, -size_y, size_z);
-    vertices[1] = Vector3(size_x, -size_y, size_z);
-    vertices[2] = Vector3(size_x, size_y, size_z);
-    vertices[3] = Vector3(-size_x, size_y, size_z);
-    // Back face.
-    vertices[4] = Vector3(-size_x, -size_y, -size_z);
-    vertices[5] = Vector3(size_x, -size_y, -size_z);
-    vertices[6] = Vector3(size_x, size_y, -size_z);
-    vertices[7] = Vector3(-size_x, size_y, -size_z);
-    // Top face.
-    vertices[8] = Vector3(-size_x, size_y, -size_z);
-    vertices[9] = Vector3(size_x, size_y, -size_z);
-    vertices[10] = Vector3(size_x, size_y, size_z);
-    vertices[11] = Vector3(-size_x, size_y, size_z);
-    // Bottom face.
-    vertices[12] = Vector3(-size_x, -size_y, -size_z);
-    vertices[13] = Vector3(size_x, -size_y, -size_z);
-    vertices[14] = Vector3(size_x, -size_y, size_z);
-    vertices[15] = Vector3(-size_x, -size_y, size_z);
-    // Right face.
-    vertices[16] = Vector3(size_x, -size_y, -size_z);
-    vertices[17] = Vector3(size_x, size_y, -size_z);
-    vertices[18] = Vector3(size_x, size_y, size_z);
-    vertices[19] = Vector3(size_x, -size_y, size_z);
-    // Left face.
-    vertices[20] = Vector3(-size_x, -size_y, -size_z);
-    vertices[21] = Vector3(-size_x, size_y, -size_z);
-    vertices[22] = Vector3(-size_x, size_y, size_z);
-    vertices[23] = Vector3(-size_x, -size_y, size_z);
+    int index_offset = 0;
+    Transform3D front_frame = Transform3D(Basis(Vector3(0,0,1), Math_PI), Vector3(0, 0, -size_z * 0.5));
+    Array front_plane = HNMeshGrid::generate_plane(size_x, size_y, verts_x, verts_y, front_frame);
+    PackedVector3Array fp_verts = front_plane[0];
+    index_offset += fp_verts.size();
 
-    // for (int z = 0; z < verts_z; ++z) {
-    //     for (int y = 0; y < verts_y; ++y) {
-    //         for (int x = 0; x < verts_x; ++x) {
-    //             float xf = static_cast<float>(x) / (verts_x - 1);
-    //             float yf = static_cast<float>(y) / (verts_y - 1);
-    //             float zf = static_cast<float>(z) / (verts_z - 1);
+    Transform3D back_frame = Transform3D(Basis(Vector3(1,0,0), Vector3(0,-1,0), Vector3(0,0,-1)), Vector3(0, 0, size_z * 0.5));
+    Array back_plane = HNMeshGrid::generate_plane(size_x, size_y, verts_x, verts_y, back_frame, index_offset);
+    PackedVector3Array bf_verts = back_plane[0];
+    index_offset += bf_verts.size();
 
-    //             Vector3 vertex = Vector3(xf, yf, zf);
-    //             vertices.push_back(vertex);
-    //         }
-    //     }
-    // }
+    Transform3D top_frame = Transform3D(Basis(Vector3(1,0,0), Math_PI * 0.5), Vector3(0, size_y * 0.5, 0));
+    Array top_plane = HNMeshGrid::generate_plane(size_x, size_z, verts_x, verts_z, top_frame, index_offset);
+    PackedVector3Array tf_verts = top_plane[0];
+    index_offset += tf_verts.size();
 
-    // Normals
-    normals.resize(24);
-    Vector3 *norm_write = normals.ptrw();
-    Vector3 front_normal = Vector3(0.0, 0.0, 1.0);
-    Vector3 back_normal = Vector3(0.0, 0.0, -1.0);
-    Vector3 top_normal = Vector3(0.0, 1.0, 0.0);
-    Vector3 bottom_normal = Vector3(0.0, -1.0, 0.0);
-    Vector3 right_normal = Vector3(1.0, 0.0, 0.0);
-    Vector3 left_normal = Vector3(-1.0, 0.0, 0.0);
-    std::vector<Vector3> cube_normals = {
-        // Front face
-        front_normal, front_normal, front_normal, front_normal,
-        // Back face
-        back_normal, back_normal, back_normal, back_normal,
-        // Top face
-        top_normal, top_normal, top_normal, top_normal,
-        // Bottom face
-        bottom_normal, bottom_normal, bottom_normal, bottom_normal,
-        // Right face
-        right_normal, right_normal, right_normal, right_normal,
-        // Left face
-        left_normal, left_normal, left_normal, left_normal,
-    };
-    std::copy(cube_normals.begin(), cube_normals.end(), norm_write);
+    Transform3D bottom_frame = Transform3D(Basis(Vector3(1,0,0), Vector3(0,0,-1), Vector3(0,1,0)), Vector3(0, -size_y * 0.5, 0));
+    Array bottom_plane = HNMeshGrid::generate_plane(size_x, size_z, verts_x, verts_z, bottom_frame, index_offset);
+    PackedVector3Array botf_verts = bottom_plane[0];
+    index_offset += botf_verts.size();
 
-    // UVs
-    uvs.resize(24);
-    Vector2 *uvs_write = uvs.ptrw();
-    std::vector<Vector2> cube_uvs = {
-        // Front face
-        Vector2(0.0, 1.0),
-        Vector2(1.0, 1.0),
-        Vector2(1.0, 0.0),
-        Vector2(0.0, 0.0),
-        // Back face
-        Vector2(0.0, 1.0),
-        Vector2(1.0, 1.0),
-        Vector2(1.0, 0.0),
-        Vector2(0.0, 0.0),
-        // Top face
-        Vector2(0.0, 1.0),
-        Vector2(1.0, 1.0),
-        Vector2(1.0, 0.0),
-        Vector2(0.0, 0.0),
-        // Bottom face
-        Vector2(0.0, 1.0),
-        Vector2(1.0, 1.0),
-        Vector2(1.0, 0.0),
-        Vector2(0.0, 0.0),
-        // Right face
-        Vector2(0.0, 1.0),
-        Vector2(1.0, 1.0),
-        Vector2(1.0, 0.0),
-        Vector2(0.0, 0.0),
-        // Left face
-        Vector2(0.0, 1.0),
-        Vector2(1.0, 1.0),
-        Vector2(1.0, 0.0),
-        Vector2(0.0, 0.0),
-    };
-    std::copy(cube_uvs.begin(), cube_uvs.end(), uvs_write);
+    Transform3D right_frame = Transform3D(Basis(Vector3(0,0,-1), Vector3(0,-1,0), Vector3(-1,0,0)), Vector3(size_x * 0.5, 0, 0));
+    Array right_plane = HNMeshGrid::generate_plane(size_z, size_y, verts_z, verts_y, right_frame, index_offset);
+    PackedVector3Array rf_verts = right_plane[0];
+    index_offset += rf_verts.size();
 
-    // Indices
-    indices.resize(36);
-    int32_t *idx_write = indices.ptrw();
-    std::vector<int32_t> cube_indices = {
-        // Front face
-        0, 2, 1,
-        2, 0, 3,
-        // Back face
-        4, 5, 6,
-        6, 7, 4,
-        // Top face
-        8, 9, 10,
-        10, 11, 8,
-        // Bottom face
-        14, 13, 12,
-        12, 15, 14,
-        // Right face
-        18, 17, 16,
-        16, 19, 18,
-        // Left face
-        20, 21, 22,
-        22, 23, 20
-    };
-    std::copy(cube_indices.begin(), cube_indices.end(), idx_write);
+    Transform3D left_frame = Transform3D(Basis(Vector3(0,0,1), Vector3(0,-1,0), Vector3(1,0,0)), Vector3(-size_x * 0.5, 0, 0));
+    Array left_plane = HNMeshGrid::generate_plane(size_z, size_y, verts_z, verts_y, left_frame, index_offset);
+    PackedVector3Array lf_verts = left_plane[0];
+    index_offset += lf_verts.size();
+
+    vertices.append_array(fp_verts);
+    vertices.append_array(bf_verts);
+    vertices.append_array(tf_verts);
+    vertices.append_array(botf_verts);
+    vertices.append_array(rf_verts);
+    vertices.append_array(lf_verts);
+
+    indices.append_array(front_plane[1]);
+    indices.append_array(back_plane[1]);
+    indices.append_array(top_plane[1]);
+    indices.append_array(bottom_plane[1]);
+    indices.append_array(right_plane[1]);
+    indices.append_array(left_plane[1]);
+
+    normals.append_array(front_plane[2]);
+    normals.append_array(back_plane[2]);
+    normals.append_array(top_plane[2]);
+    normals.append_array(bottom_plane[2]);
+    normals.append_array(right_plane[2]);
+    normals.append_array(left_plane[2]);
+
+    uvs.append_array(front_plane[3]);
+    uvs.append_array(back_plane[3]);
+    uvs.append_array(top_plane[3]);
+    uvs.append_array(bottom_plane[3]);
+    uvs.append_array(right_plane[3]);
+    uvs.append_array(left_plane[3]);
 
     out_arr.resize(ArrayMesh::ARRAY_MAX);
     out_arr[ArrayMesh::ARRAY_VERTEX] = vertices;

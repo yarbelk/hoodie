@@ -13,6 +13,9 @@ private:
     Array surface_arr;
 
 public:
+    static Array generate_plane(const float x_length, const float y_length, const int x_subs, const int y_subs, const Transform3D frame, const int id_offset = 0);
+
+public:
 	void _process(const Array &p_inputs) override;
 
     String get_caption() const override;

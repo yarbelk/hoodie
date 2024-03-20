@@ -140,6 +140,7 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
             uvs[index] = Vector2(p, s);
             if (p > path_size - 2) continue;
             if (s > shape_verts_size - 2) continue;
+            // FIXME?: int i = p * shape_verts_size + s;
             int i = p * shape_verts_size + s * 2;
             indices[triangle_index++] = i;
             indices[triangle_index++] = i + 1;
