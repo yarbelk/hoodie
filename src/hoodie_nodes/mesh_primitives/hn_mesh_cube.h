@@ -1,19 +1,19 @@
-#ifndef HOODIE_HNMESHGRID_H
-#define HOODIE_HNMESHGRID_H
+#ifndef HOODIE_HNMESHCUBE_H
+#define HOODIE_HNMESHCUBE_H
 
 #include "hoodie_node.h"
 
 namespace godot
 {
     
-class HNMeshGrid : public HoodieNode {
-    GDCLASS(HNMeshGrid, HoodieNode)
+class HNMeshCube : public HoodieNode {
+    GDCLASS(HNMeshCube, HoodieNode)
 
 private:
-    Array surface_arr;
+    // Inputs
 
-public:
-    static Array generate_plane(const float x_length, const float y_length, const int x_subs, const int y_subs, const Transform3D frame, const int id_offset = 0);
+    // Outputs
+    Array out_arr;
 
 public:
 	void _process(const Array &p_inputs) override;
@@ -33,4 +33,4 @@ public:
 
 } // namespace godot
 
-#endif // HOODIE_HNMESHGRID_H
+#endif // HOODIE_HNMESHCUBE_H
