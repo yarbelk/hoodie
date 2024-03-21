@@ -116,8 +116,8 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 
     graph_node->connect("dragged", callable_mp(editor, &HoodieEditorPlugin::_node_dragged).bind(p_id));
 
-    graph_node->connect("node_selected", callable_mp(editor, &HoodieEditorPlugin::_node_selected).bind(p_id));
-    graph_node->connect("node_deselected", callable_mp(editor, &HoodieEditorPlugin::_node_deselected).bind(p_id));
+    graph_node->connect("node_selected", callable_mp(editor->hoodie_control, &HoodieControl::_node_selected).bind(p_id));
+    graph_node->connect("node_deselected", callable_mp(editor->hoodie_control, &HoodieControl::_node_deselected).bind(p_id));
 
     // Adding Output and Input ports
     int j = 0;
@@ -203,7 +203,7 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     }
     graph_node->add_child(props_vb);
 
-    editor->graph_edit->add_child(graph_node);
+    editor->hoodie_control->graph_edit->add_child(graph_node);
 }
 
 void HoodieGraphPlugin::remove_node(id_t p_id, bool p_just_update) {
@@ -218,7 +218,7 @@ void HoodieGraphPlugin::remove_node(id_t p_id, bool p_just_update) {
 }
 
 void HoodieGraphPlugin::connect_nodes(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port) {
-    GraphEdit *graph = editor->graph_edit;
+    GraphEdit *graph = editor->hoodie_control->graph_edit;
     if (!graph) {
         return;
     }
@@ -230,7 +230,7 @@ void HoodieGraphPlugin::connect_nodes(id_t p_l_node, vec_size_t p_l_port, id_t p
 }
 
 void HoodieGraphPlugin::disconnect_nodes(id_t p_l_node, vec_size_t p_l_port, id_t p_r_node, vec_size_t p_r_port) {
-    GraphEdit *graph = editor->graph_edit;
+    GraphEdit *graph = editor->hoodie_control->graph_edit;
     if (!graph) {
         return;
     }
@@ -319,92 +319,160 @@ HoodieGraphPlugin::~HoodieGraphPlugin() {
 
 ///////////////////
 
-void HoodieEditorPlugin::_on_popup_request(Vector2 &p_position) {
-    saved_node_pos = p_position;
-    saved_node_pos_dirty = true;
+void HoodieControl::_bind_methods() {
+}
+
+void HoodieControl::_notification(int p_what) {
+    switch (p_what)
+    {
+        case NOTIFICATION_READY: {
+            graph_edit->connect("connection_request", callable_mp(editor, &HoodieEditorPlugin::_connection_request), CONNECT_DEFERRED);
+            graph_edit->connect("disconnection_request", callable_mp(editor, &HoodieEditorPlugin::_disconnection_request), CONNECT_DEFERRED);
+            graph_edit->connect("scroll_offset_changed", callable_mp(editor, &HoodieEditorPlugin::_scroll_changed));
+            graph_edit->connect("popup_request", callable_mp(this, &HoodieControl::_on_popup_request));
+            graph_edit->connect("delete_nodes_request", callable_mp(editor, &HoodieEditorPlugin::_delete_nodes_request));
+
+            file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieControl::_menu_item_pressed));
+            options_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieControl::_menu_item_pressed));
+            lock_button->connect("toggled", callable_mp(this, &HoodieControl::_on_lock_toggled));
+        } break;
+        case NOTIFICATION_THEME_CHANGED: {
+            lock_button->set_button_icon(get_theme_icon("Lock", "EditorIcons"));
+        } break;
+    }
+}
+
+void HoodieControl::set_editor(HoodieEditorPlugin *p_editor) {
+    editor = p_editor;
+}
+
+HoodieControl::HoodieControl() {
+    main_split = memnew(HSplitContainer);
+    main_split->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+    main_split->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+    add_child(main_split);
+
+    VBoxContainer *vb = memnew(VBoxContainer);
+    HBoxContainer *menu_hb = memnew(HBoxContainer);
+    vb->add_child(menu_hb);
+
+    file_menu = memnew(MenuButton);
+    file_menu->set_text("File");
+    file_menu->set_shortcut_context(main_split);
+    file_menu->get_popup()->add_item("New", FILE_NEW);
+    file_menu->get_popup()->add_item("Print debug", FILE_PRINTDEBUG);
+    menu_hb->add_child(file_menu);
+
+    options_menu = memnew(MenuButton);
+    options_menu->set_text("Options");
+    options_menu->set_shortcut_context(main_split);
+    options_menu->get_popup()->add_check_item("Verbose mode", OPTIONS_VERBOSE);
+    options_menu->get_popup()->set_item_checked(options_menu->get_popup()->get_item_index(OPTIONS_VERBOSE), verbose_mode);
+    menu_hb->add_child(options_menu);
+
+    lock_button = memnew(Button);
+    // So that the button will be located to the right of the menu_hb.
+    lock_button->set_h_size_flags(Control::SIZE_EXPAND | Control::SIZE_SHRINK_END);
+    lock_button->set_theme_type_variation("FlatButton");
+    lock_button->set_button_icon(main_split->get_theme_icon("New", "EditorIcons"));
+    lock_button->set_toggle_mode(true);
+    lock_button->set_tooltip_text("Lock Hoodie Inspector");
+    menu_hb->add_child(lock_button);
+
+    // TabContainer for debug purposes.
+    hn_inspector = memnew(TabContainer);
+    hn_inspector->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+    vb->add_child(hn_inspector);
+
+    main_split->add_child(vb);
+    vb->set_custom_minimum_size(Size2(200, 300));
+
+    graph_edit = memnew(GraphEdit);
+    main_split->add_child(graph_edit);
+    graph_edit->set_right_disconnects(true);
+
+    add_node = memnew(MenuButton);
+    add_node->set_text("Add node...");
+    graph_edit->get_menu_hbox()->add_child(add_node);
+    graph_edit->get_menu_hbox()->move_child(add_node, 0);
+
+    add_popup = add_node->get_popup();
+
+	///////////////////////////////////////
+	// HOODIE NODES TREE OPTIONS
+	///////////////////////////////////////
+
+    // INPUT
+
+    add_options.push_back(AddOption("Input Value", "Input/Constant", "HNInputValue"));
+    add_options.push_back(AddOption("Input Integer", "Input/Constant", "HNInputInteger"));
+    add_options.push_back(AddOption("Input Vector3D", "Input/Constant", "HNInputVector3D"));
+
+    add_options.push_back(AddOption("Input Curve3D", "Input", "HNInputCurve3D"));
+
+    // GEOMETRY
+
+    add_options.push_back(AddOption("Transform Geometry", "Geometry/Operations", "HNTransformGeometry"));
+
+    // CURVE
+
+    add_options.push_back(AddOption("Curve to Mesh", "Curve/Operations", "HNCurveToMesh"));
+    add_options.push_back(AddOption("Curve to Points", "Curve/Operations", "HNCurveToPoints"));
+
+    // MESH
+
+    add_options.push_back(AddOption("Cube", "Mesh/Primitives", "HNMeshCube"));
+    add_options.push_back(AddOption("Mesh Grid", "Mesh/Primitives", "HNMeshGrid"));
+    add_options.push_back(AddOption("Mesh Line", "Mesh/Primitives", "HNMeshLine"));
+
+    // UTILITIES
+  
+    add_options.push_back(AddOption("Repeat Data", "Utilities/Data", "HNRepeatData"));
+
+    add_options.push_back(AddOption("Multiply", "Utilities/Math", "HNMathMultiply"));
+
+    add_options.push_back(AddOption("Combine XYZ", "Utilities/Vector", "HNCombineXYZ"));
+    add_options.push_back(AddOption("Separate XYZ", "Utilities/Vector", "HNSeparateXYZ"));
+    add_options.push_back(AddOption("Combine XY", "Utilities/Vector", "HNCombineXY"));
+    add_options.push_back(AddOption("Separate XY", "Utilities/Vector", "HNSeparateXY"));
+
+    add_options.push_back(AddOption("Compose Mesh", "Utilities/Mesh", "HNComposeMesh"));
+    add_options.push_back(AddOption("Decompose Mesh", "Utilities/Mesh", "HNDecomposeMesh"));
+
+    // OUTPUT
+
+    add_options.push_back(AddOption("Output", "Output", "HNOutput"));
+
+    ///////////////////////////////////////
+}
+
+void HoodieControl::_on_popup_request(Vector2 &p_position) {
+    editor->saved_node_pos = p_position;
+    editor->saved_node_pos_dirty = true;
     add_popup->popup_on_parent(Rect2(graph_edit->get_global_position() + p_position, Vector2(1, 1)));
 }
 
-void HoodieEditorPlugin::_menu_item_pressed(int index) {
+void HoodieControl::_menu_item_pressed(int index) {
     switch (index) {
         case FILE_NEW: {
             UtilityFunctions::push_warning("FILE_NEW not implemented.");
         } break;
         case FILE_PRINTDEBUG: {
-            HoodieMesh *hm = hoodie_mesh.ptr();
-            String debug = "Hoodie Debug Print - ";
-            debug += "hoodie_nodes.size() = " + String::num_int64(hm->graph.nodes.size());
-            debug += "; ";
-            debug += "connections.size() = " + String::num_int64(hm->graph.connections.size());
-            UtilityFunctions::print(debug);
-            UtilityFunctions::print("HoodieMesh get_graph_offset() " + hoodie_mesh->get_graph_offset());
+            editor->print_debug();
         } break;
         case OPTIONS_VERBOSE: {
             verbose_mode = !verbose_mode;
             options_menu->get_popup()->set_item_checked(options_menu->get_popup()->get_item_index(OPTIONS_VERBOSE), verbose_mode);
-            hoodie_mesh->set_verbose_mode(verbose_mode);
+            editor->hoodie_mesh->set_verbose_mode(verbose_mode);
         } break;
     }
 }
 
-// TODO: delete this?
-void HoodieEditorPlugin::_add_button_pressed() {
-    // place = Vector2(10.0, 50.0);
+void HoodieControl::_on_lock_toggled(bool toggled_on) {
+    lock_inspector = toggled_on;
 }
 
-void HoodieEditorPlugin::_add_popup_pressed(int index) {
-}
-
-void HoodieEditorPlugin::_update_nodes() {
-    // TODO: implement _update_nodes()
-}
-
-void HoodieEditorPlugin::_update_graph() {
-    // TODO: implement _update_graph()
-    if (updating) {
-        return;
-    }
-
-    if (hoodie_mesh.is_null()) {
-        return;
-    }
-
-    graph_edit->set_scroll_offset(hoodie_mesh->get_graph_offset());
-
-    graph_edit->clear_connections();
-    // Remove all nodes.
-    for (int i = 0; i < graph_edit->get_child_count(); i++) {
-        if (Object::cast_to<GraphElement>(graph_edit->get_child(i))) {
-            Node *node = graph_edit->get_child(i);
-            graph_edit->remove_child(node);
-            memdelete(node);
-            i--;
-        }
-    }
-
-    List<HoodieMesh::Connection> node_connections;
-    hoodie_mesh->get_node_connections(&node_connections);
-    graph_plugin->set_connections(node_connections);
-
-    Vector<id_t> nodes = hoodie_mesh->get_nodes_id_list();
-
-    graph_plugin->clear_links();
-    
-    for (int n_i = 0; n_i < nodes.size(); n_i++) {
-        graph_plugin->add_node(nodes[n_i], false);
-    }
-
-    for (const HoodieMesh::Connection &E : node_connections) {
-        id_t l_node = E.l_node;
-        vec_size_t l_port = E.l_port;
-        id_t r_node = E.r_node;
-        vec_size_t r_port = E.r_port;
-
-        graph_edit->connect_node(itos(l_node), l_port, itos(r_node), r_port);
-    }
-}
-
-void HoodieEditorPlugin::_update_options_menu() {
+void HoodieControl::_update_options_menu() {
     add_popup->clear();
 
     for (int i = 0; i < add_options.size(); i++) {
@@ -419,7 +487,7 @@ void HoodieEditorPlugin::_update_options_menu() {
             if (!popup->has_node(j_name)) {
                 PopupMenu *new_popup = memnew(PopupMenu);
                 new_popup->set_name(j_name);
-                new_popup->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_add_node));
+                new_popup->connect("id_pressed", callable_mp(editor, &HoodieEditorPlugin::_add_node));
                 popup->add_child(new_popup);
                 popup->add_submenu_item(j_name, j_name);
             }
@@ -429,69 +497,21 @@ void HoodieEditorPlugin::_update_options_menu() {
     }
 }
 
-void HoodieEditorPlugin::_add_node(int idx) {
-    // TODO: godot source code visual_shader_editor_plugin.cpp _add_node()
-    Point2 position = graph_edit->get_scroll_offset();
-
-    if (saved_node_pos_dirty) {
-        position += saved_node_pos;
-    } else {
-        position += graph_edit->get_size() * 0.5;
-    }
-    position /= graph_edit->get_zoom();
-    saved_node_pos_dirty = false;
-
-    Ref<HoodieNode> hnode;
-    Variant v = ClassDB::instantiate(StringName(add_options[idx].type));
-    HoodieNode *hn = Object::cast_to<HoodieNode>(v);
-    hnode = Ref<HoodieNode>(hn);
-    id_t valid_id = hoodie_mesh->get_valid_node_id();
-
-    EditorUndoRedoManager *undo_redo = get_undo_redo();
-    undo_redo->create_action("Add Node to Hoodie Mesh");
-    undo_redo->add_do_method(hoodie_mesh.ptr(), "add_node", hnode, position, valid_id);
-    undo_redo->add_undo_method(hoodie_mesh.ptr(), "remove_node", valid_id);
-    undo_redo->add_do_method(graph_plugin.ptr(), "add_node", valid_id, false);
-    undo_redo->add_undo_method(graph_plugin.ptr(), "remove_node", valid_id, false);
-    undo_redo->commit_action();
-}
-
-void HoodieEditorPlugin::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, id_t p_node) {
-    drag_buffer.push_back({ p_node, p_from, p_to });
-    if (!drag_dirty) {
-        call_deferred(StringName("_nodes_dragged"));
-    }
-    drag_dirty = true;
-}
-
-void HoodieEditorPlugin::_nodes_dragged() {
-    drag_dirty = false;
-
-    EditorUndoRedoManager *undo_redo = get_undo_redo();
-    undo_redo->create_action("Node(s) Moved");
-
-    for (const DragOp &E : drag_buffer) {
-        undo_redo->add_do_method(hoodie_mesh.ptr(), "set_node_position", E.node, E.to);
-        undo_redo->add_undo_method(hoodie_mesh.ptr(), "set_node_position", E.node, E.from);
-        undo_redo->add_do_method(graph_plugin.ptr(), "set_node_position", E.node, E.to);
-        undo_redo->add_undo_method(graph_plugin.ptr(), "set_node_position", E.node, E.from);
-    }
-
-    drag_buffer.clear();
-    undo_redo->commit_action();
-}
-
-void HoodieEditorPlugin::_node_selected(id_t p_node) {
+void HoodieControl::_node_selected(id_t p_node) {
     _populate_hoodie_node_tab_inspector(p_node);
 }
 
-void HoodieEditorPlugin::_node_deselected(id_t p_node) {
+void HoodieControl::_node_deselected(id_t p_node) {
     _depopulate_hoodie_node_tab_inspector();
 }
 
-void HoodieEditorPlugin::_populate_hoodie_node_tab_inspector(id_t p_node) {
+void HoodieControl::_populate_hoodie_node_tab_inspector(id_t p_node) {
+    if (lock_inspector) {
+        return;
+    }
+
     // Show node data for debug purposes in the custom inspector panel
-    Ref<HoodieNode> node = hoodie_mesh->get_node(p_node);
+    Ref<HoodieNode> node = editor->hoodie_mesh->get_node(p_node);
 
     bool is_final_output = false;
     Array mesh_output;
@@ -578,7 +598,11 @@ void HoodieEditorPlugin::_populate_hoodie_node_tab_inspector(id_t p_node) {
     }
 }
 
-void HoodieEditorPlugin::_depopulate_hoodie_node_tab_inspector() {
+void HoodieControl::_depopulate_hoodie_node_tab_inspector() {
+    if (lock_inspector) {
+        return;
+    }
+
     // Remove inspector panel debug data nodes
     Vector<Node*> children;
 
@@ -589,6 +613,113 @@ void HoodieEditorPlugin::_depopulate_hoodie_node_tab_inspector() {
     for (int i = 0; i < children.size(); i++) {
         memdelete(children[i]);
     }
+}
+
+///////////////////
+
+void HoodieEditorPlugin::_update_nodes() {
+    // TODO: implement _update_nodes()
+}
+
+void HoodieEditorPlugin::_update_graph() {
+    // TODO: implement _update_graph()
+    if (updating) {
+        return;
+    }
+
+    if (hoodie_mesh.is_null()) {
+        return;
+    }
+
+    GraphEdit *graph_edit = hoodie_control->graph_edit;
+
+    graph_edit->set_scroll_offset(hoodie_mesh->get_graph_offset());
+
+    graph_edit->clear_connections();
+    // Remove all nodes.
+    for (int i = 0; i < graph_edit->get_child_count(); i++) {
+        if (Object::cast_to<GraphElement>(graph_edit->get_child(i))) {
+            Node *node = graph_edit->get_child(i);
+            graph_edit->remove_child(node);
+            memdelete(node);
+            i--;
+        }
+    }
+
+    List<HoodieMesh::Connection> node_connections;
+    hoodie_mesh->get_node_connections(&node_connections);
+    graph_plugin->set_connections(node_connections);
+
+    Vector<id_t> nodes = hoodie_mesh->get_nodes_id_list();
+
+    graph_plugin->clear_links();
+    
+    for (int n_i = 0; n_i < nodes.size(); n_i++) {
+        graph_plugin->add_node(nodes[n_i], false);
+    }
+
+    for (const HoodieMesh::Connection &E : node_connections) {
+        id_t l_node = E.l_node;
+        vec_size_t l_port = E.l_port;
+        id_t r_node = E.r_node;
+        vec_size_t r_port = E.r_port;
+
+        graph_edit->connect_node(itos(l_node), l_port, itos(r_node), r_port);
+    }
+}
+
+void HoodieEditorPlugin::_add_node(int idx) {
+    // TODO: godot source code visual_shader_editor_plugin.cpp _add_node()
+    GraphEdit *graph_edit = hoodie_control->graph_edit;
+
+    Point2 position = graph_edit->get_scroll_offset();
+
+    if (saved_node_pos_dirty) {
+        position += saved_node_pos;
+    } else {
+        position += graph_edit->get_size() * 0.5;
+    }
+    position /= graph_edit->get_zoom();
+    saved_node_pos_dirty = false;
+
+    Ref<HoodieNode> hnode;
+    Variant v = ClassDB::instantiate(StringName(hoodie_control->add_options[idx].type));
+    HoodieNode *hn = Object::cast_to<HoodieNode>(v);
+    hnode = Ref<HoodieNode>(hn);
+    id_t valid_id = hoodie_mesh->get_valid_node_id();
+
+    EditorUndoRedoManager *undo_redo = get_undo_redo();
+    undo_redo->create_action("Add Node to Hoodie Mesh");
+    undo_redo->add_do_method(hoodie_mesh.ptr(), "add_node", hnode, position, valid_id);
+    undo_redo->add_undo_method(hoodie_mesh.ptr(), "remove_node", valid_id);
+    undo_redo->add_do_method(graph_plugin.ptr(), "add_node", valid_id, false);
+    undo_redo->add_undo_method(graph_plugin.ptr(), "remove_node", valid_id, false);
+    undo_redo->commit_action();
+}
+
+void HoodieEditorPlugin::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, id_t p_node) {
+    drag_buffer.push_back({ p_node, p_from, p_to });
+    if (!drag_dirty) {
+        call_deferred(StringName("_nodes_dragged"));
+    }
+    drag_dirty = true;
+}
+
+void HoodieEditorPlugin::_nodes_dragged() {
+    drag_dirty = false;
+
+    EditorUndoRedoManager *undo_redo = get_undo_redo();
+    undo_redo->create_action("Node(s) Moved");
+
+    for (const DragOp &E : drag_buffer) {
+        undo_redo->add_do_method(hoodie_mesh.ptr(), "set_node_position", E.node, E.to);
+        undo_redo->add_undo_method(hoodie_mesh.ptr(), "set_node_position", E.node, E.from);
+        undo_redo->add_do_method(graph_plugin.ptr(), "set_node_position", E.node, E.to);
+        undo_redo->add_undo_method(graph_plugin.ptr(), "set_node_position", E.node, E.from);
+    }
+
+    drag_buffer.clear();
+    undo_redo->commit_action();
 }
 
 void HoodieEditorPlugin::_connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
@@ -626,7 +757,7 @@ void HoodieEditorPlugin::_connection_request(const String &p_from, int p_from_in
 }
 
 void HoodieEditorPlugin::_disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
-    graph_edit->disconnect_node(p_from, p_from_index, p_to, p_to_index);
+    hoodie_control->graph_edit->disconnect_node(p_from, p_from_index, p_to, p_to_index);
 
     id_t l_node = p_from.to_int();
     vec_size_t l_port = p_from_index;
@@ -741,18 +872,7 @@ void HoodieEditorPlugin::_bind_methods() {
 void HoodieEditorPlugin::_notification(int what) {
     switch (what) {
         case NOTIFICATION_POSTINITIALIZE: {
-            graph_edit->connect("connection_request", callable_mp(this, &HoodieEditorPlugin::_connection_request), CONNECT_DEFERRED);
-            graph_edit->connect("disconnection_request", callable_mp(this, &HoodieEditorPlugin::_disconnection_request), CONNECT_DEFERRED);
-            graph_edit->connect("scroll_offset_changed", callable_mp(this, &HoodieEditorPlugin::_scroll_changed));
-            graph_edit->connect("popup_request", callable_mp(this, &HoodieEditorPlugin::_on_popup_request));
-            graph_edit->connect("delete_nodes_request", callable_mp(this, &HoodieEditorPlugin::_delete_nodes_request));
-
-            file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_menu_item_pressed));
-            options_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_menu_item_pressed));
-            add_node->connect("pressed", callable_mp(this, &HoodieEditorPlugin::_add_button_pressed));
-            add_popup->connect("id_pressed", callable_mp(this, &HoodieEditorPlugin::_add_popup_pressed));
-
-            _update_options_menu();
+            hoodie_control->_update_options_menu();
         } break;
     }
 }
@@ -783,9 +903,9 @@ void HoodieEditorPlugin::remove_plugin(const Ref<HoodieNodePlugin> &p_plugin) {
 void HoodieEditorPlugin::_make_visible(bool visible) {
     if (visible) {
         button->show();
-        make_bottom_panel_item_visible(main_split);
+        make_bottom_panel_item_visible(hoodie_control);
     } else {
-        if (main_split->is_visible_in_tree()) {
+        if (hoodie_control->is_visible_in_tree()) {
             hide_bottom_panel();
         }
         
@@ -812,8 +932,8 @@ void HoodieEditorPlugin::_edit(Object *object) {
         hoodie_mesh = Ref<HoodieMesh>(hm);
         graph_plugin->register_hoodie_mesh(hoodie_mesh.ptr());
 
-        hoodie_mesh->set_graph_offset(graph_edit->get_scroll_offset());
-        hoodie_mesh->set_verbose_mode(verbose_mode);
+        hoodie_mesh->set_graph_offset(hoodie_control->graph_edit->get_scroll_offset());
+        hoodie_mesh->set_verbose_mode(hoodie_control->verbose_mode);
 
         _update_nodes();
     } else {
@@ -839,93 +959,24 @@ bool HoodieEditorPlugin::_handles(Object *object) const {
     return Object::cast_to<HoodieMesh>(object) != nullptr;
 }
 
+void HoodieEditorPlugin::print_debug() {
+    HoodieMesh *hm = hoodie_mesh.ptr();
+    String debug = "Hoodie Debug Print - ";
+    debug += "hoodie_nodes.size() = " + String::num_int64(hm->graph.nodes.size());
+    debug += "; ";
+    debug += "connections.size() = " + String::num_int64(hm->graph.connections.size());
+    UtilityFunctions::print(debug);
+    UtilityFunctions::print("HoodieMesh get_graph_offset() " + hoodie_mesh->get_graph_offset());
+}
+
 HoodieEditorPlugin::HoodieEditorPlugin() {
-    main_split = memnew(HSplitContainer);
-    VBoxContainer *vb = memnew(VBoxContainer);
-    HBoxContainer *menu_hb = memnew(HBoxContainer);
-    vb->add_child(menu_hb);
+    hoodie_control = memnew(HoodieControl);
+    // hoodie_control->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+    // hoodie_control->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+    hoodie_control->set_editor(this);
 
-    file_menu = memnew(MenuButton);
-    file_menu->set_text("File");
-    file_menu->set_shortcut_context(main_split);
-    file_menu->get_popup()->add_item("New", FILE_NEW);
-    file_menu->get_popup()->add_item("Print debug", FILE_PRINTDEBUG);
-    menu_hb->add_child(file_menu);
-
-    options_menu = memnew(MenuButton);
-    options_menu->set_text("Options");
-    options_menu->set_shortcut_context(main_split);
-    options_menu->get_popup()->add_check_item("Verbose mode", OPTIONS_VERBOSE);
-    options_menu->get_popup()->set_item_checked(options_menu->get_popup()->get_item_index(OPTIONS_VERBOSE), verbose_mode);
-    menu_hb->add_child(options_menu);
-
-    // TabContainer for debug purposes
-    hn_inspector = memnew(TabContainer);
-    hn_inspector->set_v_size_flags(Control::SIZE_EXPAND_FILL);
-    vb->add_child(hn_inspector);
-
-    main_split->add_child(vb);
-    vb->set_custom_minimum_size(Size2(200, 300));
-
-    graph_edit = memnew(GraphEdit);
-    main_split->add_child(graph_edit);
-    graph_edit->set_right_disconnects(true);
-
-    add_node = memnew(MenuButton);
-    add_node->set_text("Add node...");
-    graph_edit->get_menu_hbox()->add_child(add_node);
-    graph_edit->get_menu_hbox()->move_child(add_node, 0);
-
-    add_popup = add_node->get_popup();
-
-	///////////////////////////////////////
-	// HOODIE NODES TREE OPTIONS
-	///////////////////////////////////////
-
-    // INPUT
-
-    add_options.push_back(AddOption("Input Value", "Input/Constant", "HNInputValue"));
-    add_options.push_back(AddOption("Input Integer", "Input/Constant", "HNInputInteger"));
-    add_options.push_back(AddOption("Input Vector3D", "Input/Constant", "HNInputVector3D"));
-
-    add_options.push_back(AddOption("Input Curve3D", "Input", "HNInputCurve3D"));
-
-    // GEOMETRY
-
-    add_options.push_back(AddOption("Transform Geometry", "Geometry/Operations", "HNTransformGeometry"));
-
-    // CURVE
-
-    add_options.push_back(AddOption("Curve to Mesh", "Curve/Operations", "HNCurveToMesh"));
-    add_options.push_back(AddOption("Curve to Points", "Curve/Operations", "HNCurveToPoints"));
-
-    // MESH
-
-    add_options.push_back(AddOption("Cube", "Mesh/Primitives", "HNMeshCube"));
-    add_options.push_back(AddOption("Mesh Grid", "Mesh/Primitives", "HNMeshGrid"));
-    add_options.push_back(AddOption("Mesh Line", "Mesh/Primitives", "HNMeshLine"));
-
-    // UTILITIES
-  
-    add_options.push_back(AddOption("Repeat Data", "Utilities/Data", "HNRepeatData"));
-
-    add_options.push_back(AddOption("Multiply", "Utilities/Math", "HNMathMultiply"));
-
-    add_options.push_back(AddOption("Combine XYZ", "Utilities/Vector", "HNCombineXYZ"));
-    add_options.push_back(AddOption("Separate XYZ", "Utilities/Vector", "HNSeparateXYZ"));
-    add_options.push_back(AddOption("Combine XY", "Utilities/Vector", "HNCombineXY"));
-    add_options.push_back(AddOption("Separate XY", "Utilities/Vector", "HNSeparateXY"));
-
-    add_options.push_back(AddOption("Compose Mesh", "Utilities/Mesh", "HNComposeMesh"));
-    add_options.push_back(AddOption("Decompose Mesh", "Utilities/Mesh", "HNDecomposeMesh"));
-
-    // OUTPUT
-
-    add_options.push_back(AddOption("Output", "Output", "HNOutput"));
-
-    ///////////////////////////////////////
-
-    button = add_control_to_bottom_panel(main_split, "Hoodie");
+    button = add_control_to_bottom_panel(hoodie_control, "Hoodie");
+    // button = add_control_to_bottom_panel(hoodie_control->main_split, "Hoodie");
 
     _make_visible(false);
 

@@ -84,48 +84,37 @@ public:
     ~HoodieGraphPlugin();
 };
 
-class HoodieEditorPlugin : public EditorPlugin {
-    GDCLASS(HoodieEditorPlugin, EditorPlugin);
+class HoodieControl : public VBoxContainer {
+    GDCLASS(HoodieControl, VBoxContainer);
 
     friend class HoodieGraphPlugin;
+    friend class HoodieEditorPlugin;
 
-    typedef HoodieNode::id_t id_t;
+    typedef HoodieMesh::id_t id_t;
     typedef HoodieMesh::vec_size_t vec_size_t;
 
-    Ref<HoodieMesh> hoodie_mesh;
+    HoodieEditorPlugin *editor;
+
+    HSplitContainer *main_split = nullptr;
+    MenuButton *file_menu = nullptr;
+    MenuButton *options_menu = nullptr;
+    Button *lock_button = nullptr;
+    TabContainer *hn_inspector = nullptr;
+    GraphEdit *graph_edit = nullptr;
+    MenuButton *add_node = nullptr;
+    PopupMenu *add_popup = nullptr;
+
+    bool verbose_mode = false;
+    bool lock_inspector = false;
+
+    // Point2 saved_node_pos;
+    // bool saved_node_pos_dirty = false;
 
     enum {
         FILE_NEW,
         FILE_PRINTDEBUG,
         OPTIONS_VERBOSE,
     };
-
-    HSplitContainer *main_split = nullptr;
-    // VBoxContainer *left_container = nullptr;
-    // Label *label_title = nullptr;
-    MenuButton *file_menu = nullptr;
-    MenuButton *options_menu = nullptr;
-    TabContainer *hn_inspector = nullptr;
-    GraphEdit *graph_edit = nullptr;
-    MenuButton *add_node = nullptr;
-    PopupMenu *add_popup = nullptr;
-
-    Button *button = nullptr;
-
-    Point2 saved_node_pos;
-    bool saved_node_pos_dirty = false;
-
-    bool verbose_mode = false;
-
-    // void _window_changed(bool p_visible);
-
-    void _on_popup_request(Vector2 &p_position);
-    void _menu_item_pressed(int index);
-    void _add_button_pressed();
-    void _add_popup_pressed(int index);
-
-    void _update_nodes();
-    void _update_graph();
 
 	struct AddOption {
 		String name;
@@ -143,7 +132,58 @@ class HoodieEditorPlugin : public EditorPlugin {
 
     Vector<AddOption> add_options;
 
+    void _on_popup_request(Vector2 &p_position);
+    void _menu_item_pressed(int index);
+    void _on_lock_toggled(bool toggled_on);
+
     void _update_options_menu();
+
+    void _node_selected(id_t p_node);
+    void _node_deselected(id_t p_node);
+
+    void _populate_hoodie_node_tab_inspector(id_t p_node);
+    void _depopulate_hoodie_node_tab_inspector();
+
+protected:
+    static void _bind_methods();
+    void _notification(int what);
+
+public:
+    void set_editor(HoodieEditorPlugin *p_editor);
+
+    HoodieControl();
+};
+
+class HoodieEditorPlugin : public EditorPlugin {
+    GDCLASS(HoodieEditorPlugin, EditorPlugin);
+
+    friend class HoodieGraphPlugin;
+    friend class HoodieControl;
+
+    typedef HoodieNode::id_t id_t;
+    typedef HoodieMesh::vec_size_t vec_size_t;
+
+    Ref<HoodieMesh> hoodie_mesh;
+
+    HoodieControl *hoodie_control = nullptr;
+    // HSplitContainer *main_split = nullptr;
+    // MenuButton *file_menu = nullptr;
+    // MenuButton *options_menu = nullptr;
+    // Button *lock_button = nullptr;
+    // TabContainer *hn_inspector = nullptr;
+    // GraphEdit *graph_edit = nullptr;
+    // MenuButton *add_node = nullptr;
+    // PopupMenu *add_popup = nullptr;
+
+    Point2 saved_node_pos;
+    bool saved_node_pos_dirty = false;
+
+    Button *button = nullptr;
+
+    // void _window_changed(bool p_visible);
+
+    void _update_nodes();
+    void _update_graph();
 
     // Add a node to the HoodieMesh class
     void _add_node(int idx);
@@ -158,12 +198,6 @@ class HoodieEditorPlugin : public EditorPlugin {
 	void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, id_t p_node);
     void _nodes_dragged();
     bool updating = false;
-
-    void _node_selected(id_t p_node);
-    void _node_deselected(id_t p_node);
-
-    void _populate_hoodie_node_tab_inspector(id_t p_node);
-    void _depopulate_hoodie_node_tab_inspector();
 
 	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
 	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
@@ -206,6 +240,9 @@ public:
     // void remove_graph_node(id_t p_id, bool p_just_update);
 
     // void edit(HoodieMesh *p_hoodie_mesh);
+
+    void print_debug();
+
     HoodieEditorPlugin();
 };
 
