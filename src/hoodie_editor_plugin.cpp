@@ -422,6 +422,7 @@ HoodieControl::HoodieControl() {
     // MESH
 
     add_options.push_back(AddOption("Cube", "Mesh/Primitives", "HNMeshCube"));
+    add_options.push_back(AddOption("Mesh Circle", "Mesh/Primitives", "HNMeshCircle"));
     add_options.push_back(AddOption("Mesh Grid", "Mesh/Primitives", "HNMeshGrid"));
     add_options.push_back(AddOption("Mesh Line", "Mesh/Primitives", "HNMeshLine"));
 
@@ -1029,10 +1030,13 @@ void HoodieNodePluginDefaultEditor::_property_changed(const Variant &p_value, co
     undo_redo->add_undo_property(node.ptr(), p_property, node->get(p_property));
 
     // Change values of the UI Control nodes
-    EditorSpinSlider *ess = (EditorSpinSlider*)p_property_control;
-    if (ess) {
+    if (p_property_control->is_class("EditorSpinSlider")) {
         undo_redo->add_do_method(p_property_control, "set_value_no_signal", p_value);
         undo_redo->add_undo_method(p_property_control, "set_value_no_signal", node->get(p_property));
+    }
+    if (p_property_control->is_class("CheckButton")) {
+        undo_redo->add_do_method(p_property_control, "set_pressed_no_signal", p_value);
+        undo_redo->add_undo_method(p_property_control, "set_pressed_no_signal", node->get(p_property));
     }
 
     undo_redo->add_do_method(node.ptr(), "mark_dirty");
@@ -1112,6 +1116,8 @@ void HoodieNodePluginDefaultEditor::setup(HoodieEditorPlugin *p_editor, Ref<Hood
         if (properties[i]->is_class("EditorSpinSlider")) {
             // properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind("int_value", properties[i], "", false));
             properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
+        } else if (properties[i]->is_class("CheckButton")) {
+            properties[i]->connect("toggled", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         }
 
         // properties[i]->set_object_and_property(node.ptr(), p_names[i]);
@@ -1186,7 +1192,13 @@ Control *HoodieNodePluginDefault::create_editor(const Ref<Resource> &p_parent_re
     Vector<Control *> editors;
 
     for (int i = 0; i < pinfo.size(); i++) {
-        if (pinfo[i].type == Variant::Type::INT) {
+        if (pinfo[i].type == Variant::BOOL) {
+            CheckButton *cb = memnew(CheckButton);
+            cb->set_text(p_node->get_editable_properties()[i]);
+            cb->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            cb->set_pressed_no_signal(p_node->get_property_input(i));
+            editors.push_back(cb);
+        } else if (pinfo[i].type == Variant::Type::INT) {
             EditorSpinSlider *ess = memnew(EditorSpinSlider);
             ess->set_custom_minimum_size(Size2(65, 0));
             ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);

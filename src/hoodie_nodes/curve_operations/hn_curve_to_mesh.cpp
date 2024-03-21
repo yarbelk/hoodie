@@ -4,6 +4,21 @@
 
 using namespace godot;
 
+void HNCurveToMesh::set_flip(const bool p_value) {
+    flip = p_value;
+}
+
+bool HNCurveToMesh::get_flip() const {
+    return flip;
+}
+
+void HNCurveToMesh::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("set_flip", "value"), &HNCurveToMesh::set_flip);
+    ClassDB::bind_method(D_METHOD("get_flip"), &HNCurveToMesh::get_flip);
+
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "Flip", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_flip", "get_flip");
+}
+
 void HNCurveToMesh::_process(const Array &p_inputs) {
     PackedVector3Array vertices;
     PackedVector3Array normals;
@@ -140,14 +155,24 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
             uvs[index] = Vector2(p, s);
             if (p > path_size - 2) continue;
             if (s > shape_verts_size - 2) continue;
-            // FIXME?: int i = p * shape_verts_size + s;
-            int i = p * shape_verts_size + s * 2;
-            indices[triangle_index++] = i;
-            indices[triangle_index++] = i + 1;
-            indices[triangle_index++] = i + shape_verts_size;
-            indices[triangle_index++] = i + 1;
-            indices[triangle_index++] = i + shape_verts_size + 1;
-            indices[triangle_index++] = i + shape_verts_size;
+
+            int i = p * shape_verts_size + s;
+
+            if (flip) {
+                indices[triangle_index++] = i + shape_verts_size;
+                indices[triangle_index++] = i + 1;
+                indices[triangle_index++] = i;
+                indices[triangle_index++] = i + shape_verts_size;
+                indices[triangle_index++] = i + shape_verts_size + 1;
+                indices[triangle_index++] = i + 1;
+            } else {
+                indices[triangle_index++] = i;
+                indices[triangle_index++] = i + 1;
+                indices[triangle_index++] = i + shape_verts_size;
+                indices[triangle_index++] = i + 1;
+                indices[triangle_index++] = i + shape_verts_size + 1;
+                indices[triangle_index++] = i + shape_verts_size;
+            }
         }
     }
 
@@ -202,6 +227,33 @@ HNCurveToMesh::PortType HNCurveToMesh::get_output_port_type(int p_port) const {
 
 String HNCurveToMesh::get_output_port_name(int p_port) const {
     return "Mesh";
+}
+
+int HNCurveToMesh::get_property_input_count() const {
+    return 1;
+}
+
+Variant::Type HNCurveToMesh::get_property_input_type(vec_size_t p_prop) const {
+    return Variant::BOOL;
+}
+
+Variant HNCurveToMesh::get_property_input(vec_size_t p_port) const {
+    return Variant(flip);
+}
+
+void HNCurveToMesh::set_property_input(vec_size_t p_prop, Variant p_input) {
+    flip = (bool)p_input;
+}
+
+Vector<StringName> HNCurveToMesh::get_editable_properties() const {
+    Vector<StringName> props;
+    props.push_back("Flip");
+    // TODO: VisualShaderNodeIntParameter::get_editable_properties()
+    return props;
+}
+
+HashMap<StringName, String> HNCurveToMesh::get_editable_properties_names() const {
+    return HashMap<StringName, String>();
 }
 
 const Variant HNCurveToMesh::get_output(int p_port) const {
