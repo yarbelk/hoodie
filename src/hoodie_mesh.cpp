@@ -129,7 +129,7 @@ void HoodieMesh::_remove_orphan_surfaces() {
     // In this array we will store the arrays with which we will reconstruct the surfaces to keep
     Array surf_arrays_to_keep;
     Array surf_names;
-    Array materials;
+    Array surf_materials;
     // Iterate over all surfaces
     for (int64_t s = get_surface_count() - 1; s >= 0; s--) {
         String surface_name = surface_get_name(s);
@@ -146,7 +146,7 @@ void HoodieMesh::_remove_orphan_surfaces() {
             // We want to keep this surface, so we store its arrays and name
             surf_arrays_to_keep.push_back(surface_get_arrays(s));
             surf_names.push_back(surface_name);
-            materials.push_back(surface_get_material(s));
+            surf_materials.push_back(surface_get_material(s));
         }
     }
     // We stored all the surfaces to keep, time to clear...
@@ -155,7 +155,8 @@ void HoodieMesh::_remove_orphan_surfaces() {
     for (int64_t i = 0; i < surf_arrays_to_keep.size(); i++) {
         add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, surf_arrays_to_keep[i]);
         surface_set_name(i, surf_names[i]);
-        surface_set_material(i, materials[i]);
+        surface_set_material(i, surf_materials[i]);
+        materials[surf_names[i]] = surf_materials[i];
     }
 }
 
@@ -164,16 +165,20 @@ void HoodieMesh::_remove_surface_dumb(id_t p_id) {
     // Basically rebuilds all surface except the one selected
     Array surf_arrays_to_keep;
     Array surf_names;
+    Array surf_materials;
     for (int64_t s = get_surface_count() - 1; s >= 0; s--) {
         if (s != p_id) {
             surf_arrays_to_keep.push_back(surface_get_arrays(s));
             surf_names.push_back(surface_get_name(s));
+            surf_materials.push_back(surface_get_material(s));
         }
     }
     clear_surfaces();
     for (int64_t i = 0; i < surf_arrays_to_keep.size(); i++) {
         add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, surf_arrays_to_keep[i]);
         surface_set_name(i, surf_names[i]);
+        surface_set_material(i, surf_materials[i]);
+        materials[surf_names[i]] = surf_materials[i];
     }
 }
 
