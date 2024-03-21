@@ -19,10 +19,10 @@ class HoodieMesh : public ArrayMesh {
     friend class HoodieGraphPlugin;
     friend class HoodieEditorPlugin;
 
+public:
     typedef HoodieNode::id_t id_t;
     typedef HoodieNode::vec_size_t vec_size_t;
 
-public:
     struct Connection {
         id_t l_node;
         vec_size_t l_port;
@@ -73,8 +73,6 @@ private:
     RBMap<id_t, Ref<Material>> materials;
 
     bool verbose_mode = false;
-    bool get_verbose_mode() const;
-    void set_verbose_mode(bool p_mode);
 
     mutable SafeFlag dirty;
     void _queue_update();
@@ -93,6 +91,7 @@ private:
 
     void remove_node(id_t p_id);
 
+public:
     Vector2 get_node_position(id_t p_id) const;
     Ref<HoodieNode> get_node(id_t p_id) const;
 
@@ -118,6 +117,9 @@ public:
 
     // void rebuild();
     void get_node_connections(List<Connection> *r_connections) const;
+
+    bool get_verbose_mode() const;
+    void set_verbose_mode(bool p_mode);
 
     void set_graph_offset(const Vector2 &p_offset);
     Vector2 get_graph_offset() const;
