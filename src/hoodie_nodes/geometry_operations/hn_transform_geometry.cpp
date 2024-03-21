@@ -41,6 +41,10 @@ void HNTransformGeometry::_process(const Array &p_inputs) {
     out = p_inputs[0].duplicate();
     PackedVector3Array mesh_verts = out[ArrayMesh::ARRAY_VERTEX];
     PackedVector3Array new_verts;
+    PackedVector3Array mesh_norms = out[ArrayMesh::ARRAY_NORMAL];
+    PackedVector3Array new_norms;
+    PackedVector2Array mesh_uvs = out[ArrayMesh::ARRAY_TEX_UV];
+    PackedVector2Array new_uvs;
     PackedInt32Array mesh_idx = out[ArrayMesh::ARRAY_INDEX];
     PackedInt32Array new_idx;
 
@@ -77,8 +81,12 @@ void HNTransformGeometry::_process(const Array &p_inputs) {
 
         for (int i = 0; i < mesh_verts.size(); i++) {
             Vector3 v = mesh_verts[i];
+            Vector3 n = mesh_norms[i];
+            Vector2 uv = mesh_uvs[i];
             // mesh_verts[i] = transform.xform(v);
             new_verts.push_back(transform.xform(v));
+            new_norms.push_back(transform.xform(n));
+            new_uvs.push_back(uv);
         }
 
         for (int i = 0; i < mesh_idx.size(); i++) {
@@ -88,10 +96,14 @@ void HNTransformGeometry::_process(const Array &p_inputs) {
 
     if (t_vecs.size() > 0) {
         mesh_verts = new_verts;
+        mesh_norms = new_norms;
+        mesh_uvs = new_uvs;
         mesh_idx = new_idx;
     }
     
     out[ArrayMesh::ARRAY_VERTEX] = mesh_verts;
+    out[ArrayMesh::ARRAY_NORMAL] = mesh_norms;
+    out[ArrayMesh::ARRAY_TEX_UV] = mesh_uvs;
     out[ArrayMesh::ARRAY_INDEX] = mesh_idx;
 }
 
