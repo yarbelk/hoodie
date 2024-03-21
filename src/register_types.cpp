@@ -13,6 +13,7 @@
 #include "hoodie_nodes/input_constant/hn_input_integer.h"
 #include "hoodie_nodes/input_constant/hn_input_value.h"
 #include "hoodie_nodes/input_constant/hn_input_vector3d.h"
+#include "hoodie_nodes/mesh_primitives/hn_mesh_circle.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_cube.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_grid.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_line.h"
@@ -43,6 +44,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNInputInteger>();
 		ClassDB::register_class<HNInputValue>();
 		ClassDB::register_class<HNInputVector3D>();
+		ClassDB::register_class<HNMeshCircle>();
 		ClassDB::register_class<HNMeshCube>();
 		ClassDB::register_class<HNMeshGrid>();
 		ClassDB::register_class<HNMeshLine>();
