@@ -125,6 +125,11 @@ public:
 	virtual PortType get_output_port_type(int p_port) const;
 	virtual String get_output_port_name(int p_port) const;
 
+    // If you want to implement properties for a node, remember that:
+    // * UI visualization is managed in HoodieNodePluginDefault::create_editor()
+    // * signal connection is managed in HoodieNodePluginDefaultEditor::setup()
+    // * undo redo is managed in HoodieNodePluginDefaultEditor::_property_changed()
+
     virtual int get_property_input_count() const;
     virtual Variant::Type get_property_input_type(vec_size_t p_prop) const;
     virtual String get_property_input_hint(vec_size_t p_prop) const;
