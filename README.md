@@ -35,6 +35,8 @@ At this time only Windows is supported, but you can [compile it yourself](#compi
 │
 ├── bin/
 │   ├── hoodie.gdextension
+│   ├── hoodie.svg
+│   ├── libhoodie.windows.editor.dev.x86_64.dll
 │   ├── libhoodie.windows.template_release.x86_64.dll
 ```
 
@@ -97,17 +99,32 @@ Before you can use Hoodie's visual scripting interface, you need to set up the r
 13. You will now see a mesh along the path you designed earlier! 🥳
 14. You can now tweak the input values for your needs, for example with a `Add node.. > Input > Constant > Input Vector3D` node.
 
+### Create a custom collider
+
+Creating a custom collider for your HoodieMesh is very easy and straightforward!
+
+<img src="https://github.com/GreenCrowDev/hoodie/assets/62719360/49b804e9-8b3b-48b8-b4c5-0b4d273b0d6f" width="480">
+
+1. After generating your custom `HoodieMesh`, click on the `Mesh` menu button in the toolbar (refer to the image above).
+2. Choose `Create Trimesh Static Body`.
+3. You now have a collider mesh identical to your generated `HoodieMesh`! Remember, the collider will not update automatically as you modify your `HoodieMesh`. You'll have to recreate the collider each time you make changes.
+
 ## Known issues
 
-There are currently no known issues.
+* The release template has not been tested yet.
+* Capabilities are limited by the small number of nodes, but the list is being updated with each release!
 
 ## Bugs, Help, Feedback and Suggestions
 
-To submit feedback, suggestions, and bug reports, [join the Discord server](https://discord.gg/eztK5HXeMD). You'll find the appropriate *Hoodie* category where you can discuss and get help!
+Feel free to open an issue here on GitHub if you find a bug 😊
+
+To submit feedback, suggestions, or get further help, [join the Discord server](https://discord.gg/eztK5HXeMD). You'll find the appropriate *Hoodie* category where you can join the discussion!
 
 ## Sponsors
 
-Interested in sponsoring this project? Take a look [here](https://greencrowdev.gumroad.com/l/hoodie).
+Interested in sponsoring this project?
+Get featured in this section with your logo and link 👀
+Take a look [here](https://greencrowdev.gumroad.com/l/hoodie).
 
 ## Special thanks
 
