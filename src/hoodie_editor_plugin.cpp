@@ -2,6 +2,7 @@
 
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/editor_undo_redo_manager.hpp>
+#include <godot_cpp/templates/hash_set.hpp>
 
 using namespace godot;
 
@@ -319,6 +320,10 @@ HoodieGraphPlugin::~HoodieGraphPlugin() {
 
 ///////////////////
 
+Vector2 HoodieControl::selection_center;
+List<HoodieControl::CopyItem> HoodieControl::copy_items_buffer;
+List<HoodieMesh::Connection> HoodieControl::copy_connections_buffer;
+
 void HoodieControl::_bind_methods() {
 }
 
@@ -330,6 +335,9 @@ void HoodieControl::_notification(int p_what) {
             graph_edit->connect("disconnection_request", callable_mp(editor, &HoodieEditorPlugin::_disconnection_request), CONNECT_DEFERRED);
             graph_edit->connect("scroll_offset_changed", callable_mp(editor, &HoodieEditorPlugin::_scroll_changed));
             graph_edit->connect("popup_request", callable_mp(this, &HoodieControl::_on_popup_request));
+            graph_edit->connect("duplicate_nodes_request", callable_mp(this, &HoodieControl::_duplicate_nodes));
+            graph_edit->connect("copy_nodes_request", callable_mp(this, &HoodieControl::_copy_nodes).bind(false));
+            graph_edit->connect("paste_nodes_request", callable_mp(this, &HoodieControl::_paste_nodes).bind(false, Point2()));
             graph_edit->connect("delete_nodes_request", callable_mp(editor, &HoodieEditorPlugin::_delete_nodes_request));
 
             file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieControl::_menu_item_pressed));
@@ -506,6 +514,179 @@ void HoodieControl::_node_deselected(id_t p_node) {
     _depopulate_hoodie_node_tab_inspector();
 }
 
+void HoodieControl::_dup_copy_nodes(List<CopyItem> &r_items, List<HoodieMesh::Connection> &r_connections) {
+	selection_center.x = 0.0f;
+	selection_center.y = 0.0f;
+
+	HashSet<int> nodes;
+
+	for (int i = 0; i < graph_edit->get_child_count(); i++) {
+		GraphElement *graph_element = Object::cast_to<GraphElement>(graph_edit->get_child(i));
+		if (graph_element) {
+			int id = String(graph_element->get_name()).to_int();
+
+			Ref<HoodieNode> node = editor->hoodie_mesh->get_node(id);
+
+			if (node.is_valid() && graph_element->is_selected()) {
+				Vector2 pos = editor->hoodie_mesh->get_node_position(id);
+				selection_center += pos;
+
+				CopyItem item;
+				item.id = id;
+				item.node = editor->hoodie_mesh->get_node(id)->duplicate();
+				item.position = editor->hoodie_mesh->get_node_position(id);
+
+				r_items.push_back(item);
+
+				nodes.insert(id);
+			}
+		}
+	}
+
+	List<HoodieMesh::Connection> node_connections;
+	editor->hoodie_mesh->get_node_connections(&node_connections);
+
+	for (const HoodieMesh::Connection &E : node_connections) {
+		if (nodes.has(E.l_node) && nodes.has(E.r_node)) {
+			r_connections.push_back(E);
+		}
+	}
+
+	selection_center /= (float)r_items.size();
+}
+
+void HoodieControl::_dup_paste_nodes(List<CopyItem> &r_items, const List<HoodieMesh::Connection> &p_connections, const Vector2 &p_offset, bool p_duplicate) {
+	EditorUndoRedoManager *undo_redo = editor->get_undo_redo();
+	if (p_duplicate) {
+		undo_redo->create_action("Duplicate HoodieNode(s)");
+	} else {
+		bool copy_buffer_empty = true;
+		for (const CopyItem &item : copy_items_buffer) {
+			if (!item.disabled) {
+				copy_buffer_empty = false;
+				break;
+			}
+		}
+		if (copy_buffer_empty) {
+			return;
+		}
+
+		undo_redo->create_action("Paste HoodieNode(s)");
+	}
+
+	int base_id = editor->hoodie_mesh->get_valid_node_id();
+	int id_from = base_id;
+	HashMap<int, int> connection_remap;
+	HashSet<int> unsupported_set;
+	HashSet<int> added_set;
+
+	for (CopyItem &item : r_items) {
+		if (item.disabled) {
+			unsupported_set.insert(item.id);
+			continue;
+		}
+		connection_remap[item.id] = id_from;
+		Ref<HoodieNode> node = item.node->duplicate();
+
+		undo_redo->add_do_method(editor->hoodie_mesh.ptr(), "add_node", node, item.position + p_offset, id_from);
+		undo_redo->add_do_method(editor->graph_plugin.ptr(), "add_node", id_from, false);
+
+		added_set.insert(id_from);
+		id_from++;
+	}
+
+	for (const HoodieMesh::Connection &E : p_connections) {
+		if (unsupported_set.has(E.l_node) || unsupported_set.has(E.r_node)) {
+			continue;
+		}
+
+		undo_redo->add_do_method(editor->hoodie_mesh.ptr(), "connect_nodes", connection_remap[E.l_node], E.l_port, connection_remap[E.r_node], E.r_port);
+		undo_redo->add_do_method(editor->graph_plugin.ptr(), "connect_nodes", connection_remap[E.l_node], E.l_port, connection_remap[E.r_node], E.r_port);
+		// TODO: uncomment this? undo_redo->add_undo_method(editor->hoodie_mesh.ptr(), "disconnect_nodes", connection_remap[E.l_node], E.l_port, connection_remap[E.r_node], E.r_port);
+        undo_redo->add_undo_method(editor->graph_plugin.ptr(), "disconnect_nodes", connection_remap[E.l_node], E.l_port, connection_remap[E.r_node], E.r_port);
+	}
+
+	id_from = base_id;
+	for (const CopyItem &item : r_items) {
+		if (item.disabled) {
+			continue;
+		}
+		undo_redo->add_undo_method(editor->hoodie_mesh.ptr(), "remove_node", id_from);
+		undo_redo->add_undo_method(editor->graph_plugin.ptr(), "remove_node", id_from, false);
+		id_from++;
+	}
+
+	undo_redo->commit_action();
+
+	// reselect nodes by excluding the other ones
+	for (int i = 0; i < graph_edit->get_child_count(); i++) {
+		GraphElement *graph_element = Object::cast_to<GraphElement>(graph_edit->get_child(i));
+		if (graph_element) {
+			int id = String(graph_element->get_name()).to_int();
+			if (added_set.has(id)) {
+				graph_element->set_selected(true);
+			} else {
+				graph_element->set_selected(false);
+			}
+		}
+	}
+}
+
+void HoodieControl::_duplicate_nodes() {
+	List<CopyItem> items;
+	List<HoodieMesh::Connection> node_connections;
+
+	_dup_copy_nodes(items, node_connections);
+
+	if (items.is_empty()) {
+		return;
+	}
+
+	_dup_paste_nodes(items, node_connections, Vector2(10, 10), true);
+}
+
+void HoodieControl::_clear_copy_buffer() {
+	copy_items_buffer.clear();
+	copy_connections_buffer.clear();
+}
+
+void HoodieControl::_copy_nodes(bool p_cut) {
+	_clear_copy_buffer();
+
+	_dup_copy_nodes(copy_items_buffer, copy_connections_buffer);
+
+	if (p_cut) {
+		EditorUndoRedoManager *undo_redo = editor->get_undo_redo();
+		undo_redo->create_action("Cut HoodieNode(s)");
+
+		List<int> ids;
+		for (const CopyItem &E : copy_items_buffer) {
+			ids.push_back(E.id);
+		}
+
+		editor->_delete_nodes(ids);
+
+		undo_redo->commit_action();
+	}
+}
+
+void HoodieControl::_paste_nodes(bool p_use_custom_position, const Vector2 &p_custom_position) {
+	if (copy_items_buffer.is_empty()) {
+		return;
+	}
+
+	float scale = graph_edit->get_zoom();
+
+	Vector2 mpos;
+	if (p_use_custom_position) {
+		mpos = p_custom_position;
+	} else {
+		mpos = graph_edit->get_local_mouse_position();
+	}
+
+	_dup_paste_nodes(copy_items_buffer, copy_connections_buffer, graph_edit->get_scroll_offset() / scale + mpos / scale - selection_center, false);
+}
+
 void HoodieControl::_populate_hoodie_node_tab_inspector(id_t p_node) {
     if (lock_inspector) {
         return;
@@ -534,7 +715,7 @@ void HoodieControl::_populate_hoodie_node_tab_inspector(id_t p_node) {
 
         Array output_data;
 
-        if (is_final_output) {
+        if (is_final_output && mesh_output.size() > 0) {
             output_data = mesh_output[i];
         } else {
             output_data = node->get_output(i);

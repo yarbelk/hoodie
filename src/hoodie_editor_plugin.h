@@ -142,6 +142,30 @@ class HoodieControl : public VBoxContainer {
     void _node_selected(id_t p_node);
     void _node_deselected(id_t p_node);
 
+	struct CopyItem {
+		int id;
+		Ref<HoodieNode> node;
+		Vector2 position;
+		Vector2 size;
+		String group_inputs;
+		String group_outputs;
+		String expression;
+		bool disabled = false;
+	};
+
+	void _dup_copy_nodes(List<CopyItem> &r_nodes, List<HoodieMesh::Connection> &r_connections);
+	void _dup_paste_nodes(List<CopyItem> &r_items, const List<HoodieMesh::Connection> &p_connections, const Vector2 &p_offset, bool p_duplicate);
+
+	void _duplicate_nodes();
+
+	static Vector2 selection_center;
+	static List<CopyItem> copy_items_buffer;
+	static List<HoodieMesh::Connection> copy_connections_buffer;
+
+	void _clear_copy_buffer();
+	void _copy_nodes(bool p_cut);
+	void _paste_nodes(bool p_use_custom_position = false, const Vector2 &p_custom_position = Vector2());
+
     void _populate_hoodie_node_tab_inspector(id_t p_node);
     void _depopulate_hoodie_node_tab_inspector();
 

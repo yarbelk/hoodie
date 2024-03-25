@@ -17,6 +17,7 @@ class HoodieMesh : public ArrayMesh {
     GDCLASS(HoodieMesh, ArrayMesh)
 
     friend class HoodieGraphPlugin;
+    friend class HoodieControl;
     friend class HoodieEditorPlugin;
 
 public:
