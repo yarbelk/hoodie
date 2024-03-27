@@ -50,17 +50,19 @@ Since this is a Godot GDExtension plugin, the compiling procedure is the same as
 On this [page](https://docs.godotengine.org/it/4.x/contributing/development/compiling/index.html#toc-devel-compiling) you'll find detailed guides about how to build for each platform.
 
 Generally you want these tools to be installed:
-* A C++ compiler
-* Python 3.6+
-* SCons 3.0+
+
+- A C++ compiler
+- Python 3.6+
+- SCons 3.0+
 
 Once you managed to install all the necessary tools, follow these next steps:
 
 1. Clone this project repository.
 2. Open the terminal and navigate to the repository folder.
-3. Launch command `scons target=template_release` (SCons will automatically recognize the OS you're working on, but you can specify it and additional parameters if needed).
-4. The resulting binary files will be located in the repository at the `hoodie/demo/bin` folder.
-5. At this point you can just follow the [Direct Download section](#direct-download) starting from **step 2** (you simply need to put the generated binaries in the correct game project folder).
+3. Launch command `scons target=editor dev_mode=yes dev_build=yes`. If you want a more optimized build, use `scons target=editor` instead, but remember to change the name of the resulting binary adding `dev` to it like in this example: `libhoodie.linux.editor.x86_64.so` -> `libhoodie.linux.editor.dev.x86_64.so` (N.B. SCons will automatically recognize the OS you're working on, but you can specify it as an additional parameters if needed, following the Godot docs mentioned above).
+4. (Optional) Launch command `scons target=template_release` to generate the release template binaries, in case you intend to build your game project with Hoodie in it.
+5. The resulting binary files will be located in the repository at the `hoodie/demo/bin` folder.
+6. At this point you can just follow the [Direct Download section](#direct-download) starting from **step 2** (you simply need to put the generated binaries in the correct game project folder).
 
 ## Getting Started
 
@@ -88,7 +90,7 @@ Before you can use Hoodie's visual scripting interface, you need to set up the r
 2. While the `Path3D` is selected, go to the **Inspector** and open the `Curve3D` option button, then click on **Copy**.
 3. Go back to the Hoodie editor, and create a `Input Curve3D` node from `Add node... > Input > Input Curve3D`.
 4. Go to the **Inspector**, and you'll see a new property group has appeared: **Inputs**.
-5. Expand the **Inputs** property group and a `Curve3D` property will appear, where the label name is the *id* of the `Input Curve3D` node you added earlier.
+5. Expand the **Inputs** property group and a `Curve3D` property will appear, where the label name is the _id_ of the `Input Curve3D` node you added earlier.
 6. Click on the `Curve3D` property option button, and then click on **Paste** in order to paste the copied `Curve3D`.
 7. Now that the curve has been correctly referenced, we need a couple of other nodes to generate a geometry along the path.
 8. `Add node... > Mesh > Primitives > Mesh Line`: this will be the extruded geometry along the path.
@@ -111,14 +113,14 @@ Creating a custom collider for your HoodieMesh is very easy and straightforward!
 
 ## Known issues
 
-* The release template has not been tested yet.
-* Capabilities are limited by the small number of nodes, but the list is being updated with each release!
+- The release template has not been tested yet.
+- Capabilities are limited by the small number of nodes, but the list is being updated with each release!
 
 ## Bugs, Help, Feedback and Suggestions
 
 Feel free to open an issue here on GitHub if you find a bug 😊
 
-To submit feedback, suggestions, or get further help, [join the Discord server](https://discord.gg/eztK5HXeMD). You'll find the appropriate *Hoodie* category where you can join the discussion!
+To submit feedback, suggestions, or get further help, [join the Discord server](https://discord.gg/mnEh4KB7P2). You'll find the appropriate _Hoodie_ category where you can join the discussion!
 
 ## Sponsors
 
@@ -129,6 +131,6 @@ Take a look [here](https://greencrowdev.gumroad.com/l/hoodie).
 ## Special thanks
 
 Special thanks to:
-* [Bastiaan Olij](https://github.com/BastiaanOlij) for creating [gdprocmesh](https://github.com/BastiaanOlij/gdprocmesh/), which served as a reference at the start of this project journey.
-* [Zylann](https://github.com/Zylann) and [Naros](https://github.com/Naros) for their assistance through the Godot Engine official Discord server.
 
+- [Bastiaan Olij](https://github.com/BastiaanOlij) for creating [gdprocmesh](https://github.com/BastiaanOlij/gdprocmesh/), which served as a reference at the start of this project journey.
+- [Zylann](https://github.com/Zylann) and [Naros](https://github.com/Naros) for their assistance through the Godot Engine official Discord server.
