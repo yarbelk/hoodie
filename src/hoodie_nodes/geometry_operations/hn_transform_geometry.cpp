@@ -57,6 +57,8 @@ void HNTransformGeometry::_process(const Array &p_inputs) {
     Basis basis;
 
     PackedVector3Array t_vecs = translations;
+    PackedVector3Array r_vecs = rotations;
+    PackedVector3Array s_vecs = scales;
 
     Vector3 translation_vector = Vector3(0, 0, 0);
     Quaternion rotation_quaternion;
@@ -76,17 +78,28 @@ void HNTransformGeometry::_process(const Array &p_inputs) {
     }
 
     for (int t = 0; t < t_vecs.size(); t++) {
+        if (r_vecs.size() > 0) {
+            rotation_quaternion = from_euler(r_vecs[MIN(t, r_vecs.size()-1)]);
+        }
+        if (s_vecs.size() > 0) {
+            scale_vector = s_vecs[MIN(t, s_vecs.size()-1)];
+        }
+
         basis = Basis(rotation_quaternion, scale_vector);
         transform = Transform3D(basis, t_vecs[t]);
 
         for (int i = 0; i < mesh_verts.size(); i++) {
             Vector3 v = mesh_verts[i];
-            Vector3 n = mesh_norms[i];
-            Vector2 uv = mesh_uvs[i];
-            // mesh_verts[i] = transform.xform(v);
             new_verts.push_back(transform.xform(v));
-            new_norms.push_back(transform.xform(n));
-            new_uvs.push_back(uv);
+
+            if (mesh_norms.size() > 0) {
+                Vector3 n = mesh_norms[i];
+                new_norms.push_back(transform.xform(n));
+            }
+            if (mesh_uvs.size() > 0) {
+                Vector2 uv = mesh_uvs[i];
+                new_uvs.push_back(uv);
+            }
         }
 
         for (int i = 0; i < mesh_idx.size(); i++) {
