@@ -39,6 +39,11 @@ void HNTransformGeometry::_process(const Array &p_inputs) {
     }
 
     out = p_inputs[0].duplicate();
+
+    if (out.size() == 0) {
+        return;
+    }
+
     PackedVector3Array mesh_verts = out[ArrayMesh::ARRAY_VERTEX];
     PackedVector3Array new_verts;
     PackedVector3Array mesh_norms = out[ArrayMesh::ARRAY_NORMAL];

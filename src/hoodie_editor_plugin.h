@@ -8,6 +8,7 @@
 #include "godot_cpp/classes/h_box_container.hpp"
 #include "godot_cpp/classes/scroll_container.hpp"
 #include "godot_cpp/classes/menu_button.hpp"
+#include "godot_cpp/classes/option_button.hpp"
 #include "godot_cpp/classes/tab_container.hpp"
 #include "godot_cpp/classes/tab_bar.hpp"
 #include "godot_cpp/classes/popup_menu.hpp"

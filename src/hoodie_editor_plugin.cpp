@@ -448,6 +448,8 @@ HoodieControl::HoodieControl() {
     add_options.push_back(AddOption("Compose Mesh", "Utilities/Mesh", "HNComposeMesh"));
     add_options.push_back(AddOption("Decompose Mesh", "Utilities/Mesh", "HNDecomposeMesh"));
 
+    add_options.push_back(AddOption("Align Euler to Vector", "Utilities/Rotation", "HNAlignEulerToVector"));
+
     // OUTPUT
 
     add_options.push_back(AddOption("Output", "Output", "HNOutput"));
@@ -1299,6 +1301,8 @@ void HoodieNodePluginDefaultEditor::setup(HoodieEditorPlugin *p_editor, Ref<Hood
             properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         } else if (properties[i]->is_class("CheckButton")) {
             properties[i]->connect("toggled", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
+        } else if (properties[i]->is_class("OptionButton")) {
+            properties[i]->connect("item_selected", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         }
 
         // properties[i]->set_object_and_property(node.ptr(), p_names[i]);
@@ -1380,15 +1384,28 @@ Control *HoodieNodePluginDefault::create_editor(const Ref<Resource> &p_parent_re
             cb->set_pressed_no_signal(p_node->get_property_input(i));
             editors.push_back(cb);
         } else if (pinfo[i].type == Variant::Type::INT) {
-            EditorSpinSlider *ess = memnew(EditorSpinSlider);
-            ess->set_custom_minimum_size(Size2(65, 0));
-            ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-            ess->set_step(1);
-            ess->set_hide_slider(true);
-            ess->set_allow_greater(true);
-            ess->set_allow_lesser(true);
-            ess->set_value(p_node->get_property_input(i));
-            editors.push_back(ess);
+            if (pinfo[i].hint == PROPERTY_HINT_ENUM) {
+                OptionButton *ob = memnew(OptionButton);
+                ob->set_custom_minimum_size(Size2(65, 0));
+                ob->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                String hint_string = pinfo[i].hint_string;
+                PackedStringArray enum_values = hint_string.split(",", false);
+                for (int i = 0; i < enum_values.size(); i++) {
+                    ob->add_item(enum_values[i], i);
+                }
+                ob->select(p_node->get_property_input(i));
+                editors.push_back(ob);
+            } else {
+                EditorSpinSlider *ess = memnew(EditorSpinSlider);
+                ess->set_custom_minimum_size(Size2(65, 0));
+                ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+                ess->set_step(1);
+                ess->set_hide_slider(true);
+                ess->set_allow_greater(true);
+                ess->set_allow_lesser(true);
+                ess->set_value(p_node->get_property_input(i));
+                editors.push_back(ess);
+            }
         } else if (pinfo[i].type == Variant::Type::FLOAT) {
             EditorSpinSlider *ess = memnew(EditorSpinSlider);
             ess->set_custom_minimum_size(Size2(65, 0));
