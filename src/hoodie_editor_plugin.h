@@ -25,6 +25,8 @@
 namespace godot
 {
 
+class HoodieEditorPlugin;
+
 class HoodieNodePlugin : public RefCounted {
     GDCLASS(HoodieNodePlugin, RefCounted);
 
@@ -133,7 +135,7 @@ class HoodieControl : public VBoxContainer {
 
     Vector<AddOption> add_options;
 
-    void _on_popup_request(Vector2 &p_position);
+    void _on_popup_request(const Vector2 &p_position);
     void _menu_item_pressed(int index);
     void _on_lock_toggled(bool toggled_on);
 

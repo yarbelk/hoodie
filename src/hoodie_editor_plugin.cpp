@@ -455,7 +455,7 @@ HoodieControl::HoodieControl() {
     ///////////////////////////////////////
 }
 
-void HoodieControl::_on_popup_request(Vector2 &p_position) {
+void HoodieControl::_on_popup_request(const Vector2 &p_position) {
     editor->saved_node_pos = p_position;
     editor->saved_node_pos_dirty = true;
     add_popup->popup_on_parent(Rect2(graph_edit->get_global_position() + p_position, Vector2(1, 1)));
