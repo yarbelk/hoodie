@@ -25,6 +25,7 @@
 #include "hoodie_nodes/utilities_vector/hn_separate_xyz.h"
 #include "hoodie_nodes/utilities_vector/hn_combine_xy.h"
 #include "hoodie_nodes/utilities_vector/hn_separate_xy.h"
+#include "hoodie_nodes/utilities_rotation/hn_align_euler_to_vector.h"
 #include "hoodie_nodes/output/hn_output.h"
 
 #include <gdextension_interface.h>
@@ -56,6 +57,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNCombineXYZ>();
 		ClassDB::register_class<HNSeparateXY>();
 		ClassDB::register_class<HNSeparateXYZ>();
+		ClassDB::register_class<HNAlignEulerToVector>();
 		ClassDB::register_class<HNOutput>();
 
 		// Setup engine after classes are registered.
