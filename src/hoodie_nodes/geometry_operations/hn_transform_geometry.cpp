@@ -99,7 +99,9 @@ void HNTransformGeometry::_process(const Array &p_inputs) {
 
             if (mesh_norms.size() > 0) {
                 Vector3 n = mesh_norms[i];
-                new_norms.push_back(transform.xform(n));
+                Basis norm_basis = Basis(rotation_quaternion);
+                Transform3D norm_transform = Transform3D(norm_basis);
+                new_norms.push_back(norm_transform.xform(n));
             }
             if (mesh_uvs.size() > 0) {
                 Vector2 uv = mesh_uvs[i];
