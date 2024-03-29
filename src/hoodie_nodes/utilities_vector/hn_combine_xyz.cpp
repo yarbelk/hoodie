@@ -9,15 +9,23 @@ void HNCombineXYZ::_process(const Array &p_inputs) {
         return;
     }
 
-    Array in_x = p_inputs[0];
-    Array in_y = p_inputs[1];
-    Array in_z = p_inputs[2];
+    Array in_x = p_inputs[0].duplicate();
+    Array in_y = p_inputs[1].duplicate();
+    Array in_z = p_inputs[2].duplicate();
 
-    // if Vector2 else Vector3.
-    if (in_z.size() == 0) {
-        out_xyz.push_back(Vector3((float)in_x[0], (float)in_y[0], 0));
-    } else {
-        out_xyz.push_back(Vector3((float)in_x[0], (float)in_y[0], (float)in_z[0]));
+    int max = MAX(in_x.size(), MAX(in_y.size(), in_z.size()));
+    if (in_x.size() < max) {
+        in_x.resize(max);
+    }
+    if (in_y.size() < max) {
+        in_y.resize(max);
+    }
+    if (in_z.size() < max) {
+        in_z.resize(max);
+    }
+
+    for (int i = 0; i < max; i++) {
+        out_xyz.push_back(Vector3((float)in_x[i], (float)in_y[i], (float)in_z[i]));
     }
 }
 
