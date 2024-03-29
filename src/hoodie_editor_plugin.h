@@ -11,7 +11,11 @@
 #include "godot_cpp/classes/option_button.hpp"
 #include "godot_cpp/classes/tab_container.hpp"
 #include "godot_cpp/classes/tab_bar.hpp"
+#include "godot_cpp/classes/popup.hpp"
+#include "godot_cpp/classes/tree.hpp"
+#include "godot_cpp/classes/popup_panel.hpp"
 #include "godot_cpp/classes/popup_menu.hpp"
+#include "godot_cpp/classes/item_list.hpp"
 #include "godot_cpp/classes/label.hpp"
 #include "godot_cpp/classes/graph_edit.hpp"
 #include "godot_cpp/classes/graph_node.hpp"
@@ -22,6 +26,7 @@
 #include "godot_cpp/classes/editor_spin_slider.hpp"
 #include "godot_cpp/classes/editor_property.hpp"
 #include "godot_cpp/classes/editor_inspector.hpp"
+#include "godot_cpp/classes/input_event_key.hpp"
 
 namespace godot
 {
@@ -107,6 +112,9 @@ class HoodieControl : public VBoxContainer {
     GraphEdit *graph_edit = nullptr;
     MenuButton *add_node = nullptr;
     PopupMenu *add_popup = nullptr;
+    Popup *members_dialog = nullptr;
+	Tree *members = nullptr;
+    LineEdit *node_filter = nullptr;
 
     bool verbose_mode = false;
     bool lock_inspector = false;
@@ -125,6 +133,7 @@ class HoodieControl : public VBoxContainer {
 		String category;
 		String type;
 		String description;
+        int temp_idx = 0;
 
 		AddOption(const String &p_name = String(), const String &p_category = String(), const String &p_type = String(), const String &p_description = String()) {
 			name = p_name;
@@ -171,6 +180,13 @@ class HoodieControl : public VBoxContainer {
 
     void _populate_hoodie_node_tab_inspector(id_t p_node);
     void _depopulate_hoodie_node_tab_inspector();
+
+	void _member_filter_changed(const String &p_text);
+	void _sbox_input(const Ref<InputEvent> &p_ie);
+	void _member_selected();
+	void _member_unselected();
+	void _member_create();
+	void _member_cancel();
 
 protected:
     static void _bind_methods();
