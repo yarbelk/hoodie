@@ -343,6 +343,14 @@ void HoodieControl::_notification(int p_what) {
             file_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieControl::_menu_item_pressed));
             options_menu->get_popup()->connect("id_pressed", callable_mp(this, &HoodieControl::_menu_item_pressed));
             lock_button->connect("toggled", callable_mp(this, &HoodieControl::_on_lock_toggled));
+
+            // Popup with search filter.
+            node_filter->connect("text_changed", callable_mp(this, &HoodieControl::_member_filter_changed));
+            node_filter->connect("gui_input", callable_mp(this, &HoodieControl::_sbox_input));
+            members->connect("item_activated", callable_mp(this, &HoodieControl::_member_create));
+            members->connect("item_selected", callable_mp(this, &HoodieControl::_member_selected));
+            members->connect("nothing_selected", callable_mp(this, &HoodieControl::_member_unselected));
+	        members_dialog->connect("popup_hide", callable_mp(this, &HoodieControl::_member_cancel));
         } break;
         case NOTIFICATION_THEME_CHANGED: {
             lock_button->set_button_icon(get_theme_icon("Lock", "EditorIcons"));
@@ -400,11 +408,43 @@ HoodieControl::HoodieControl() {
     graph_edit->set_right_disconnects(true);
 
     add_node = memnew(MenuButton);
-    add_node->set_text("Add node...");
+    add_node->set_text("Add Node...");
     graph_edit->get_menu_hbox()->add_child(add_node);
     graph_edit->get_menu_hbox()->move_child(add_node, 0);
 
     add_popup = add_node->get_popup();
+
+    // Add Node with LineEdit filter.
+
+	VBoxContainer *members_vb = memnew(VBoxContainer);
+	members_vb->set_v_size_flags(SIZE_EXPAND_FILL);
+
+	HBoxContainer *filter_hb = memnew(HBoxContainer);
+	members_vb->add_child(filter_hb);
+
+	node_filter = memnew(LineEdit);
+	filter_hb->add_child(node_filter);
+
+	node_filter->set_h_size_flags(SIZE_EXPAND_FILL);
+	node_filter->set_placeholder("Search");
+
+    members = memnew(Tree);
+	members_vb->add_child(members);
+	// TODO: implement this?
+    // SET_DRAG_FORWARDING_GCD(members, HoodieControl);
+	members->set_h_size_flags(SIZE_EXPAND_FILL);
+	members->set_v_size_flags(SIZE_EXPAND_FILL);
+    members->set_focus_mode(FocusMode::FOCUS_NONE);
+	members->set_hide_root(true);
+	members->set_allow_reselect(true);
+    members->set_allow_search(false);
+	members->set_hide_folding(false);
+	members->set_custom_minimum_size(Size2(180, 200));
+
+	members_dialog = memnew(Popup);
+	members_dialog->set_title("Create Hoodie Node");
+	members_dialog->add_child(members_vb);
+	add_child(members_dialog);
 
 	///////////////////////////////////////
 	// HOODIE NODES TREE OPTIONS
@@ -460,7 +500,12 @@ HoodieControl::HoodieControl() {
 void HoodieControl::_on_popup_request(const Vector2 &p_position) {
     editor->saved_node_pos = p_position;
     editor->saved_node_pos_dirty = true;
-    add_popup->popup_on_parent(Rect2(graph_edit->get_global_position() + p_position, Vector2(1, 1)));
+
+    _update_options_menu();
+    members_dialog->popup_on_parent(Rect2(graph_edit->get_global_position() + p_position, Vector2(1, 1)));
+    members_dialog->grab_focus();
+    node_filter->call_deferred(StringName("grab_focus")); // Still not visible.
+    node_filter->select_all();
 }
 
 void HoodieControl::_menu_item_pressed(int index) {
@@ -484,15 +529,27 @@ void HoodieControl::_on_lock_toggled(bool toggled_on) {
 }
 
 void HoodieControl::_update_options_menu() {
-    add_popup->clear();
+    add_popup->clear(true);
+    members->clear();
+
+    TreeItem *root = members->create_item();
+
+    String filter = node_filter->get_text().strip_edges();
+    bool use_filter = !filter.is_empty();
+
+    bool is_first_item = true;
+
+	HashMap<String, TreeItem *> folders;
+
+	Vector<AddOption> embedded_options;
 
     for (int i = 0; i < add_options.size(); i++) {
+        // E.g. Mesh/Primitive/Grid
         String path = add_options[i].category + String("/") + add_options[i].name;
         PackedStringArray subfolders = path.split("/");
 
+        // Normal popup.
         PopupMenu *popup = add_popup;
-
-        // E.g. Mesh/Primitive/Grid
         for (int j = 0; j < subfolders.size() - 1; j++) {
             String j_name = subfolders[j];
             if (!popup->has_node(j_name)) {
@@ -505,6 +562,50 @@ void HoodieControl::_update_options_menu() {
             popup = popup->get_node<PopupMenu>(j_name);
         }
         popup->add_item(subfolders[subfolders.size() - 1], i);
+
+        // Popup with search filter.
+        if (!use_filter || add_options[i].name.findn(filter) != -1) {
+            const_cast<AddOption &>(add_options[i]).temp_idx = i; // save valid id
+            embedded_options.push_back(add_options[i]);
+        }
+    }
+
+    Vector<AddOption> options;
+    options.append_array(embedded_options);
+
+    for (int i = 0; i < options.size(); i++) {
+        String path = options[i].category;
+        PackedStringArray subfolders = path.split("/");
+        TreeItem *category = nullptr;
+
+        if (!folders.has(path)) {
+            category = root;
+            String path_temp = "";
+            for (int j = 0; j < subfolders.size(); j++) {
+                path_temp += subfolders[j];
+                if (!folders.has(path_temp)) {
+					category = members->create_item(category);
+					category->set_selectable(0, false);
+					category->set_collapsed(!use_filter);
+					category->set_text(0, subfolders[j]);
+					folders.insert(path_temp, category);
+				} else {
+                    category = folders[path_temp];
+                }
+            }
+        } else {
+            category = folders[path];
+        }
+
+        TreeItem *item = members->create_item(category);
+
+		item->set_text(0, options[i].name);
+		if (is_first_item && use_filter) {
+			item->select(0);
+			is_first_item = false;
+		}
+
+		item->set_meta("id", options[i].temp_idx);
     }
 }
 
@@ -797,6 +898,118 @@ void HoodieControl::_depopulate_hoodie_node_tab_inspector() {
     for (int i = 0; i < children.size(); i++) {
         memdelete(children[i]);
     }
+}
+
+void HoodieControl::_member_filter_changed(const String &p_text) {
+	_update_options_menu();
+}
+
+// This is a dumbed down re-implementation of `Tree::_up` because this stuff is not exposed...
+static void select_up(Tree &tree) {
+	TreeItem *selected_item = tree.get_selected();
+
+	if (selected_item == nullptr) {
+		// UtilityFunctions::print("No item selected in tree, can't select down");
+		return;
+	}
+
+	TreeItem *prev = selected_item->get_prev_visible();
+
+	const int col = 0;
+	while (prev != nullptr && !prev->is_selectable(col)) {
+		prev = prev->get_prev_visible();
+	}
+	if (prev == nullptr) {
+		return;
+	}
+
+	prev->select(col);
+
+	tree.ensure_cursor_is_visible();
+	// tree.accept_event();
+}
+
+// This is a dumbed down re-implementation of `Tree::_down` because this stuff is not exposed...
+static void select_down(Tree &tree) {
+	TreeItem *selected_item = tree.get_selected();
+
+	if (selected_item == nullptr) {
+		// UtilityFunctions::print("No item selected in tree, can't select down");
+		return;
+	}
+
+	TreeItem *next = selected_item->get_next_visible();
+
+	const int col = 0;
+
+	while (next != nullptr && !next->is_selectable(col)) {
+		next = next->get_next_visible();
+	}
+	if (next == nullptr) {
+		return;
+	}
+
+	next->select(col);
+
+	tree.ensure_cursor_is_visible();
+	// tree.accept_event();
+}
+
+void HoodieControl::_sbox_input(const Ref<InputEvent> &p_ie) {
+	Ref<InputEventKey> ie = p_ie;
+	if (ie.is_valid() && (ie->get_keycode() == Key::KEY_UP || ie->get_keycode() == Key::KEY_DOWN || ie->get_keycode() == Key::KEY_ENTER || ie->get_keycode() == Key::KEY_KP_ENTER)) {
+        // Zylann godot_voxel voxel_graph_node_dialog.cpp _on_filter_gui_input()
+        if (ie->is_pressed()) {
+            switch (ie->get_keycode()) {
+                case Key::KEY_UP:
+                    select_up(*members);
+                    node_filter->accept_event();
+                    break;
+                case Key::KEY_DOWN:
+                    select_down(*members);
+                    node_filter->accept_event();
+                    break;
+                case Key::KEY_ENTER:
+                    _member_create();
+                    break;
+                default:
+                    break;
+            }
+        }
+	}
+}
+
+void HoodieControl::_member_selected() {
+	TreeItem *item = members->get_selected();
+
+	if (item != nullptr && item->has_meta("id")) {
+		// TODO: Implement custom behaviour
+	} else {
+		// TODO: Implement custom behaviour
+	}
+}
+
+void HoodieControl::_member_unselected() {
+}
+
+void HoodieControl::_member_create() {
+	TreeItem *item = members->get_selected();
+	if (item != nullptr && item->has_meta("id")) {
+		int idx = members->get_selected()->get_meta("id");
+		// editor->_add_node(idx, add_options[idx].ops);
+		editor->_add_node(idx);
+	}
+    members_dialog->hide();
+}
+
+void HoodieControl::_member_cancel() {
+    node_filter->clear();
+
+    // TODO: implement new node on drag connection into void graph
+	// to_node = -1;
+	// to_slot = -1;
+	// from_node = -1;
+	// from_slot = -1;
 }
 
 ///////////////////
