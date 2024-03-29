@@ -1,24 +1,23 @@
-#ifndef HOODIE_HNMESHLINE_H
-#define HOODIE_HNMESHLINE_H
+#ifndef HOODIE_HNMESHRECT_H
+#define HOODIE_HNMESHRECT_H
 
 #include "hoodie_node.h"
 
 namespace godot
 {
     
-class HNMeshLine : public HoodieNode {
-    GDCLASS(HNMeshLine, HoodieNode)
+class HNMeshRect : public HoodieNode {
+    GDCLASS(HNMeshRect, HoodieNode)
 
 private:
     // Input
-    int count = 1;
-    Vector3 start = Vector3(0,0,0);
-    Vector3 offset = Vector3(1,0,0);
-    // Output
-    Array mesh_line;
+    float width = 1.0;
+    float height = 1.0;
+    int w_subs = 1;
+    int h_subs = 1;
 
-public:
-    static PackedVector3Array generate_line(const float p_length, const int p_subdivisions);
+    // Output
+    Array out;
 
 public:
 	void _process(const Array &p_inputs) override;
@@ -38,4 +37,4 @@ public:
 
 } // namespace godot
 
-#endif // HOODIE_HNMESHLINE_H
+#endif // HOODIE_HNMESHRECT_H
