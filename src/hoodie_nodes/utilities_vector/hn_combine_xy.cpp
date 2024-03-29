@@ -9,8 +9,8 @@ void HNCombineXY::_process(const Array &p_inputs) {
         return;
     }
 
-    Array in_x = p_inputs[0];
-    Array in_y = p_inputs[1];
+    Array in_x = p_inputs[0].duplicate();
+    Array in_y = p_inputs[1].duplicate();
 
     int max = MAX(in_x.size(), in_y.size());
     if (in_x.size() < max) {
