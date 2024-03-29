@@ -4,6 +4,21 @@
 
 using namespace godot;
 
+PackedVector3Array HNMeshLine::generate_line(const float p_length, const int p_subdivisions) {
+    PackedVector3Array vertices;
+    vertices.resize(p_subdivisions + 1);
+
+    Vector3 start = Vector3(0,0,0);
+    Vector3 offset = Vector3(p_length,0,0);
+
+    for (int i = 0; i < p_subdivisions + 1; i++) {
+        float t = (float)i / p_subdivisions;
+        vertices[i] = start.lerp(offset, t);
+    }
+
+    return vertices;
+}
+
 void HNMeshLine::_process(const Array &p_inputs) {
     count = 1;
     start = Vector3(0,0,0);
