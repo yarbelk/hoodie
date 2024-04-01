@@ -12,32 +12,27 @@ void HNSeparateXYZ::_process(const Array &p_inputs) {
     }
 
     // Works with vanilla Input Vector3D node
-    Array in_arr = p_inputs;
+    Array in_arr = p_inputs.duplicate();
     Array in = p_inputs[0];
 
-    Array in_arr_vectors = in_arr[0];
-
-    if (in_arr_vectors.size() == 0) {
-        return;
-    }
-
-    // Works with vanilla Input Vector3D node
     if (in.size() == 0) {
         return;
     }
 
-    if (in[0].get_type() == Variant::VECTOR2) {
-        Vector2 in_vec = (Vector2)in[0];
+    for (int i = 0; i < in.size(); i++) {
+        if (in[i].get_type() == Variant::VECTOR2) {
+            Vector2 in_vec = (Vector2)in[i];
 
-        out_x.push_back(in_vec.x);
-        out_y.push_back(in_vec.y);
-        out_z.push_back(0);
-    } else if (in[0].get_type() == Variant::VECTOR3) {
-        Vector3 in_vec = (Vector3)in[0];
+            out_x.push_back(in_vec.x);
+            out_y.push_back(in_vec.y);
+            out_z.push_back(0);
+        } else if (in[i].get_type() == Variant::VECTOR3) {
+            Vector3 in_vec = (Vector3)in[i];
 
-        out_x.push_back(in_vec.x);
-        out_y.push_back(in_vec.y);
-        out_z.push_back(in_vec.z);
+            out_x.push_back(in_vec.x);
+            out_y.push_back(in_vec.y);
+            out_z.push_back(in_vec.z);
+        }
     }
 }
 
