@@ -20,6 +20,7 @@
 #include "hoodie_nodes/mesh_primitives/hn_mesh_line.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_rect.h"
 #include "hoodie_nodes/utilities_data/hn_repeat_data.h"
+#include "hoodie_nodes/utilities_math/hn_math_derivative.h"
 #include "hoodie_nodes/utilities_math/hn_math_multiply.h"
 #include "hoodie_nodes/utilities_mesh/hn_compose_mesh.h"
 #include "hoodie_nodes/utilities_mesh/hn_decompose_mesh.h"
@@ -54,6 +55,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNMeshLine>();
 		ClassDB::register_class<HNMeshRect>();
 		ClassDB::register_class<HNRepeatData>();
+		ClassDB::register_class<HNMathDerivative>();
 		ClassDB::register_class<HNMathMultiply>();
 		ClassDB::register_class<HNComposeMesh>();
 		ClassDB::register_class<HNDecomposeMesh>();

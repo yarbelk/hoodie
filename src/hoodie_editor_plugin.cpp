@@ -480,6 +480,7 @@ HoodieControl::HoodieControl() {
   
     add_options.push_back(AddOption("Repeat Data", "Utilities/Data", "HNRepeatData"));
 
+    add_options.push_back(AddOption("Derivative", "Utilities/Math", "HNMathDerivative"));
     add_options.push_back(AddOption("Multiply", "Utilities/Math", "HNMathMultiply"));
 
     add_options.push_back(AddOption("Combine XYZ", "Utilities/Vector", "HNCombineXYZ"));
