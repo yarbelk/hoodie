@@ -6,6 +6,7 @@
 
 #include "hoodie_mesh.h"
 #include "hoodie_node.h"
+#include "hoodie_nodes/curve_analysis/hn_points_curvature.h"
 #include "hoodie_nodes/curve_operations/hn_curve_to_mesh.h"
 #include "hoodie_nodes/curve_operations/hn_curve_to_points.h"
 #include "hoodie_nodes/geometry_operations/hn_transform_geometry.h"
@@ -39,6 +40,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
 		ClassDB::register_class<HoodieMesh>();
 		ClassDB::register_abstract_class<HoodieNode>();
+		ClassDB::register_class<HNPointsCurvature>();
 		ClassDB::register_class<HNCurveToMesh>();
 		ClassDB::register_class<HNCurveToPoints>();
 		ClassDB::register_class<HNTransformGeometry>();

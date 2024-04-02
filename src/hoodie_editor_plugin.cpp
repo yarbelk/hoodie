@@ -464,6 +464,7 @@ HoodieControl::HoodieControl() {
 
     // CURVE
 
+    add_options.push_back(AddOption("Points Curvature", "Curve/Analysis", "HNPointsCurvature"));
     add_options.push_back(AddOption("Curve to Mesh", "Curve/Operations", "HNCurveToMesh"));
     add_options.push_back(AddOption("Curve to Points", "Curve/Operations", "HNCurveToPoints"));
 
