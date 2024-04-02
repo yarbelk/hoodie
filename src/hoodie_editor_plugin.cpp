@@ -483,6 +483,7 @@ HoodieControl::HoodieControl() {
     add_options.push_back(AddOption("Derivative", "Utilities/Math", "HNMathDerivative"));
     add_options.push_back(AddOption("Multiply", "Utilities/Math", "HNMathMultiply"));
     add_options.push_back(AddOption("Noise Reduction", "Utilities/Math", "HNMathNoiseReduction"));
+    add_options.push_back(AddOption("Sign", "Utilities/Math", "HNMathSign"));
 
     add_options.push_back(AddOption("Combine XYZ", "Utilities/Vector", "HNCombineXYZ"));
     add_options.push_back(AddOption("Separate XYZ", "Utilities/Vector", "HNSeparateXYZ"));
