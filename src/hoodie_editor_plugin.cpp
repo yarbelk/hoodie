@@ -491,6 +491,7 @@ HoodieControl::HoodieControl() {
     add_options.push_back(AddOption("Separate XY", "Utilities/Vector", "HNSeparateXY"));
     add_options.push_back(AddOption("Vector Cross", "Utilities/Vector", "HNVectorCross"));
     add_options.push_back(AddOption("Vector Multiply", "Utilities/Vector", "HNVectorMultiply"));
+    add_options.push_back(AddOption("Vector Sum", "Utilities/Vector", "HNVectorSum"));
 
     add_options.push_back(AddOption("Compose Mesh", "Utilities/Mesh", "HNComposeMesh"));
     add_options.push_back(AddOption("Decompose Mesh", "Utilities/Mesh", "HNDecomposeMesh"));
