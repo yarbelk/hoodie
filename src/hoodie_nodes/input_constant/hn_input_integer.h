@@ -12,8 +12,6 @@ class HNInputInteger : public HoodieNode {
 private:
     // Input
     int int_val = 1;
-    // Output
-    Array value_arr;
 
 public:
     void set_int_value(const int p_value);
@@ -42,8 +40,6 @@ public:
 
     Vector<StringName> get_editable_properties() const override;
     HashMap<StringName, String> get_editable_properties_names() const override;
-
-    const Variant get_output(int p_port) const override;
 };
     
 } // namespace godot

@@ -6,13 +6,10 @@
 using namespace godot;
 
 void HNMeshRect::_process(const Array &p_inputs) {
-    width = 1.0;
-    height = 1.0;
-    w_subs = 1;
-    h_subs = 1;
-
-    out.clear();
-    out.resize(ArrayMesh::ARRAY_MAX);
+    float width = 1.0;
+    float height = 1.0;
+    int w_subs = 1;
+    int h_subs = 1;
 
     if (p_inputs.size() == 0) {
         return;
@@ -71,9 +68,13 @@ void HNMeshRect::_process(const Array &p_inputs) {
 
     indices.resize(0);
 
-    out.resize(ArrayMesh::ARRAY_MAX);
-    out[ArrayMesh::ARRAY_VERTEX] = vertices;
-    out[ArrayMesh::ARRAY_INDEX] = indices;
+    HoodieArrayMesh ham;
+
+    ham.array.resize(ArrayMesh::ARRAY_MAX);
+    ham.array[ArrayMesh::ARRAY_VERTEX] = vertices;
+    ham.array[ArrayMesh::ARRAY_INDEX] = indices;
+
+    outputs[0] = &ham;
 }
 
 String HNMeshRect::get_caption() const {
@@ -119,13 +120,9 @@ int HNMeshRect::get_output_port_count() const {
 }
 
 HoodieNode::PortType HNMeshRect::get_output_port_type(int p_port) const {
-    return PortType::PORT_TYPE_GEOMETRY;
+    return PortType::PORT_TYPE_MESH;
 }
 
 String HNMeshRect::get_output_port_name(int p_port) const {
     return "Mesh";
-}
-
-const Variant HNMeshRect::get_output(int p_port) const {
-    return Variant(out);
 }

@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNRepeatData::_process(const Array &p_inputs) {
-    out_repeated.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -13,14 +11,18 @@ void HNRepeatData::_process(const Array &p_inputs) {
 
     Array in_data = inputs[0];
     Array in_count = inputs[1];
+    
+    Array out_data;
 
     int count = MAX(0, (int)in_count[0]);
 
     for (int i = 0; i < in_data.size(); i++) {
         for (int j = 0; j < count; j++) {
-            out_repeated.push_back(in_data[i]);
+            out_data.push_back(in_data[i]);
         }
     }
+
+    outputs[0] = out_data;
 }
 
 String HNRepeatData::get_caption() const {
@@ -63,8 +65,4 @@ HNRepeatData::PortType HNRepeatData::get_output_port_type(int p_port) const {
 
 String HNRepeatData::get_output_port_name(int p_port) const {
     return "Data";
-}
-
-const Variant HNRepeatData::get_output(int p_port) const {
-    return Variant(out_repeated);
 }

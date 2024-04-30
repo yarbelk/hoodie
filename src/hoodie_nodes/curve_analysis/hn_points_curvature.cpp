@@ -8,31 +8,15 @@ void HNPointsCurvature::_process(const Array &p_inputs) {
     PackedVector3Array verts;
     PackedVector3Array up_vecs;
 
-    out.clear();
-
-    if (p_inputs.size() > 0) {
-        if (p_inputs[0].get_type() == Variant::ARRAY) {
-            Array a = p_inputs[0];
-            if (a.size() > 0) {
-                verts = a;
-            }
-        }
-        if (p_inputs[1].get_type() == Variant::ARRAY) {
-            Array a = p_inputs[1];
-            if (a.size() > 0) {
-                up_vecs = a;
-            }
-        }
-    } else {
-        return;
-    }
+    verts = p_inputs[0];
+    up_vecs = p_inputs[1];
 
     up_vecs.resize(verts.size());
 
     PackedFloat32Array curvature_values;
     curvature_values.resize(verts.size());
 
-    // Calculate curvature and triangle area
+    // Calculate curvature and triangle area.
     // https://hratliff.com/posts/2019/02/curvature-of-three-points/
     // https://math.stackexchange.com/questions/128991/how-to-calculate-the-area-of-a-3d-triangle
     for (int i = 0; i < verts.size(); i++) {
@@ -68,8 +52,7 @@ void HNPointsCurvature::_process(const Array &p_inputs) {
         curvature_values[i] = curvature;
     }
 
-    // out.push_back(curvature_values);
-    out.append_array(curvature_values);
+    set_output(0, curvature_values);
 }
 
 String HNPointsCurvature::get_caption() const {
@@ -112,8 +95,4 @@ HoodieNode::PortType HNPointsCurvature::get_output_port_type(int p_port) const {
 
 String HNPointsCurvature::get_output_port_name(int p_port) const {
     return "Curvature";
-}
-
-const Variant HNPointsCurvature::get_output(int p_port) const {
-    return Variant(out);
 }

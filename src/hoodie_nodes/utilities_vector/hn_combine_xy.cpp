@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNCombineXY::_process(const Array &p_inputs) {
-    out_xy.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -18,10 +16,14 @@ void HNCombineXY::_process(const Array &p_inputs) {
     } else if (in_y.size() < max) {
         in_y.resize(max);
     }
+
+    Array out_values;
     
     for (int i = 0; i < max; i++) {
-        out_xy.push_back(Vector2((float)in_x[i], (float)in_y[i]));
+        out_values.push_back(Vector2((float)in_x[i], (float)in_y[i]));
     }
+
+    set_output(0, out_values);
 }
 
 String HNCombineXY::get_caption() const {
@@ -64,8 +66,4 @@ HNCombineXY::PortType HNCombineXY::get_output_port_type(int p_port) const {
 
 String HNCombineXY::get_output_port_name(int p_port) const {
     return "Vector2D";
-}
-
-const Variant HNCombineXY::get_output(int p_port) const {
-    return Variant(out_xy);
 }

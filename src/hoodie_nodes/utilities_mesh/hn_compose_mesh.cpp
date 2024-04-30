@@ -5,9 +5,6 @@
 using namespace godot;
 
 void HNComposeMesh::_process(const Array &p_inputs) {
-    out_mesh.clear();
-    out_mesh.resize(ArrayMesh::ARRAY_MAX);
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -115,19 +112,23 @@ void HNComposeMesh::_process(const Array &p_inputs) {
     // Indices
     indices = in_arr_idx;
 
-    out_mesh[ArrayMesh::ARRAY_VERTEX] = vertices;
-    out_mesh[ArrayMesh::ARRAY_NORMAL] = normals;
-    out_mesh[ArrayMesh::ARRAY_TANGENT] = tangents;
-    out_mesh[ArrayMesh::ARRAY_COLOR] = colors;
-    out_mesh[ArrayMesh::ARRAY_TEX_UV] = uv;
-    out_mesh[ArrayMesh::ARRAY_TEX_UV2] = uv2;
-    out_mesh[ArrayMesh::ARRAY_CUSTOM0] = custom0;
-    out_mesh[ArrayMesh::ARRAY_CUSTOM1] = custom1;
-    out_mesh[ArrayMesh::ARRAY_CUSTOM2] = custom2;
-    out_mesh[ArrayMesh::ARRAY_CUSTOM3] = custom3;
-    out_mesh[ArrayMesh::ARRAY_BONES] = bones;
-    out_mesh[ArrayMesh::ARRAY_WEIGHTS] = weights;
-    out_mesh[ArrayMesh::ARRAY_INDEX] = indices;
+    HoodieArrayMesh ham;
+
+    ham.array[ArrayMesh::ARRAY_VERTEX] = vertices;
+    ham.array[ArrayMesh::ARRAY_NORMAL] = normals;
+    ham.array[ArrayMesh::ARRAY_TANGENT] = tangents;
+    ham.array[ArrayMesh::ARRAY_COLOR] = colors;
+    ham.array[ArrayMesh::ARRAY_TEX_UV] = uv;
+    ham.array[ArrayMesh::ARRAY_TEX_UV2] = uv2;
+    ham.array[ArrayMesh::ARRAY_CUSTOM0] = custom0;
+    ham.array[ArrayMesh::ARRAY_CUSTOM1] = custom1;
+    ham.array[ArrayMesh::ARRAY_CUSTOM2] = custom2;
+    ham.array[ArrayMesh::ARRAY_CUSTOM3] = custom3;
+    ham.array[ArrayMesh::ARRAY_BONES] = bones;
+    ham.array[ArrayMesh::ARRAY_WEIGHTS] = weights;
+    ham.array[ArrayMesh::ARRAY_INDEX] = indices;
+
+    outputs[0] = &ham;
 }
 
 String HNComposeMesh::get_caption() const {
@@ -209,13 +210,9 @@ int HNComposeMesh::get_output_port_count() const {
 }
 
 HNComposeMesh::PortType HNComposeMesh::get_output_port_type(int p_port) const {
-    return PortType::PORT_TYPE_GEOMETRY;
+    return PortType::PORT_TYPE_MESH;
 }
 
 String HNComposeMesh::get_output_port_name(int p_port) const {
     return "Mesh";
-}
-
-const Variant HNComposeMesh::get_output(int p_port) const {
-    return Variant(out_mesh);
 }

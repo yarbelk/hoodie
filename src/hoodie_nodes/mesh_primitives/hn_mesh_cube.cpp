@@ -14,27 +14,28 @@ void HNMeshCube::_process(const Array &p_inputs) {
     int verts_y = 2;
     int verts_z = 2;
 
-    if (p_inputs.size() > 0) {
-        Array inputs = p_inputs.duplicate();
-
-        if (inputs[0].get_type() == Variant::ARRAY) {
-            Array a = inputs[0];
+    {
+        Array a = p_inputs[0];
+        if (a.size() > 0) {
             Vector3 v3;
             v3 = a[0];
             size_x = v3.x;
             size_y = v3.y;
             size_z = v3.z;
         }
-        if (inputs[1].get_type() == Variant::ARRAY) {
-            Array a = inputs[1];
+    
+        a = p_inputs[1];
+        if (a.size() > 0) {
             verts_x = MAX((int)a[0], verts_x);
         }
-        if (inputs[2].get_type() == Variant::ARRAY) {
-            Array a = inputs[2];
+
+        a = p_inputs[2];
+        if (a.size() > 0) {
             verts_y = MAX((int)a[0], verts_y);
         }
-        if (inputs[3].get_type() == Variant::ARRAY) {
-            Array a = inputs[3];
+
+        a = p_inputs[3];
+        if (a.size() > 0) {
             verts_z = MAX((int)a[0], verts_z);
         }
     }
@@ -107,11 +108,18 @@ void HNMeshCube::_process(const Array &p_inputs) {
     uvs.append_array(right_plane[3]);
     uvs.append_array(left_plane[3]);
 
-    out_arr.resize(ArrayMesh::ARRAY_MAX);
-    out_arr[ArrayMesh::ARRAY_VERTEX] = vertices;
-    out_arr[ArrayMesh::ARRAY_NORMAL] = normals;
-    out_arr[ArrayMesh::ARRAY_TEX_UV] = uvs;
-    out_arr[ArrayMesh::ARRAY_INDEX] = indices;
+    Array mesh_array;
+
+    mesh_array.resize(ArrayMesh::ARRAY_MAX);
+    mesh_array[ArrayMesh::ARRAY_VERTEX] = vertices;
+    mesh_array[ArrayMesh::ARRAY_NORMAL] = normals;
+    mesh_array[ArrayMesh::ARRAY_TEX_UV] = uvs;
+    mesh_array[ArrayMesh::ARRAY_INDEX] = indices;
+
+    Ref<HoodieArrayMesh> r_ham;
+    r_ham = HoodieArrayMesh::create_reference(mesh_array);
+
+    set_output(0, r_ham);
 }
 
 String HNMeshCube::get_caption() const {
@@ -157,13 +165,9 @@ int HNMeshCube::get_output_port_count() const {
 }
 
 HNMeshCube::PortType HNMeshCube::get_output_port_type(int p_port) const {
-    return PortType::PORT_TYPE_GEOMETRY;
+    return PortType::PORT_TYPE_MESH;
 }
 
 String HNMeshCube::get_output_port_name(int p_port) const {
     return "Mesh";
-}
-
-const Variant HNMeshCube::get_output(int p_port) const {
-    return Variant(out_arr);
 }

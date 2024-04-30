@@ -18,10 +18,7 @@ void HNInputInteger::_bind_methods() {
 }
 
 void HNInputInteger::_process(const Array &p_inputs) {
-    int x = int_val;
-
-    value_arr.clear();
-    value_arr.push_back(x);
+    set_output(0, int_val);
 }
 
 String HNInputInteger::get_caption() const {
@@ -77,12 +74,4 @@ Vector<StringName> HNInputInteger::get_editable_properties() const {
 
 HashMap<StringName, String> HNInputInteger::get_editable_properties_names() const {
     return HashMap<StringName, String>();
-}
-
-const Variant HNInputInteger::get_output(int p_port) const {
-    if (p_port == 0) {
-        return Variant(value_arr);
-    }
-
-    return Variant();
 }

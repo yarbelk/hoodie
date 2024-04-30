@@ -5,8 +5,6 @@ using namespace godot;
 void HNMathNoiseReduction::_process(const Array &p_inputs) {
     // https://stackoverflow.com/questions/7811761/smoothing-a-2d-line-from-an-array-of-points
 
-    out.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -21,6 +19,8 @@ void HNMathNoiseReduction::_process(const Array &p_inputs) {
     }
 
     bool loop = true;
+
+    Array out_values;
 
     // Calculate ping-pong weight values (0->0.5, ..., 0.5->1, ..., 1->0.5)
     PackedFloat32Array weights;
@@ -50,8 +50,10 @@ void HNMathNoiseReduction::_process(const Array &p_inputs) {
 
         float avg = sum / severity * 2;
         // float weightedAverage = (weightedSum) / (weightsSum);
-        out.push_back(avg);
+        out_values.push_back(avg);
     }
+
+    outputs[0] = out_values;
 }
 
 String HNMathNoiseReduction::get_caption() const {
@@ -94,12 +96,4 @@ HoodieNode::PortType HNMathNoiseReduction::get_output_port_type(int p_port) cons
 
 String HNMathNoiseReduction::get_output_port_name(int p_port) const {
     return "Values";
-}
-
-const Variant HNMathNoiseReduction::get_output(int p_port) const {
-    if (p_port == 0) {
-        return Variant(out);
-    }
-
-    return Variant();
 }

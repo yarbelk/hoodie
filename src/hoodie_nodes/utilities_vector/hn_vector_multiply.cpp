@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNVectorMultiply::_process(const Array &p_inputs) {
-    out.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -20,11 +18,15 @@ void HNVectorMultiply::_process(const Array &p_inputs) {
         fac_arr.push_back(fac_arr[fac_arr.size() - 1]);
     }
 
+    Array out_values;
+
     for (int i = 0; i < vectors_arr.size(); i++) {
         const Vector3 a = (Vector3)vectors_arr[i];
         const float b = (float)fac_arr[i];
-        out.push_back(a * b);
+        out_values.push_back(a * b);
     }
+
+    outputs[0] = out_values;
 }
 
 String HNVectorMultiply::get_caption() const {
@@ -67,12 +69,4 @@ HoodieNode::PortType HNVectorMultiply::get_output_port_type(int p_port) const {
 
 String HNVectorMultiply::get_output_port_name(int p_port) const {
     return "Value";
-}
-
-const Variant HNVectorMultiply::get_output(int p_port) const {
-    if (p_port == 0) {
-        return Variant(out);
-    }
-
-    return Variant();
 }

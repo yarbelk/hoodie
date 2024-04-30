@@ -20,9 +20,9 @@ PackedVector3Array HNMeshLine::generate_line(const float p_length, const int p_s
 }
 
 void HNMeshLine::_process(const Array &p_inputs) {
-    count = 1;
-    start = Vector3(0,0,0);
-    offset = Vector3(1,0,0);
+    int count = 1;
+    Vector3 start = Vector3(0,0,0);
+    Vector3 offset = Vector3(1,0,0);
 
     if (p_inputs.size() > 0) {
         if (p_inputs[0].get_type() == Variant::ARRAY) {
@@ -52,9 +52,13 @@ void HNMeshLine::_process(const Array &p_inputs) {
 
     indices.resize(0);
 
-    mesh_line.resize(ArrayMesh::ARRAY_MAX);
-    mesh_line[ArrayMesh::ARRAY_VERTEX] = vertices;
-    mesh_line[ArrayMesh::ARRAY_INDEX] = indices;
+    HoodieArrayMesh ham;
+
+    ham.array.resize(ArrayMesh::ARRAY_MAX);
+    ham.array[ArrayMesh::ARRAY_VERTEX] = vertices;
+    ham.array[ArrayMesh::ARRAY_INDEX] = indices;
+
+    outputs[0] = &ham;
 }
 
 String HNMeshLine::get_caption() const {
@@ -96,13 +100,9 @@ int HNMeshLine::get_output_port_count() const {
 }
 
 HNMeshLine::PortType HNMeshLine::get_output_port_type(int p_port) const {
-    return PortType::PORT_TYPE_GEOMETRY;
+    return PortType::PORT_TYPE_MESH;
 }
 
 String HNMeshLine::get_output_port_name(int p_port) const {
     return "Mesh";
-}
-
-const Variant HNMeshLine::get_output(int p_port) const {
-    return Variant(mesh_line);
 }

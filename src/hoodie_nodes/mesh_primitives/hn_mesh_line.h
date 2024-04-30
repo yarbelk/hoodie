@@ -9,14 +9,6 @@ namespace godot
 class HNMeshLine : public HoodieNode {
     GDCLASS(HNMeshLine, HoodieNode)
 
-private:
-    // Input
-    int count = 1;
-    Vector3 start = Vector3(0,0,0);
-    Vector3 offset = Vector3(1,0,0);
-    // Output
-    Array mesh_line;
-
 public:
     static PackedVector3Array generate_line(const float p_length, const int p_subdivisions);
 
@@ -32,8 +24,6 @@ public:
     int get_output_port_count() const override;
 	PortType get_output_port_type(int p_port) const override;
 	String get_output_port_name(int p_port) const override;
-
-    const Variant get_output(int p_port) const override;
 };
 
 } // namespace godot

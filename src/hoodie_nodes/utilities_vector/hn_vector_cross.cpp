@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNVectorCross::_process(const Array &p_inputs) {
-    out.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -20,11 +18,15 @@ void HNVectorCross::_process(const Array &p_inputs) {
         vectors_1_arr.push_back(vectors_1_arr[vectors_1_arr.size() - 1]);
     }
 
+    Array out_values;
+
     for (int i = 0; i < vectors_0_arr.size(); i++) {
         const Vector3 a = (Vector3)vectors_0_arr[i];
         const Vector3 b = (Vector3)vectors_1_arr[i];
-        out.push_back(a.cross(b));
+        out_values.push_back(a.cross(b));
     }
+
+    outputs[0] = out_values;
 }
 
 String HNVectorCross::get_caption() const {
@@ -67,12 +69,4 @@ HoodieNode::PortType HNVectorCross::get_output_port_type(int p_port) const {
 
 String HNVectorCross::get_output_port_name(int p_port) const {
     return "Vector3";
-}
-
-const Variant HNVectorCross::get_output(int p_port) const {
-    if (p_port == 0) {
-        return Variant(out);
-    }
-
-    return Variant();
 }
