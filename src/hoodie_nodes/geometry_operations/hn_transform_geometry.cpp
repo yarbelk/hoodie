@@ -32,25 +32,23 @@ Quaternion HNTransformGeometry::from_euler(const Vector3 &p_euler) {
 }
 
 void HNTransformGeometry::_process(const Array &p_inputs) {
-    out.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
 
-    out = p_inputs[0].duplicate();
+    Ref<HoodieArrayMesh> in_ham = p_inputs[0];
 
-    if (out.size() == 0) {
+    if (in_ham.is_null() || in_ham->array.size() == 0) {
         return;
     }
 
-    PackedVector3Array mesh_verts = out[ArrayMesh::ARRAY_VERTEX];
+    PackedVector3Array mesh_verts = in_ham->array[ArrayMesh::ARRAY_VERTEX];
     PackedVector3Array new_verts;
-    PackedVector3Array mesh_norms = out[ArrayMesh::ARRAY_NORMAL];
+    PackedVector3Array mesh_norms = in_ham->array[ArrayMesh::ARRAY_NORMAL];
     PackedVector3Array new_norms;
-    PackedVector2Array mesh_uvs = out[ArrayMesh::ARRAY_TEX_UV];
+    PackedVector2Array mesh_uvs = in_ham->array[ArrayMesh::ARRAY_TEX_UV];
     PackedVector2Array new_uvs;
-    PackedInt32Array mesh_idx = out[ArrayMesh::ARRAY_INDEX];
+    PackedInt32Array mesh_idx = in_ham->array[ArrayMesh::ARRAY_INDEX];
     PackedInt32Array new_idx;
 
     // Translate, Rotate, Scale
@@ -120,11 +118,18 @@ void HNTransformGeometry::_process(const Array &p_inputs) {
         mesh_uvs = new_uvs;
         mesh_idx = new_idx;
     }
-    
-    out[ArrayMesh::ARRAY_VERTEX] = mesh_verts;
-    out[ArrayMesh::ARRAY_NORMAL] = mesh_norms;
-    out[ArrayMesh::ARRAY_TEX_UV] = mesh_uvs;
-    out[ArrayMesh::ARRAY_INDEX] = mesh_idx;
+
+    Array array_mesh;
+    array_mesh.resize(ArrayMesh::ARRAY_MAX);
+    array_mesh[ArrayMesh::ARRAY_VERTEX] = mesh_verts;
+    array_mesh[ArrayMesh::ARRAY_NORMAL] = mesh_norms;
+    array_mesh[ArrayMesh::ARRAY_TEX_UV] = mesh_uvs;
+    array_mesh[ArrayMesh::ARRAY_INDEX] = mesh_idx;
+
+    Ref<HoodieArrayMesh> r_ham;
+    r_ham = HoodieArrayMesh::create_reference(array_mesh);
+
+    set_output(0, r_ham);
 }
 
 String HNTransformGeometry::get_caption() const {
@@ -138,7 +143,7 @@ int HNTransformGeometry::get_input_port_count() const {
 HNTransformGeometry::PortType HNTransformGeometry::get_input_port_type(int p_port) const {
     switch (p_port) {
         case 0:
-            return PortType::PORT_TYPE_GEOMETRY;
+            return PortType::PORT_TYPE_MESH;
         case 1:
             return PortType::PORT_TYPE_VECTOR_3D;
         case 2:
@@ -170,13 +175,9 @@ int HNTransformGeometry::get_output_port_count() const {
 }
 
 HNTransformGeometry::PortType HNTransformGeometry::get_output_port_type(int p_port) const {
-    return PortType::PORT_TYPE_GEOMETRY;
+    return PortType::PORT_TYPE_MESH;
 }
 
 String HNTransformGeometry::get_output_port_name(int p_port) const {
     return "Geometry";
-}
-
-const Variant HNTransformGeometry::get_output(int p_port) const {
-    return Variant(out);
 }

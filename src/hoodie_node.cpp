@@ -17,22 +17,6 @@ HoodieNode::ProcessStatus HoodieNode::get_status() const {
     return status;
 }
 
-// TODO: delete this
-/* void HoodieNode::set_property(const Property &p_property) {
-    property = p_property;
-}
-
-Variant::Type HoodieNode::get_property_type() const {
-    return property.type;
-}
-
-String HoodieNode::get_property_hint() const {
-    return property.hint;
-}
-
-void HoodieNode::construct_property() {
-} */
-
 void HoodieNode::_bind_methods() {
     ClassDB::bind_method(D_METHOD("mark_dirty"), &HoodieNode::mark_dirty);
     ClassDB::bind_method(D_METHOD("set_property_input", "id", "value"), &HoodieNode::set_property_input);
@@ -43,6 +27,9 @@ bool HoodieNode::update(bool p_inputs_updated, const Array &p_inputs) {
     dirty = false;
 
     if (updated) {
+        outputs.clear();
+        outputs.resize(get_output_port_count());
+        
         _process(p_inputs);
     }
 
@@ -108,7 +95,21 @@ HashMap<StringName, String> HoodieNode::get_editable_properties_names() const {
 }
 
 const Variant HoodieNode::get_output(int p_port) const {
-    return Variant();
+    if (outputs.size() == 0 || outputs.size() < p_port) {
+        return Variant();
+    } else {
+        return outputs[p_port];
+    }
+}
+
+void HoodieNode::set_output(int p_port, const Variant &p_data) {
+    if (p_data.get_type() == Variant::OBJECT || Variant::can_convert(p_data.get_type(), Variant::ARRAY)) {
+        outputs[p_port] = p_data;
+    } else {
+        Array out_arr;
+        out_arr.push_back(p_data);
+        outputs[p_port] = out_arr;
+    }
 }
 
 bool HoodieNode::is_output_port_connected(vec_size_t p_port) const {

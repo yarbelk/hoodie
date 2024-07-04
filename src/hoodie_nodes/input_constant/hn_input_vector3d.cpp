@@ -40,10 +40,7 @@ void HNInputVector3D::_bind_methods() {
 }
 
 void HNInputVector3D::_process(const Array &p_inputs) {
-    Vector3 x = vector_val;
-
-    value_arr.clear();
-    value_arr.push_back(x);
+    set_output(0, vector_val);
 }
 
 String HNInputVector3D::get_caption() const {
@@ -114,12 +111,4 @@ Vector<StringName> HNInputVector3D::get_editable_properties() const {
 
 HashMap<StringName, String> HNInputVector3D::get_editable_properties_names() const {
     return HashMap<StringName, String>();
-}
-
-const Variant HNInputVector3D::get_output(int p_port) const {
-    if (p_port == 0) {
-        return Variant(value_arr);
-    }
-
-    return Variant();
 }

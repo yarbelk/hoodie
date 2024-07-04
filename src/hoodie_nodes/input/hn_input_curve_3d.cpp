@@ -21,8 +21,6 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
     lengths.resize(0);
     factors.resize(0);
 
-    packed_curve.clear();
-
     if (curve.is_valid()) {
         points = curve->get_baked_points();
 
@@ -73,12 +71,16 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
         }
     }
 
-    packed_curve.push_back(points);
-    packed_curve.push_back(tangents);
-    packed_curve.push_back(normals);
-    packed_curve.push_back(tilts);
-    packed_curve.push_back(lengths);
-    packed_curve.push_back(factors);
+    Array out_curve;
+
+    out_curve.push_back(points);
+    out_curve.push_back(tangents);
+    out_curve.push_back(normals);
+    out_curve.push_back(tilts);
+    out_curve.push_back(lengths);
+    out_curve.push_back(factors);
+
+    outputs[0] = out_curve;
 }
 
 String HNInputCurve3D::get_caption() const {
@@ -157,8 +159,4 @@ void HNInputCurve3D::set_property_input(vec_size_t p_prop, Variant p_input) {
 
     mark_dirty();
     emit_signal("changed");
-}
-
-const Variant HNInputCurve3D::get_output(int p_port) const {
-    return Variant(packed_curve);
 }

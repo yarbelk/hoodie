@@ -6,6 +6,11 @@
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 
+#include "hoodie_datas/hoodie_data.h"
+#include "hoodie_datas/hoodie_geo.h"
+#include "hoodie_datas/hoodie_array_mesh.h"
+#include "hoodie_datas/hoodie_variant.h"
+
 namespace godot
 {
 
@@ -17,41 +22,12 @@ class HoodieNode : public Resource {
     friend class HoodieMesh;
 
 protected:
-    // typedef uint32_t id_t;
     typedef int id_t;
     typedef uint32_t vec_size_t;
 
 private:
     HashMap<vec_size_t, bool> connected_input_ports;
     HashMap<vec_size_t, bool> connected_output_ports;
-
-// TODO: delete this
-/*
-protected:
-    struct Property {
-        Variant::Type type;
-        String hint;
-
-        Property() {}
-        Property(Variant::Type p_type, String p_hint) : type(p_type), hint(p_hint) {}
-    };
-
-    struct Socket {
-        enum SocketIO { INPUT, OUTPUT };
-
-        SocketIO socket_io;
-        Variant::Type type;
-        String name;
-        String description;
-
-        Socket() {}
-        Socket(SocketIO p_socket_io, Variant::Type p_type, String p_name, String p_description)
-            : socket_io(p_socket_io),
-              type(p_type),
-              name(p_name),
-              description(p_description) {}
-    };
-*/
 
 public:
     enum PortType {
@@ -64,10 +40,11 @@ public:
 		PORT_TYPE_BOOLEAN,
         PORT_TYPE_COLOR,
         PORT_TYPE_STRING,
-        PORT_TYPE_GEOMETRY,
+        PORT_TYPE_MESH,
         PORT_TYPE_ARRAY,
         PORT_TYPE_CURVE,
         PORT_TYPE_DATA,
+        PORT_TYPE_HGEO,
         PORT_TYPE_MAX,
     };
 
@@ -79,16 +56,14 @@ public:
     };
 
 private:
-    // TODO: delete this
-    // Property property;
-    // Vector<Socket> input_sockets;
-    // Vector<Socket> output_sockets;
-
     ProcessStatus status;
     bool dirty = true;
 
 protected:
     void mark_dirty();
+
+    // Store here the data outputs of the node.
+    Array outputs;
 
 protected:
     static void _bind_methods();
@@ -96,20 +71,6 @@ protected:
 public:
     void set_status(const ProcessStatus &p_status);
     ProcessStatus get_status() const;
-
-    // Property stuff
-    // void set_property(const Property &p_property);
-    // Variant::Type get_property_type() const;
-    // String get_property_hint() const;
-    // virtual void construct_property();
-    // virtual void set_input(Variant p_input);
-    // virtual Variant get_input();
-
-    // void add_socket(Socket &p_socket);
-    // Vector<Socket> get_input_sockets() const;
-    // Vector<Socket> get_output_sockets() const;
-
-    // virtual void construct_sockets();
     
     virtual bool update(bool p_inputs_updated, const Array &p_inputs);
 
@@ -139,7 +100,8 @@ public:
     virtual Vector<StringName> get_editable_properties() const;
     virtual HashMap<StringName, String> get_editable_properties_names() const;
 
-    virtual const Variant get_output(int p_port) const;
+    const Variant get_output(int p_port) const;
+    void set_output(int p_port, const Variant &p_data);
 
     bool is_output_port_connected(vec_size_t p_port) const;
 	void set_output_port_connected(vec_size_t p_port, bool p_connected);

@@ -19,8 +19,6 @@ public:
 private:
     // Input
     AxisXYZ axis = X;
-    // Output
-    Array out;
 
 public:
     void set_axis(const AxisXYZ p_value);
@@ -49,8 +47,6 @@ public:
 
     Vector<StringName> get_editable_properties() const override;
     HashMap<StringName, String> get_editable_properties_names() const override;
-
-    const Variant get_output(int p_port) const override;
 };
 
 } // namespace godot

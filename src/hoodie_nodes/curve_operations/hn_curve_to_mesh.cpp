@@ -26,8 +26,9 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
     PackedVector2Array uvs;
     PackedInt32Array indices;
 
-    mesh.clear();
-    mesh.resize(ArrayMesh::ARRAY_MAX);
+    Array curve;
+    Array profile;
+    bool shape_is_closed;
 
     // Input parsing
     curve = p_inputs[0];
@@ -176,11 +177,15 @@ void HNCurveToMesh::_process(const Array &p_inputs) {
         }
     }
 
-    mesh[ArrayMesh::ARRAY_VERTEX] = vertices;
-    mesh[ArrayMesh::ARRAY_NORMAL] = normals;
-    mesh[ArrayMesh::ARRAY_TANGENT] = tangents;
-    mesh[ArrayMesh::ARRAY_TEX_UV] = uvs;
-    mesh[ArrayMesh::ARRAY_INDEX] = indices;
+    HoodieArrayMesh ham;
+
+    ham.array[ArrayMesh::ARRAY_VERTEX] = vertices;
+    ham.array[ArrayMesh::ARRAY_NORMAL] = normals;
+    ham.array[ArrayMesh::ARRAY_TANGENT] = tangents;
+    ham.array[ArrayMesh::ARRAY_TEX_UV] = uvs;
+    ham.array[ArrayMesh::ARRAY_INDEX] = indices;
+
+    outputs[0] = &ham;
 }
 
 String HNCurveToMesh::get_caption() const {
@@ -196,7 +201,7 @@ HNCurveToMesh::PortType HNCurveToMesh::get_input_port_type(int p_port) const {
         case 0:
             return PortType::PORT_TYPE_CURVE;
         case 1:
-            return PortType::PORT_TYPE_GEOMETRY;
+            return PortType::PORT_TYPE_MESH;
         case 2:
             return PortType::PORT_TYPE_BOOLEAN;
         default:
@@ -222,7 +227,7 @@ int HNCurveToMesh::get_output_port_count() const {
 }
 
 HNCurveToMesh::PortType HNCurveToMesh::get_output_port_type(int p_port) const {
-    return PortType::PORT_TYPE_GEOMETRY;
+    return PortType::PORT_TYPE_MESH;
 }
 
 String HNCurveToMesh::get_output_port_name(int p_port) const {
@@ -254,8 +259,4 @@ Vector<StringName> HNCurveToMesh::get_editable_properties() const {
 
 HashMap<StringName, String> HNCurveToMesh::get_editable_properties_names() const {
     return HashMap<StringName, String>();
-}
-
-const Variant HNCurveToMesh::get_output(int p_port) const {
-    return Variant(mesh);
 }

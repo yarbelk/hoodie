@@ -3,10 +3,6 @@
 using namespace godot;
 
 void HNSeparateXYZ::_process(const Array &p_inputs) {
-    out_x.clear();
-    out_y.clear();
-    out_z.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -19,21 +15,29 @@ void HNSeparateXYZ::_process(const Array &p_inputs) {
         return;
     }
 
+    Array out_x_values;
+    Array out_y_values;
+    Array out_z_values;
+
     for (int i = 0; i < in.size(); i++) {
         if (in[i].get_type() == Variant::VECTOR2) {
             Vector2 in_vec = (Vector2)in[i];
 
-            out_x.push_back(in_vec.x);
-            out_y.push_back(in_vec.y);
-            out_z.push_back(0);
+            out_x_values.push_back(in_vec.x);
+            out_y_values.push_back(in_vec.y);
+            out_z_values.push_back(0);
         } else if (in[i].get_type() == Variant::VECTOR3) {
             Vector3 in_vec = (Vector3)in[i];
 
-            out_x.push_back(in_vec.x);
-            out_y.push_back(in_vec.y);
-            out_z.push_back(in_vec.z);
+            out_x_values.push_back(in_vec.x);
+            out_y_values.push_back(in_vec.y);
+            out_z_values.push_back(in_vec.z);
         }
     }
+    
+    outputs[0] = out_x_values;
+    outputs[1] = out_y_values;
+    outputs[2] = out_z_values;
 }
 
 String HNSeparateXYZ::get_caption() const {
@@ -80,17 +84,4 @@ String HNSeparateXYZ::get_output_port_name(int p_port) const {
     }
 
     return "";
-}
-
-const Variant HNSeparateXYZ::get_output(int p_port) const {
-    switch (p_port) {
-        case 0:
-            return Variant(out_x);
-        case 1:
-            return Variant(out_y);
-        case 2:
-            return Variant(out_z);
-    }
-
-    return Variant();
 }

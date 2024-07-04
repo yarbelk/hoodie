@@ -3,18 +3,20 @@
 using namespace godot;
 
 void HNMathSign::_process(const Array &p_inputs) {
-    out.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
+
+    Array out_values;
 
     Array values_arr = p_inputs[0].duplicate();
     PackedFloat32Array values = values_arr;
 
     for (int i = 0; i < values.size(); i++) {
-        out.push_back(Math::sign(values[i]));
+        out_values.push_back(Math::sign(values[i]));
     }
+
+    outputs[0] = out_values;
 }
 
 String HNMathSign::get_caption() const {
@@ -53,12 +55,4 @@ HoodieNode::PortType HNMathSign::get_output_port_type(int p_port) const {
 
 String HNMathSign::get_output_port_name(int p_port) const {
     return "Value";
-}
-
-const Variant HNMathSign::get_output(int p_port) const {
-    if (p_port == 0) {
-        return Variant(out);
-    }
-
-    return Variant();
 }

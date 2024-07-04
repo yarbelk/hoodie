@@ -6,12 +6,20 @@
 
 #include "hoodie_mesh.h"
 #include "hoodie_node.h"
+#include "hoodie_datas/hoodie_array_mesh.h"
+#include "hoodie_datas/hoodie_data.h"
+#include "hoodie_datas/hoodie_geo.h"
 #include "hoodie_nodes/curve_analysis/hn_points_curvature.h"
+#include "hoodie_nodes/curve_analysis/hn_points_distance.h"
+#include "hoodie_nodes/curve_operations/hn_connect_points.h"
+#include "hoodie_nodes/curve_operations/hn_curve_sweep.h"
 #include "hoodie_nodes/curve_operations/hn_curve_to_mesh.h"
 #include "hoodie_nodes/curve_operations/hn_curve_to_points.h"
 #include "hoodie_nodes/geometry_operations/hn_transform_geometry.h"
+#include "hoodie_nodes/hgeo_primitives/hn_hgeo_line.h"
 #include "hoodie_nodes/input/hn_input_curve_3d.h"
 #include "hoodie_nodes/input_constant/hn_input_integer.h"
+#include "hoodie_nodes/input_constant/hn_input_string.h"
 #include "hoodie_nodes/input_constant/hn_input_value.h"
 #include "hoodie_nodes/input_constant/hn_input_vector3d.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_circle.h"
@@ -20,7 +28,12 @@
 #include "hoodie_nodes/mesh_primitives/hn_mesh_line.h"
 #include "hoodie_nodes/mesh_primitives/hn_mesh_rect.h"
 #include "hoodie_nodes/utilities_data/hn_repeat_data.h"
+#include "hoodie_nodes/utilities_data/hn_shift_data.h"
+#include "hoodie_nodes/utilities_hgeo/hn_add_attribute.h"
+#include "hoodie_nodes/utilities_hgeo/hn_compose_hoodie_geo.h"
+#include "hoodie_nodes/utilities_hgeo/hn_hoodie_geo_to_mesh.h"
 #include "hoodie_nodes/utilities_math/hn_math_derivative.h"
+#include "hoodie_nodes/utilities_math/hn_math_less_than.h"
 #include "hoodie_nodes/utilities_math/hn_math_multiply.h"
 #include "hoodie_nodes/utilities_math/hn_math_noise_reduction.h"
 #include "hoodie_nodes/utilities_math/hn_math_sign.h"
@@ -44,14 +57,22 @@ using namespace godot;
 
 void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 	if (p_level == MODULE_INITIALIZATION_LEVEL_SCENE) {
+		ClassDB::register_abstract_class<HoodieData>();
+		ClassDB::register_class<HoodieArrayMesh>();
+		ClassDB::register_class<HoodieGeo>();
 		ClassDB::register_class<HoodieMesh>();
 		ClassDB::register_abstract_class<HoodieNode>();
 		ClassDB::register_class<HNPointsCurvature>();
+		ClassDB::register_class<HNPointsDistance>();
+		ClassDB::register_class<HNConnectPoints>();
+		ClassDB::register_class<HNCurveSweep>();
 		ClassDB::register_class<HNCurveToMesh>();
 		ClassDB::register_class<HNCurveToPoints>();
 		ClassDB::register_class<HNTransformGeometry>();
+		ClassDB::register_class<HNHGeoLine>();
 		ClassDB::register_class<HNInputCurve3D>();
 		ClassDB::register_class<HNInputInteger>();
+		ClassDB::register_class<HNInputString>();
 		ClassDB::register_class<HNInputValue>();
 		ClassDB::register_class<HNInputVector3D>();
 		ClassDB::register_class<HNMeshCircle>();
@@ -60,7 +81,12 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNMeshLine>();
 		ClassDB::register_class<HNMeshRect>();
 		ClassDB::register_class<HNRepeatData>();
+		ClassDB::register_class<HNShiftData>();
+		ClassDB::register_class<HNAddAttribute>();
+		ClassDB::register_class<HNComposeHoodieGeo>();
+		ClassDB::register_class<HNHoodieGeoToMesh>();
 		ClassDB::register_class<HNMathDerivative>();
+		ClassDB::register_class<HNMathLessThan>();
 		ClassDB::register_class<HNMathMultiply>();
 		ClassDB::register_class<HNMathNoiseReduction>();
 		ClassDB::register_class<HNMathSign>();

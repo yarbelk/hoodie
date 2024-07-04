@@ -87,9 +87,15 @@ void HNMeshGrid::_process(const Array &p_inputs) {
     indices[4] = 3;
     indices[5] = 0;
 
-    surface_arr.resize(ArrayMesh::ARRAY_MAX);
-    surface_arr[ArrayMesh::ARRAY_VERTEX] = vertices;
-    surface_arr[ArrayMesh::ARRAY_INDEX] = indices;
+    Array array_mesh;
+    array_mesh.resize(ArrayMesh::ARRAY_MAX);
+    array_mesh[ArrayMesh::ARRAY_VERTEX] = vertices;
+    array_mesh[ArrayMesh::ARRAY_INDEX] = indices;
+
+    Ref<HoodieArrayMesh> r_ham;
+    r_ham = HoodieArrayMesh::create_reference(array_mesh);
+
+    set_output(0, r_ham);
 }
 
 String HNMeshGrid::get_caption() const {
@@ -137,7 +143,7 @@ int HNMeshGrid::get_output_port_count() const {
 HNMeshGrid::PortType HNMeshGrid::get_output_port_type(int p_port) const {
     switch (p_port) {
         case 0:
-            return PortType::PORT_TYPE_GEOMETRY;
+            return PortType::PORT_TYPE_MESH;
         case 1:
             return PortType::PORT_TYPE_VECTOR_2D;
         default:
@@ -153,16 +159,5 @@ String HNMeshGrid::get_output_port_name(int p_port) const {
             return "UV Map";
         default:
             return "";
-    }
-}
-
-const Variant HNMeshGrid::get_output(int p_port) const {
-    switch (p_port) {
-        case 0:
-            return Variant(surface_arr);
-        case 1:
-            return Variant();
-        default:
-            return Variant();
     }
 }

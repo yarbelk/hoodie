@@ -30,8 +30,6 @@ void HNAlignEulerToVector::_process(const Array &p_inputs) {
 
     PackedVector3Array out_rotations;
 
-    out.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -57,6 +55,8 @@ void HNAlignEulerToVector::_process(const Array &p_inputs) {
             break;
     }
 
+    Array out_values;
+
     int count = MAX(rotations.size(), MAX(factors.size(), vectors.size()));
 
     for (int i = 0; i < count; i++) {
@@ -76,8 +76,10 @@ void HNAlignEulerToVector::_process(const Array &p_inputs) {
         Quaternion rot_quat = Quaternion(cross, angle);
         Vector3 euler_rot = rot_quat.get_euler_xyz();
 
-        out.push_back(euler_rot);
+        out_values.push_back(euler_rot);
     }
+
+    outputs[0] = out_values;
 }
 
 String HNAlignEulerToVector::get_caption() const {
@@ -151,8 +153,4 @@ Vector<StringName> HNAlignEulerToVector::get_editable_properties() const {
 
 HashMap<StringName, String> HNAlignEulerToVector::get_editable_properties_names() const {
     return HashMap<StringName, String>();
-}
-
-const Variant HNAlignEulerToVector::get_output(int p_port) const {
-    return Variant(out);
 }

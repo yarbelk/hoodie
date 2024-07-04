@@ -3,25 +3,18 @@
 using namespace godot;
 
 void HNCurveToPoints::_process(const Array &p_inputs) {
-    out_points.clear();
-    out_tangents.clear();
-    out_normals.clear();
-    out_tilts.clear();
-    out_lengths.clear();
-    out_factors.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
 
     Array in_0 = p_inputs[0].duplicate();
 
-    out_points = in_0[0];
-    out_tangents = in_0[1];
-    out_normals = in_0[2];
-    out_tilts = in_0[3];
-    out_lengths = in_0[4];
-    out_factors = in_0[5];
+    outputs[0] = in_0[0];
+    outputs[1] = in_0[1];
+    outputs[2] = in_0[2];
+    outputs[3] = in_0[3];
+    outputs[4] = in_0[4];
+    outputs[5] = in_0[5];
 }
 
 String HNCurveToPoints::get_caption() const {
@@ -80,23 +73,4 @@ String HNCurveToPoints::get_output_port_name(int p_port) const {
     }
 
     return "";
-}
-
-const Variant HNCurveToPoints::get_output(int p_port) const {
-    switch (p_port) {
-        case 0:
-            return Variant(out_points);
-        case 1:
-            return Variant(out_tangents);
-        case 2:
-            return Variant(out_normals);
-        case 3:
-            return Variant(out_tilts);
-        case 4:
-            return Variant(out_lengths);
-        case 5:
-            return Variant(out_factors);
-    }
-
-    return Variant();
 }

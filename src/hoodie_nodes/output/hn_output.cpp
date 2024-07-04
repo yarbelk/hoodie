@@ -7,32 +7,35 @@ using namespace godot;
 void HNOutput::_process(const Array &p_inputs) {
     // TODO: optimize output _process function
 
-    output_arr.clear();
-    output_arr.resize(ArrayMesh::ARRAY_MAX);
+    outputs.resize(1);
 
-    if (p_inputs.size() > 0) {
-        if (p_inputs[0].get_type() == Variant::ARRAY) {
-            Array surface = p_inputs[0];
+    Ref<HoodieArrayMesh> r_ham;
 
-            if (surface.size() != ArrayMesh::ARRAY_MAX) {
-                return;
-            }
-            
-            output_arr[ArrayMesh::ARRAY_VERTEX] = surface[ArrayMesh::ARRAY_VERTEX];
-            output_arr[ArrayMesh::ARRAY_NORMAL] = surface[ArrayMesh::ARRAY_NORMAL];
-            output_arr[ArrayMesh::ARRAY_TANGENT] = surface[ArrayMesh::ARRAY_TANGENT];
-            output_arr[ArrayMesh::ARRAY_COLOR] = surface[ArrayMesh::ARRAY_COLOR];
-            output_arr[ArrayMesh::ARRAY_TEX_UV] = surface[ArrayMesh::ARRAY_TEX_UV];
-            output_arr[ArrayMesh::ARRAY_TEX_UV2] = surface[ArrayMesh::ARRAY_TEX_UV2];
-            output_arr[ArrayMesh::ARRAY_CUSTOM0] = surface[ArrayMesh::ARRAY_CUSTOM0];
-            output_arr[ArrayMesh::ARRAY_CUSTOM1] = surface[ArrayMesh::ARRAY_CUSTOM1];
-            output_arr[ArrayMesh::ARRAY_CUSTOM2] = surface[ArrayMesh::ARRAY_CUSTOM2];
-            output_arr[ArrayMesh::ARRAY_CUSTOM3] = surface[ArrayMesh::ARRAY_CUSTOM3];
-            output_arr[ArrayMesh::ARRAY_BONES] = surface[ArrayMesh::ARRAY_BONES];
-            output_arr[ArrayMesh::ARRAY_WEIGHTS] = surface[ArrayMesh::ARRAY_WEIGHTS];
-            output_arr[ArrayMesh::ARRAY_INDEX] = surface[ArrayMesh::ARRAY_INDEX];
-        }
+    Ref<HoodieArrayMesh> surface = p_inputs[0];
+
+    if (surface.is_null() || surface->array.size() != ArrayMesh::ARRAY_MAX) {
+        return;
     }
+    
+    // Array array_mesh;
+    // array_mesh.resize(ArrayMesh::ARRAY_MAX);
+    // array_mesh[ArrayMesh::ARRAY_VERTEX] = surface[ArrayMesh::ARRAY_VERTEX];
+    // array_mesh[ArrayMesh::ARRAY_NORMAL] = surface[ArrayMesh::ARRAY_NORMAL];
+    // array_mesh[ArrayMesh::ARRAY_TANGENT] = surface[ArrayMesh::ARRAY_TANGENT];
+    // array_mesh[ArrayMesh::ARRAY_COLOR] = surface[ArrayMesh::ARRAY_COLOR];
+    // array_mesh[ArrayMesh::ARRAY_TEX_UV] = surface[ArrayMesh::ARRAY_TEX_UV];
+    // array_mesh[ArrayMesh::ARRAY_TEX_UV2] = surface[ArrayMesh::ARRAY_TEX_UV2];
+    // array_mesh[ArrayMesh::ARRAY_CUSTOM0] = surface[ArrayMesh::ARRAY_CUSTOM0];
+    // array_mesh[ArrayMesh::ARRAY_CUSTOM1] = surface[ArrayMesh::ARRAY_CUSTOM1];
+    // array_mesh[ArrayMesh::ARRAY_CUSTOM2] = surface[ArrayMesh::ARRAY_CUSTOM2];
+    // array_mesh[ArrayMesh::ARRAY_CUSTOM3] = surface[ArrayMesh::ARRAY_CUSTOM3];
+    // array_mesh[ArrayMesh::ARRAY_BONES] = surface[ArrayMesh::ARRAY_BONES];
+    // array_mesh[ArrayMesh::ARRAY_WEIGHTS] = surface[ArrayMesh::ARRAY_WEIGHTS];
+    // array_mesh[ArrayMesh::ARRAY_INDEX] = surface[ArrayMesh::ARRAY_INDEX];
+
+    // r_ham = HoodieArrayMesh::create_reference(array_mesh);
+
+    set_output(0, surface);
 }
 
 String HNOutput::get_caption() const {
@@ -44,7 +47,7 @@ int HNOutput::get_input_port_count() const {
 }
 
 HNOutput::PortType HNOutput::get_input_port_type(int p_port) const {
-    return PortType::PORT_TYPE_GEOMETRY;
+    return PortType::PORT_TYPE_MESH;
 }
 
 String HNOutput::get_input_port_name(int p_port) const {
@@ -119,12 +122,4 @@ String HNOutput::get_output_port_name(int p_port) const {
     }
 
     return "";
-}
-
-const Variant HNOutput::get_output(int p_port) const {
-    if (p_port == 0) {
-        return Variant(output_arr);
-    }
-
-    return Variant();
 }

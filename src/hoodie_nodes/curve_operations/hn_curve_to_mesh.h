@@ -11,12 +11,7 @@ class HNCurveToMesh : public HoodieNode {
 
 private:
     // Input
-    Array curve;
-    Array profile;
-    bool shape_is_closed;
-    bool flip;
-    // Output
-    Array mesh;
+    bool flip = false;
 
 public:
     void set_flip(const bool p_value);
@@ -45,8 +40,6 @@ public:
 
     Vector<StringName> get_editable_properties() const override;
     HashMap<StringName, String> get_editable_properties_names() const override;
-
-    const Variant get_output(int p_port) const override;
 };
     
 } // namespace godot

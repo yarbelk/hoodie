@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNMathDerivative::_process(const Array &p_inputs) {
-    out.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -14,6 +12,8 @@ void HNMathDerivative::_process(const Array &p_inputs) {
 
     float delta = 1.0;
 
+    Array out_values;
+
     for (int i = 0; i < values.size(); i++) {
         int next_i;
         if (i == values.size() - 1) {
@@ -22,8 +22,10 @@ void HNMathDerivative::_process(const Array &p_inputs) {
             next_i = i + 1;
         }
         float d = (values[next_i] - values[i]) / delta;
-        out.push_back(d);
+        out_values.push_back(d);
     }
+
+    outputs[0] = out_values;
 }
 
 String HNMathDerivative::get_caption() const {
@@ -62,12 +64,4 @@ HoodieNode::PortType HNMathDerivative::get_output_port_type(int p_port) const {
 
 String HNMathDerivative::get_output_port_name(int p_port) const {
     return "Values";
-}
-
-const Variant HNMathDerivative::get_output(int p_port) const {
-    if (p_port == 0) {
-        return Variant(out);
-    }
-
-    return Variant();
 }

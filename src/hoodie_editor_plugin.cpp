@@ -92,6 +92,7 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
 		Color(0.00, 0.00, 0.00), // array
 		Color(0.00, 0.84, 0.64), // curve
 		Color(1.0, 1.0, 1.0), // data
+		Color(1.0, 1.0, 0.0), // hgeo
 		Color(1.0, 1.0, 0.0), // max
 	};
 
@@ -454,6 +455,7 @@ HoodieControl::HoodieControl() {
 
     add_options.push_back(AddOption("Input Value", "Input/Constant", "HNInputValue"));
     add_options.push_back(AddOption("Input Integer", "Input/Constant", "HNInputInteger"));
+    add_options.push_back(AddOption("Input String", "Input/Constant", "HNInputString"));
     add_options.push_back(AddOption("Input Vector3D", "Input/Constant", "HNInputVector3D"));
 
     add_options.push_back(AddOption("Input Curve3D", "Input", "HNInputCurve3D"));
@@ -462,9 +464,17 @@ HoodieControl::HoodieControl() {
 
     add_options.push_back(AddOption("Transform Geometry", "Geometry/Operations", "HNTransformGeometry"));
 
+    // HOODIE GEO
+
+    add_options.push_back(AddOption("HGeo Line", "HGeo/Primitives", "HNHGeoLine"));
+
     // CURVE
 
     add_options.push_back(AddOption("Points Curvature", "Curve/Analysis", "HNPointsCurvature"));
+    add_options.push_back(AddOption("Points Distance", "Curve/Analysis", "HNPointsDistance"));
+
+    add_options.push_back(AddOption("Connect Points", "Curve/Operations", "HNConnectPoints"));
+    add_options.push_back(AddOption("Curve Sweep", "Curve/Operations", "HNCurveSweep"));
     add_options.push_back(AddOption("Curve to Mesh", "Curve/Operations", "HNCurveToMesh"));
     add_options.push_back(AddOption("Curve to Points", "Curve/Operations", "HNCurveToPoints"));
 
@@ -479,8 +489,14 @@ HoodieControl::HoodieControl() {
     // UTILITIES
   
     add_options.push_back(AddOption("Repeat Data", "Utilities/Data", "HNRepeatData"));
+    add_options.push_back(AddOption("Shift Data", "Utilities/Data", "HNShiftData"));
+
+    add_options.push_back(AddOption("Add Attribute", "Utilities/Hoodie Geo", "HNAddAttribute"));
+    add_options.push_back(AddOption("Compose Hoodie Geo", "Utilities/Hoodie Geo", "HNComposeHoodieGeo"));
+    add_options.push_back(AddOption("HGeo To Mesh", "Utilities/Hoodie Geo", "HNHoodieGeoToMesh"));
 
     add_options.push_back(AddOption("Derivative", "Utilities/Math", "HNMathDerivative"));
+    add_options.push_back(AddOption("Less Than", "Utilities/Math", "HNMathLessThan"));
     add_options.push_back(AddOption("Multiply", "Utilities/Math", "HNMathMultiply"));
     add_options.push_back(AddOption("Noise Reduction", "Utilities/Math", "HNMathNoiseReduction"));
     add_options.push_back(AddOption("Sign", "Utilities/Math", "HNMathSign"));
@@ -808,86 +824,57 @@ void HoodieControl::_populate_hoodie_node_tab_inspector(id_t p_node) {
 
     bool is_final_output = false;
     Array mesh_output;
-    int count;
+    int count = node->get_output_port_count();
 
-    if (node->get_output_port_count() == 0) {
-        is_final_output = true;
-        mesh_output = node->get_output(0);
-        count  = 13;
-    } else {
-        count = node->get_output_port_count();
-    }
-
+    // TODO: new tab inspector code that uses HoodieData
     for (int i = 0; i < count; i++) {
-        ScrollContainer *scroll_container = memnew(ScrollContainer);
-        scroll_container->set_name(node->get_output_port_name(i));
-        scroll_container->set_v_size_flags(Control::SIZE_EXPAND_FILL);
-        hn_inspector->add_child(scroll_container);
+        Variant output_data;
+        output_data = node->get_output(i);
 
-        Array output_data;
+        switch (output_data.get_type())
+        {
+            case Variant::OBJECT:
+                {
+                    Ref<HoodieData> hd = output_data;
+                    if (hd.is_null()) {
+                        break;
+                    }
 
-        if (is_final_output && mesh_output.size() > 0) {
-            output_data = mesh_output[i];
-        } else {
-            output_data = node->get_output(i);
+                    // Data is of type HoodieData
+                    HashMap<String, String> strings = hd->populate_tab_inspector();
+
+                    TabContainer *tab_container = memnew(TabContainer);
+                    tab_container->set_name(node->get_output_port_name(i));
+                    tab_container->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+                    hn_inspector->add_child(tab_container);
+
+                    for (KeyValue<String, String> e : strings) {
+                        ScrollContainer *scroll_container = memnew(ScrollContainer);
+                        scroll_container->set_name(e.key);
+                        scroll_container->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+                        tab_container->add_child(scroll_container);
+
+                        Label *data_label = memnew(Label);
+                        data_label->set_text(e.value);
+                        scroll_container->add_child(data_label);
+                    }
+                }
+                break;
+            default:
+                {
+                    ScrollContainer *scroll_container = memnew(ScrollContainer);
+                    scroll_container->set_name(node->get_output_port_name(i));
+                    scroll_container->set_v_size_flags(Control::SIZE_EXPAND_FILL);
+                    hn_inspector->add_child(scroll_container);
+
+                    String string = HoodieData::array_to_string(output_data);
+
+                    Label *data_label = memnew(Label);
+                    data_label->set_text(string);
+                    scroll_container->add_child(data_label);
+                }
+                break;
         }
-
-        String data_string = "";
-
-        for (int j = 0; j < output_data.size(); j++) {
-            String j_data_string = "[" + itos(j) + "] ";
-
-            switch (output_data[j].get_type()) {
-                case Variant::Type::INT:
-                    {
-                        int val = (int)output_data[j];
-                        j_data_string += itos(val);
-                    }
-                    break;
-                case Variant::Type::FLOAT:
-                    {
-                        float f = (float)output_data[j];
-                        j_data_string += String::num(f, 3);
-                    }
-                    break;
-                case Variant::Type::VECTOR4:
-                    {
-                        Vector4 vec = output_data[j];
-                        String vec_string = "( ";
-                        vec_string += String::num(vec.x, 3) + " , ";
-                        vec_string += String::num(vec.y, 3) + " , ";
-                        vec_string += String::num(vec.z, 3) + " , ";
-                        vec_string += String::num(vec.w, 3) + " )";
-                        j_data_string += vec_string;
-                    }
-                    break;
-                case Variant::Type::VECTOR3:
-                    {
-                        Vector3 vec = output_data[j];
-                        String vec_string = "( ";
-                        vec_string += String::num(vec.x, 3) + " , ";
-                        vec_string += String::num(vec.y, 3) + " , ";
-                        vec_string += String::num(vec.z, 3) + " )";
-                        j_data_string += vec_string;
-                    }
-                    break;
-                case Variant::Type::VECTOR2:
-                    {
-                        Vector2 vec = output_data[j];
-                        String vec_string = "( ";
-                        vec_string += String::num(vec.x, 3) + " , ";
-                        vec_string += String::num(vec.y, 3) + " )";
-                        j_data_string += vec_string;
-                    }
-                    break;
-            }
-
-            data_string += j_data_string + "\n";
-        }
-
-        Label *data_label = memnew(Label);
-        data_label->set_text(data_string);
-        scroll_container->add_child(data_label);
     }
 }
 
@@ -1520,6 +1507,8 @@ void HoodieNodePluginDefaultEditor::setup(HoodieEditorPlugin *p_editor, Ref<Hood
         if (properties[i]->is_class("EditorSpinSlider")) {
             // properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind("int_value", properties[i], "", false));
             properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
+        } else if (properties[i]->is_class("LineEdit")) {
+            properties[i]->connect("text_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         } else if (properties[i]->is_class("CheckButton")) {
             properties[i]->connect("toggled", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         } else if (properties[i]->is_class("OptionButton")) {
@@ -1627,6 +1616,12 @@ Control *HoodieNodePluginDefault::create_editor(const Ref<Resource> &p_parent_re
                 ess->set_value(p_node->get_property_input(i));
                 editors.push_back(ess);
             }
+        } else if (pinfo[i].type == Variant::Type::STRING) {
+            LineEdit *le = memnew(LineEdit);
+            le->set_custom_minimum_size(Size2(65, 0));
+            le->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            le->set_text(p_node->get_property_input(i));
+            editors.push_back(le);
         } else if (pinfo[i].type == Variant::Type::FLOAT) {
             EditorSpinSlider *ess = memnew(EditorSpinSlider);
             ess->set_custom_minimum_size(Size2(65, 0));

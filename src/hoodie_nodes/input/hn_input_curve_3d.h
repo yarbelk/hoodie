@@ -13,7 +13,6 @@ class HNInputCurve3D : public HoodieNode {
 
 private:
 	Ref<Curve3D> curve;
-	Array packed_curve;
 
 	void _curve_changed();
 
@@ -35,8 +34,6 @@ public:
     String get_property_input_hint(vec_size_t p_prop) const override;
     Variant get_property_input(vec_size_t p_port) const override;
     void set_property_input(vec_size_t p_prop, Variant p_input) override;
-
-    const Variant get_output(int p_port) const override;
 };
 
 } // namespace godot

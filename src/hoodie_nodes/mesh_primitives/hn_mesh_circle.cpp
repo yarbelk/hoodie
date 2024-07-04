@@ -42,9 +42,13 @@ void HNMeshCircle::_process(const Array &p_inputs) {
 
     indices.resize((verts_count - 2) * 3);
 
-    out.resize(ArrayMesh::ARRAY_MAX);
-    out[ArrayMesh::ARRAY_VERTEX] = vertices;
-    out[ArrayMesh::ARRAY_INDEX] = indices;
+    HoodieArrayMesh ham;
+    ham.array.resize(ArrayMesh::ARRAY_MAX);
+
+    ham.array[ArrayMesh::ARRAY_VERTEX] = vertices;
+    ham.array[ArrayMesh::ARRAY_INDEX] = indices;
+
+    outputs[0] = &ham;
 }
 
 String HNMeshCircle::get_caption() const {
@@ -82,13 +86,9 @@ int HNMeshCircle::get_output_port_count() const {
 }
 
 HNMeshCircle::PortType HNMeshCircle::get_output_port_type(int p_port) const {
-    return PortType::PORT_TYPE_GEOMETRY;
+    return PortType::PORT_TYPE_MESH;
 }
 
 String HNMeshCircle::get_output_port_name(int p_port) const {
     return "Mesh";
-}
-
-const Variant HNMeshCircle::get_output(int p_port) const {
-    return Variant(out);
 }

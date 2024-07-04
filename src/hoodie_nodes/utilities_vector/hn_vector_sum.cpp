@@ -3,8 +3,6 @@
 using namespace godot;
 
 void HNVectorSum::_process(const Array &p_inputs) {
-    out.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -20,11 +18,15 @@ void HNVectorSum::_process(const Array &p_inputs) {
         v_1_arr.push_back(v_1_arr[v_1_arr.size() - 1]);
     }
 
+    Array out_values;
+
     for (int i = 0; i < v_0_arr.size(); i++) {
         const Vector3 a = (Vector3)v_0_arr[i];
         const Vector3 b = (Vector3)v_1_arr[i];
-        out.push_back(a + b);
+        out_values.push_back(a + b);
     }
+
+    outputs[0] = out_values;
 }
 
 String HNVectorSum::get_caption() const {
@@ -67,12 +69,4 @@ HoodieNode::PortType HNVectorSum::get_output_port_type(int p_port) const {
 
 String HNVectorSum::get_output_port_name(int p_port) const {
     return "Value";
-}
-
-const Variant HNVectorSum::get_output(int p_port) const {
-    if (p_port == 0) {
-        return Variant(out);
-    }
-
-    return Variant();
 }

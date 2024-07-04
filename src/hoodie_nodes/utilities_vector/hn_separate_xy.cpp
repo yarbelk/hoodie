@@ -3,9 +3,6 @@
 using namespace godot;
 
 void HNSeparateXY::_process(const Array &p_inputs) {
-    out_x.clear();
-    out_y.clear();
-
     if (p_inputs.size() == 0) {
         return;
     }
@@ -18,12 +15,18 @@ void HNSeparateXY::_process(const Array &p_inputs) {
         return;
     }
 
+    Array out_values_1;
+    Array out_values_2;
+
     for (int i = 0; i < in_arr_vectors.size(); i++) {
         Vector2 in_vec = (Vector2)in_arr_vectors[i];
 
-        out_x.push_back(in_vec.x);
-        out_y.push_back(in_vec.y);
+        out_values_1.push_back(in_vec.x);
+        out_values_2.push_back(in_vec.y);
     }
+
+    outputs[0] = out_values_1;
+    outputs[1] = out_values_2;
 }
 
 String HNSeparateXY::get_caption() const {
@@ -66,15 +69,4 @@ String HNSeparateXY::get_output_port_name(int p_port) const {
     }
 
     return "";
-}
-
-const Variant HNSeparateXY::get_output(int p_port) const {
-    switch (p_port) {
-        case 0:
-            return Variant(out_x);
-        case 1:
-            return Variant(out_y);
-    }
-
-    return Variant();
 }
