@@ -5,21 +5,21 @@
 using namespace godot;
 
 void HNDecomposeMesh::_process(const Array &p_inputs) {
-    Array surface = p_inputs[0];
+    Ref<HoodieArrayMesh> surface = p_inputs[0];
 
-    outputs[0] = surface[ArrayMesh::ARRAY_VERTEX];
-    outputs[1] = surface[ArrayMesh::ARRAY_NORMAL];
-    outputs[2] = surface[ArrayMesh::ARRAY_TANGENT];
-    outputs[3] = surface[ArrayMesh::ARRAY_COLOR];
-    outputs[4] = surface[ArrayMesh::ARRAY_TEX_UV];
-    outputs[5] = surface[ArrayMesh::ARRAY_TEX_UV2];
-    outputs[6] = surface[ArrayMesh::ARRAY_CUSTOM0];
-    outputs[7] = surface[ArrayMesh::ARRAY_CUSTOM1];
-    outputs[8] = surface[ArrayMesh::ARRAY_CUSTOM2];
-    outputs[9] = surface[ArrayMesh::ARRAY_CUSTOM3];
-    outputs[10] = surface[ArrayMesh::ARRAY_BONES];
-    outputs[11] = surface[ArrayMesh::ARRAY_WEIGHTS];
-    outputs[12] = surface[ArrayMesh::ARRAY_INDEX];
+    outputs[0] = surface->array[ArrayMesh::ARRAY_VERTEX];
+    outputs[1] = surface->array[ArrayMesh::ARRAY_NORMAL];
+    outputs[2] = surface->array[ArrayMesh::ARRAY_TANGENT];
+    outputs[3] = surface->array[ArrayMesh::ARRAY_COLOR];
+    outputs[4] = surface->array[ArrayMesh::ARRAY_TEX_UV];
+    outputs[5] = surface->array[ArrayMesh::ARRAY_TEX_UV2];
+    outputs[6] = surface->array[ArrayMesh::ARRAY_CUSTOM0];
+    outputs[7] = surface->array[ArrayMesh::ARRAY_CUSTOM1];
+    outputs[8] = surface->array[ArrayMesh::ARRAY_CUSTOM2];
+    outputs[9] = surface->array[ArrayMesh::ARRAY_CUSTOM3];
+    outputs[10] = surface->array[ArrayMesh::ARRAY_BONES];
+    outputs[11] = surface->array[ArrayMesh::ARRAY_WEIGHTS];
+    outputs[12] = surface->array[ArrayMesh::ARRAY_INDEX];
 }
 
 String HNDecomposeMesh::get_caption() const {

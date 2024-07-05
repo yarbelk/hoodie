@@ -68,21 +68,26 @@ void HNCurveSweep::_process(const Array &p_inputs) {
     if (curve.ptr()->attributes.has("T")) {
         curve_tan = curve.ptr()->attributes["T"];
     } else {
-        // TODO: calculate tangents properly.
         curve_tan.resize(path_size);
+        for (int i = 0; i < path_size - 1; i++) {
+            curve_tan[i] = curve_pos[i + 1] - curve_pos[i];
+        }
+        // TODO: if the path is closed, the tangent should point towards the first point.
+        curve_tan[path_size - 1] = curve_tan[path_size - 2];
     }
 
     if (curve.ptr()->attributes.has("N")) {
         curve_nor = curve.ptr()->attributes["N"];
     } else {
-        // TODO: calculate normals properly.
         curve_nor.resize(path_size);
+        curve_nor.fill(Vector3(0.0, 1.0, 0.0));
     }
 
     if (curve.ptr()->attributes.has("Tilt")) {
         curve_tilt = curve.ptr()->attributes["Tilt"];
     } else {
         curve_tilt.resize(path_size);
+        curve_tilt.fill(0.0);
     }
 
     // Shape Length
