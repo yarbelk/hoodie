@@ -477,6 +477,7 @@ HoodieControl::HoodieControl() {
     add_options.push_back(AddOption("Curve Sweep", "Curve/Operations", "HNCurveSweep"));
     add_options.push_back(AddOption("Curve to Mesh", "Curve/Operations", "HNCurveToMesh"));
     add_options.push_back(AddOption("Curve to Points", "Curve/Operations", "HNCurveToPoints"));
+    add_options.push_back(AddOption("Offset Curve 2D", "Curve/Operations", "HNOffsetCurve2D"));
 
     // MESH
 

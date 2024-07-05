@@ -15,6 +15,7 @@
 #include "hoodie_nodes/curve_operations/hn_curve_sweep.h"
 #include "hoodie_nodes/curve_operations/hn_curve_to_mesh.h"
 #include "hoodie_nodes/curve_operations/hn_curve_to_points.h"
+#include "hoodie_nodes/curve_operations/hn_offset_curve_2d.h"
 #include "hoodie_nodes/geometry_operations/hn_transform_geometry.h"
 #include "hoodie_nodes/hgeo_primitives/hn_hgeo_line.h"
 #include "hoodie_nodes/input/hn_input_curve_3d.h"
@@ -68,6 +69,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNCurveSweep>();
 		ClassDB::register_class<HNCurveToMesh>();
 		ClassDB::register_class<HNCurveToPoints>();
+		ClassDB::register_class<HNOffsetCurve2D>();
 		ClassDB::register_class<HNTransformGeometry>();
 		ClassDB::register_class<HNHGeoLine>();
 		ClassDB::register_class<HNInputCurve3D>();
