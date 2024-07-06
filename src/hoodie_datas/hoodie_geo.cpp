@@ -14,6 +14,43 @@ void HoodieGeo::clear() {
     primitives.clear();
 }
 
+TypedArray<PackedVector3Array> HoodieGeo::pack_primitive_points() const {
+    TypedArray<PackedVector3Array> ret;
+
+    for (Primitive p : primitives) {
+        PackedVector3Array pts;
+        pts.resize(p.vertices.size());
+        for (int i = 0; i < p.vertices.size(); i++) {
+            pts[i] = points[p.vertices[i]];
+        }
+        ret.push_back(pts);
+    }
+
+    return ret;
+}
+
+void HoodieGeo::unpack_primitive_points(const TypedArray<PackedVector3Array> &p_array) {
+    points.clear();
+    primitives.clear();
+
+    UtilityFunctions::print("Unpack array size: " + itos(p_array.size()));
+
+    int verts_counter = 0;
+    for (int i = 0; i < p_array.size(); i++) {
+        PackedVector3Array pts = p_array[i];
+        points.append_array(pts);
+
+        PackedInt32Array verts;
+        verts.resize(pts.size());
+        for (int p = 0; p < verts.size(); p++) {
+            verts[p] = verts_counter++;
+        }
+        primitives.append(Primitive(verts));
+
+        UtilityFunctions::print("ua [" + itos(i) + "]: " + itos(verts.size()));
+    }
+}
+
 Array HoodieGeo::to_mesh() const {
     Array mesh;
     mesh.resize(ArrayMesh::ARRAY_MAX);

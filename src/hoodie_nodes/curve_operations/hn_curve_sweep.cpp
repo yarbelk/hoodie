@@ -128,6 +128,11 @@ void HNCurveSweep::_process(const Array &p_inputs) {
             int p = in_verts[j];
             // Construct frame with vectors taken from the Curve3D and tilt.
             Transform3D frame;
+
+            if (j == in_verts.size() - 1 && in_verts.size() > 1) {
+                curve_tan[p] = curve_tan[in_verts[j - 1]];
+            }
+
             // if (j < in_verts.size() - 1) {
                 frame = Transform3D(-curve_tan[p].cross(curve_nor[p]).normalized(), curve_nor[p], curve_tan[p], curve_pos[p]);
                 frame.rotate_basis(frame.basis.get_column(2), curve_tilt[p]);
