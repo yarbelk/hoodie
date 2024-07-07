@@ -478,6 +478,7 @@ HoodieControl::HoodieControl() {
     add_options.push_back(AddOption("Curve to Mesh", "Curve/Operations", "HNCurveToMesh"));
     add_options.push_back(AddOption("Curve to Points", "Curve/Operations", "HNCurveToPoints"));
     add_options.push_back(AddOption("Offset Curve 2D", "Curve/Operations", "HNOffsetCurve2D"));
+    add_options.push_back(AddOption("Simplify Curve", "Curve/Operations", "HNSimplifyCurve"));
     add_options.push_back(AddOption("Subdivision Curve", "Curve/Operations", "HNSubdivisionCurve"));
 
     // MESH
@@ -1628,7 +1629,7 @@ Control *HoodieNodePluginDefault::create_editor(const Ref<Resource> &p_parent_re
             EditorSpinSlider *ess = memnew(EditorSpinSlider);
             ess->set_custom_minimum_size(Size2(65, 0));
             ess->set_h_size_flags(Control::SIZE_EXPAND_FILL);
-            ess->set_step(0.01);
+            ess->set_step(0.001);
             ess->set_hide_slider(true);
             ess->set_allow_greater(true);
             ess->set_allow_lesser(true);
