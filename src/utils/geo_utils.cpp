@@ -2,6 +2,26 @@
 
 using namespace godot;
 
+float GeoUtils::point_segment_distance(const Vector3 &p, const Vector3 &a, const Vector3 &b) {
+    // https://paulbourke.net/geometry/pointlineplane/
+
+    if (b - a == Vector3(0, 0, 0)) {
+        return (a - p).length();
+    }
+
+    float u = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y) + (p.z - a.z) * (b.z - a.z)) / (b - a).length_squared();
+
+    if (u < 0) {
+        return (a - p).length();
+    } else if (u > 1) {
+        return (b - p).length();
+    }
+
+    Vector3 intersection = a + u * (b - a);
+
+    return (intersection - p).length();
+}
+
 Vector3 GeoUtils::vec2_to_vec3(const Vector2 &p_vec2, const bool p_xz) {
     Vector3 ret;
 
