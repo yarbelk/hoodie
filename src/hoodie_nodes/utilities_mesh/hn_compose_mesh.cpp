@@ -112,23 +112,26 @@ void HNComposeMesh::_process(const Array &p_inputs) {
     // Indices
     indices = in_arr_idx;
 
-    HoodieArrayMesh ham;
+    Array array_mesh;
+    array_mesh.resize(ArrayMesh::ARRAY_MAX);
+    array_mesh[ArrayMesh::ARRAY_VERTEX] = vertices;
+    array_mesh[ArrayMesh::ARRAY_NORMAL] = normals;
+    array_mesh[ArrayMesh::ARRAY_TANGENT] = tangents;
+    array_mesh[ArrayMesh::ARRAY_COLOR] = colors;
+    array_mesh[ArrayMesh::ARRAY_TEX_UV] = uv;
+    array_mesh[ArrayMesh::ARRAY_TEX_UV2] = uv2;
+    array_mesh[ArrayMesh::ARRAY_CUSTOM0] = custom0;
+    array_mesh[ArrayMesh::ARRAY_CUSTOM1] = custom1;
+    array_mesh[ArrayMesh::ARRAY_CUSTOM2] = custom2;
+    array_mesh[ArrayMesh::ARRAY_CUSTOM3] = custom3;
+    array_mesh[ArrayMesh::ARRAY_BONES] = bones;
+    array_mesh[ArrayMesh::ARRAY_WEIGHTS] = weights;
+    array_mesh[ArrayMesh::ARRAY_INDEX] = indices;
 
-    ham.array[ArrayMesh::ARRAY_VERTEX] = vertices;
-    ham.array[ArrayMesh::ARRAY_NORMAL] = normals;
-    ham.array[ArrayMesh::ARRAY_TANGENT] = tangents;
-    ham.array[ArrayMesh::ARRAY_COLOR] = colors;
-    ham.array[ArrayMesh::ARRAY_TEX_UV] = uv;
-    ham.array[ArrayMesh::ARRAY_TEX_UV2] = uv2;
-    ham.array[ArrayMesh::ARRAY_CUSTOM0] = custom0;
-    ham.array[ArrayMesh::ARRAY_CUSTOM1] = custom1;
-    ham.array[ArrayMesh::ARRAY_CUSTOM2] = custom2;
-    ham.array[ArrayMesh::ARRAY_CUSTOM3] = custom3;
-    ham.array[ArrayMesh::ARRAY_BONES] = bones;
-    ham.array[ArrayMesh::ARRAY_WEIGHTS] = weights;
-    ham.array[ArrayMesh::ARRAY_INDEX] = indices;
+    Ref<HoodieArrayMesh> r_ham;
+    r_ham = HoodieArrayMesh::create_reference(array_mesh);
 
-    outputs[0] = &ham;
+    set_output(0, r_ham);
 }
 
 String HNComposeMesh::get_caption() const {
