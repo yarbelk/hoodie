@@ -22,6 +22,22 @@ float GeoUtils::point_segment_distance(const Vector3 &p, const Vector3 &a, const
     return (intersection - p).length();
 }
 
+PackedFloat32Array GeoUtils::progressive_path_distances(const PackedVector3Array &p_points) {
+    PackedFloat32Array distances;
+    distances.resize(p_points.size());
+
+    float dist = 0;
+    Vector3 prev_pt = p_points[0];
+
+    for (int j = 1; j < distances.size(); j++) {
+        dist += (p_points[j] - prev_pt).length();
+        distances[j] = dist;
+        prev_pt = p_points[j];
+    }
+
+    return distances;
+}
+
 Vector3 GeoUtils::vec2_to_vec3(const Vector2 &p_vec2, const bool p_xz) {
     Vector3 ret;
 

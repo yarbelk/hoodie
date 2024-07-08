@@ -12,10 +12,16 @@ class HNCurveSweep : public HoodieNode {
 private:
     // Input
     bool flip = false;
+    bool u_distance = false;
+    bool v_distance = false;
 
 public:
     void set_flip(const bool p_value);
     bool get_flip() const;
+    void set_u_distance(const bool p_value);
+    bool get_u_distance() const;
+    void set_v_distance(const bool p_value);
+    bool get_v_distance() const;
 
 protected:
     static void _bind_methods();

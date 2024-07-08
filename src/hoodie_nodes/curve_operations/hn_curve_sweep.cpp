@@ -1,6 +1,7 @@
 #include "hn_curve_sweep.h"
 
 #include <godot_cpp/classes/array_mesh.hpp>
+#include "utils/geo_utils.h"
 
 using namespace godot;
 
@@ -12,11 +13,33 @@ bool HNCurveSweep::get_flip() const {
     return flip;
 }
 
+void HNCurveSweep::set_u_distance(const bool p_value) {
+    u_distance = p_value;
+}
+
+bool HNCurveSweep::get_u_distance() const {
+    return u_distance;
+}
+
+void HNCurveSweep::set_v_distance(const bool p_value) {
+    v_distance = p_value;
+}
+
+bool HNCurveSweep::get_v_distance() const {
+    return v_distance;
+}
+
 void HNCurveSweep::_bind_methods() {
     ClassDB::bind_method(D_METHOD("set_flip", "value"), &HNCurveSweep::set_flip);
     ClassDB::bind_method(D_METHOD("get_flip"), &HNCurveSweep::get_flip);
+    ClassDB::bind_method(D_METHOD("set_u_distance", "value"), &HNCurveSweep::set_u_distance);
+    ClassDB::bind_method(D_METHOD("get_u_distance"), &HNCurveSweep::get_u_distance);
+    ClassDB::bind_method(D_METHOD("set_v_distance", "value"), &HNCurveSweep::set_v_distance);
+    ClassDB::bind_method(D_METHOD("get_v_distance"), &HNCurveSweep::get_v_distance);
 
     ADD_PROPERTY(PropertyInfo(Variant::BOOL, "Flip", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_flip", "get_flip");
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "UDistance", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_u_distance", "get_u_distance");
+    ADD_PROPERTY(PropertyInfo(Variant::BOOL, "VDistance", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NO_EDITOR), "set_v_distance", "get_v_distance");
 }
 
 void HNCurveSweep::_process(const Array &p_inputs) {
@@ -100,11 +123,13 @@ void HNCurveSweep::_process(const Array &p_inputs) {
             shape_length += (pt - prev_pt).length();
             prev_pt = pt;
         }
-        UtilityFunctions::print("Profile Length: " + rtos(shape_length));
+        // UtilityFunctions::print("Profile Length: " + rtos(shape_length));
     }
 
+    // Will contain the quads resulting from the sweep.
     Vector<HoodieGeo::Primitive> out_primitives;
 
+    // If there are no primitives just connect all the points in a chain.
     if (curve->primitives.size() == 0) {
         PackedInt32Array vertices;
         for (int i = 0; i < curve->points.size(); i++) {
@@ -121,6 +146,10 @@ void HNCurveSweep::_process(const Array &p_inputs) {
             in_points.push_back(curve_pos[v]);
         }
 
+        // Calculate path progressive distance for UV U purpose.
+        PackedFloat32Array u_distances = GeoUtils::progressive_path_distances(in_points);
+        PackedFloat32Array v_distances = GeoUtils::progressive_path_distances(profile_pos);
+
         // Extrusion
         // Each quad is a primitive
         int triangle_index = 0;
@@ -133,14 +162,9 @@ void HNCurveSweep::_process(const Array &p_inputs) {
                 curve_tan[p] = curve_tan[in_verts[j - 1]];
             }
 
-            // if (j < in_verts.size() - 1) {
-                frame = Transform3D(-curve_tan[p].cross(curve_nor[p]).normalized(), curve_nor[p], curve_tan[p], curve_pos[p]);
-                frame.rotate_basis(frame.basis.get_column(2), curve_tilt[p]);
-            // } else {
-                // Not sure why, but the last row need to be mirrored.
-            //     frame = Transform3D(curve_tan[p].cross(curve_nor[p]).normalized(), curve_nor[p], curve_tan[p], curve_pos[p]);
-            //     frame.rotate_basis(frame.basis.get_column(2), -curve_tilt[p]);
-            // }
+            frame = Transform3D(-curve_tan[p].cross(curve_nor[p]).normalized(), curve_nor[p], curve_tan[p], curve_pos[p]);
+            frame.rotate_basis(frame.basis.get_column(2), curve_tilt[p]);
+
             // Populate arrays
             for (int s = 0; s < shape_verts_size; s++)
             {
@@ -151,7 +175,11 @@ void HNCurveSweep::_process(const Array &p_inputs) {
                 int index = p * shape_verts_size + s;
                 vertices[index] = frame.xform(profile_pos[s]);
                 normals[index] = curve_nor[p];
-                uvs[index] = Vector2(p, s);
+
+                float uv_u = get_u_distance() ? u_distances[j] : p;
+                float uv_v = get_v_distance() ? v_distances[s] : s;
+                uvs[index] = Vector2(uv_u, uv_v);
+                
                 if (j > in_verts.size() - 2) continue;
                 if (s > shape_verts_size - 2) continue;
 
@@ -229,24 +257,57 @@ String HNCurveSweep::get_output_port_name(int p_port) const {
 }
 
 int HNCurveSweep::get_property_input_count() const {
-    return 1;
+    return 2;
 }
 
 Variant::Type HNCurveSweep::get_property_input_type(vec_size_t p_prop) const {
-    return Variant::BOOL;
+    switch (p_prop) {
+        case 0:
+            return Variant::BOOL;
+        case 1:
+            return Variant::BOOL;
+        case 2:
+            return Variant::BOOL;
+        default:
+            return Variant::BOOL;
+    }
 }
 
 Variant HNCurveSweep::get_property_input(vec_size_t p_port) const {
-    return Variant(flip);
+    switch (p_port) {
+        case 0:
+            return Variant(flip);
+        case 1:
+            return Variant(u_distance);
+        case 2:
+            return Variant(v_distance);
+        default:
+            return Variant();
+    }
 }
 
 void HNCurveSweep::set_property_input(vec_size_t p_prop, Variant p_input) {
-    flip = (bool)p_input;
+    switch (p_prop)
+    {
+        case 0:
+            flip = (bool)p_input;
+            break;
+        case 1:
+            u_distance = (bool)p_input;
+            break;
+        case 2:
+            v_distance = (bool)p_input;
+            break;
+        default:
+            break;
+    }
 }
 
 Vector<StringName> HNCurveSweep::get_editable_properties() const {
     Vector<StringName> props;
     props.push_back("Flip");
+    props.push_back("UDistance");
+    props.push_back("VDistance");
     // TODO: VisualShaderNodeIntParameter::get_editable_properties()
     return props;
 }
