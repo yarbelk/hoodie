@@ -517,6 +517,10 @@ HoodieControl::HoodieControl() {
 
     add_options.push_back(AddOption("Align Euler to Vector", "Utilities/Rotation", "HNAlignEulerToVector"));
 
+    // UV
+
+    add_options.push_back(AddOption("UV Math", "UV", "HNUVMath"));
+
     // OUTPUT
 
     add_options.push_back(AddOption("Output", "Output", "HNOutput"));
