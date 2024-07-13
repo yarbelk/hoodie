@@ -52,6 +52,7 @@
 #include "hoodie_nodes/utilities_rotation/hn_align_euler_to_vector.h"
 #include "hoodie_nodes/uv/hn_uv_math.h"
 #include "hoodie_nodes/output/hn_output.h"
+#include "hoodie_nodes/output/hn_populate.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -109,6 +110,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNAlignEulerToVector>();
 		ClassDB::register_class<HNUVMath>();
 		ClassDB::register_class<HNOutput>();
+		ClassDB::register_class<HNPopulate>();
 
 		// Setup engine after classes are registered.
 		// This is necessary when using GDExtension because classes can't be instantiated until they are registered.

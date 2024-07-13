@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://cw31liqwpp1mj"]
+
+[ext_resource type="Script" path="res://hoodie_examples/spawn_nodes/collision_shape_3d_test.gd" id="1_y5i8d"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5jr81"]
+
+[node name="AreaTrigger" type="Node3D"]
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_5jr81")
+script = ExtResource("1_y5i8d")
