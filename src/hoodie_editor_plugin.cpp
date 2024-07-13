@@ -3,6 +3,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/classes/editor_undo_redo_manager.hpp>
 #include <godot_cpp/templates/hash_set.hpp>
+#include <godot_cpp/classes/editor_resource_picker.hpp>
 
 using namespace godot;
 
@@ -524,6 +525,7 @@ HoodieControl::HoodieControl() {
     // OUTPUT
 
     add_options.push_back(AddOption("Output", "Output", "HNOutput"));
+    add_options.push_back(AddOption("Populate", "Output", "HNPopulate"));
 
     ///////////////////////////////////////
 }
@@ -1512,14 +1514,15 @@ void HoodieNodePluginDefaultEditor::setup(HoodieEditorPlugin *p_editor, Ref<Hood
         // properties[i]->connect("property_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed));
 
         if (properties[i]->is_class("EditorSpinSlider")) {
-            // properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind("int_value", properties[i], "", false));
             properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         } else if (properties[i]->is_class("LineEdit")) {
-            properties[i]->connect("text_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
+            properties[i]->connect("text_submitted", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         } else if (properties[i]->is_class("CheckButton")) {
             properties[i]->connect("toggled", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         } else if (properties[i]->is_class("OptionButton")) {
             properties[i]->connect("item_selected", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
+        } else if (properties[i]->is_class("EditorResourcePicker")) {
+            properties[i]->connect("resource_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         }
 
         // properties[i]->set_object_and_property(node.ptr(), p_names[i]);
@@ -1639,9 +1642,16 @@ Control *HoodieNodePluginDefault::create_editor(const Ref<Resource> &p_parent_re
             ess->set_allow_lesser(true);
             ess->set_value(p_node->get_property_input(i));
             editors.push_back(ess);
+        } else if (pinfo[i].type == Variant::Type::OBJECT) {
+            EditorResourcePicker *erp = memnew(EditorResourcePicker);
+            erp->set_custom_minimum_size(Size2(65, 0));
+            erp->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+            erp->set_edited_resource(p_node->get_property_input(i));
+            editors.push_back(erp);
         }
         properties.push_back(pinfo[i].name);
     }
+
     HoodieNodePluginDefaultEditor *editor = memnew(HoodieNodePluginDefaultEditor);
     editor->setup(hmeditor, p_parent_resource, editors, properties, p_node->get_editable_properties_names(), p_node);
     return editor;
