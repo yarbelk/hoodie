@@ -1,5 +1,8 @@
 #include "geo_utils.h"
 
+#include <godot_cpp/classes/geometry3d.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
+
 using namespace godot;
 
 float GeoUtils::point_segment_distance(const Vector3 &p, const Vector3 &a, const Vector3 &b) {
@@ -36,6 +39,55 @@ PackedFloat32Array GeoUtils::progressive_path_distances(const PackedVector3Array
     }
 
     return distances;
+}
+
+PackedVector3Array GeoUtils::evenly_spaced_points_on_path(const PackedVector3Array &p_points, const float p_distance) {
+    if (p_points.size() < 2) { return PackedVector3Array(); }
+    const float distance = Math::max(p_distance, 0.01f);
+
+    PackedVector3Array ret;
+    Geometry3D *geo = Geometry3D::get_singleton();
+
+    // 1. Add the starting point.
+    ret.push_back(p_points[0]);
+
+    Vector3 prev_found_pt = p_points[0];
+    PackedVector3Array intersections;
+
+    int i = 0;
+    do {
+        if ((p_points[i] - prev_found_pt).length() > distance) { i--; }
+
+        const int blocked_i = i;
+
+        do {
+            intersections.clear();
+
+            if (i + 1 > p_points.size() - 1) { break; }
+
+            Vector3 a = (p_points[i] - prev_found_pt).length() > distance ? prev_found_pt : p_points[i];
+            Vector3 b = p_points[i + 1];
+
+            float dist = (b - a).length();
+
+            // The order of the points of the segment is important.
+            intersections = geo->segment_intersects_sphere(b, a, prev_found_pt, distance);
+
+            UtilityFunctions::print("Intersections size: " + itos(intersections.size()));
+
+            i++;
+        } while (intersections.size() == 0);
+
+        if (intersections.size() == 0) { return ret; }
+
+        Vector3 found_point = intersections[0];
+        ret.push_back(found_point);
+
+        prev_found_pt = found_point;
+
+    } while (i < p_points.size() - 1 || (p_points[i] - prev_found_pt).length() > distance);
+
+    return ret;
 }
 
 Vector3 GeoUtils::vec2_to_vec3(const Vector2 &p_vec2, const bool p_xz) {

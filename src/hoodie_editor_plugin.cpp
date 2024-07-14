@@ -478,6 +478,7 @@ HoodieControl::HoodieControl() {
     add_options.push_back(AddOption("Curve Sweep", "Curve/Operations", "HNCurveSweep"));
     add_options.push_back(AddOption("Curve to Mesh", "Curve/Operations", "HNCurveToMesh"));
     add_options.push_back(AddOption("Curve to Points", "Curve/Operations", "HNCurveToPoints"));
+    add_options.push_back(AddOption("Evenly Spaced Points Curve", "Curve/Operations", "HNEvenlySpacedPointsCurve"));
     add_options.push_back(AddOption("Offset Curve 2D", "Curve/Operations", "HNOffsetCurve2D"));
     add_options.push_back(AddOption("Simplify Curve", "Curve/Operations", "HNSimplifyCurve"));
     add_options.push_back(AddOption("Subdivision Curve", "Curve/Operations", "HNSubdivisionCurve"));
