@@ -1050,14 +1050,13 @@ void HoodieEditorPlugin::_update_graph() {
     graph_edit->set_scroll_offset(hoodie_mesh->get_graph_offset());
 
     graph_edit->clear_connections();
+
     // Remove all nodes.
-    for (int i = 0; i < graph_edit->get_child_count(); i++) {
-        if (Object::cast_to<GraphElement>(graph_edit->get_child(i))) {
-            Node *node = graph_edit->get_child(i);
-            graph_edit->remove_child(node);
-            memdelete(node);
-            i--;
-        }
+    TypedArray<Node> children = graph_edit->get_children();
+    for (int i = 0; i < children.size(); i++) {
+        Node *child = Object::cast_to<Node>(children[i]);
+        graph_edit->remove_child(child);
+        child->queue_free();
     }
 
     List<HoodieMesh::Connection> node_connections;
@@ -1280,6 +1279,7 @@ void HoodieEditorPlugin::_change_node_property(id_t p_id, vec_size_t p_prop_id, 
 }
 
 void HoodieEditorPlugin::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("_update_graph"), &HoodieEditorPlugin::_update_graph);
     ClassDB::bind_method(D_METHOD("_nodes_dragged"), &HoodieEditorPlugin::_nodes_dragged);
 }
 
@@ -1446,11 +1446,24 @@ void HoodieNodePluginDefaultEditor::_property_changed(const Variant &p_value, co
     if (p_property_control->is_class("EditorSpinSlider")) {
         undo_redo->add_do_method(p_property_control, "set_value_no_signal", p_value);
         undo_redo->add_undo_method(p_property_control, "set_value_no_signal", node->get(p_property));
-    }
-    if (p_property_control->is_class("CheckButton")) {
+    } else if (p_property_control->is_class("LineEdit")) {
+        undo_redo->add_do_method(p_property_control, "set_text", p_value);
+        undo_redo->add_undo_method(p_property_control, "set_text", node->get(p_property));
+    } else if (p_property_control->is_class("CheckButton")) {
         undo_redo->add_do_method(p_property_control, "set_pressed_no_signal", p_value);
         undo_redo->add_undo_method(p_property_control, "set_pressed_no_signal", node->get(p_property));
+    } else if (p_property_control->is_class("OptionButton")) {
+        undo_redo->add_do_method(p_property_control, "select", p_value);
+        undo_redo->add_undo_method(p_property_control, "select", node->get(p_property));
+    } else if (p_property_control->is_class("EditorResourcePicker")) {
+        undo_redo->add_do_method(editor, "_update_graph");
+        undo_redo->add_undo_method(editor, "_update_graph");
     }
+    
+    // if (p_property_control->is_class("EditorResourcePicker")) {
+    //     undo_redo->add_do_method(p_property_control, "edited_resource", p_value);
+    //     undo_redo->add_undo_method(p_property_control, "edited_resource", node->get(p_property));
+    // }
 
     undo_redo->add_do_method(node.ptr(), "mark_dirty");
     undo_redo->add_undo_method(node.ptr(), "mark_dirty");
