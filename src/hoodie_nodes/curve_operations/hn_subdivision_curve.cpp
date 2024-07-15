@@ -71,12 +71,6 @@ void HNSubdivisionCurve::_process(const Array &p_inputs) {
         }
     }
 
-    UtilityFunctions::print("New points group size: " + itos(new_points_group.size()));
-    for (int i = 0; i < new_points_group.size(); i++) {
-        PackedVector3Array a = new_points_group[i];
-        UtilityFunctions::print("npg[" + itos(i) + "]: " + itos(a.size()));
-    }
-
     Ref<HoodieGeo> out_hgeo;
     out_hgeo.instantiate();
     out_hgeo->unpack_primitive_points(new_points_group);

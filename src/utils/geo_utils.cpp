@@ -73,8 +73,6 @@ PackedVector3Array GeoUtils::evenly_spaced_points_on_path(const PackedVector3Arr
             // The order of the points of the segment is important.
             intersections = geo->segment_intersects_sphere(b, a, prev_found_pt, distance);
 
-            UtilityFunctions::print("Intersections size: " + itos(intersections.size()));
-
             i++;
         } while (intersections.size() == 0);
 

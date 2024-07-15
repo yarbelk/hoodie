@@ -18,7 +18,6 @@ void HNAddAttribute::_process(const Array &p_inputs) {
         }
     }
 
-    UtilityFunctions::print("HGeo points " + itos(in_geo->points.size()));
     in_geo->attributes[in_name] = in_data;
 
     outputs[0] = in_geo;

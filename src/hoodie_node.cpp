@@ -5,7 +5,6 @@
 using namespace godot;
 
 void HoodieNode::mark_dirty() {
-    UtilityFunctions::print("Mark dirty!");
     if (!has_button()) {
         dirty = true;
     }

@@ -50,8 +50,6 @@ void HoodieGeo::unpack_primitive_points(const TypedArray<PackedVector3Array> &p_
     points.clear();
     primitives.clear();
 
-    UtilityFunctions::print("Unpack array size: " + itos(p_array.size()));
-
     int verts_counter = 0;
     for (int i = 0; i < p_array.size(); i++) {
         PackedVector3Array pts = p_array[i];
@@ -63,8 +61,6 @@ void HoodieGeo::unpack_primitive_points(const TypedArray<PackedVector3Array> &p_
             verts[p] = verts_counter++;
         }
         primitives.append(Primitive(verts));
-
-        UtilityFunctions::print("ua [" + itos(i) + "]: " + itos(verts.size()));
     }
 }
 

@@ -127,7 +127,6 @@ void HNCurveSweep::_process(const Array &p_inputs) {
             shape_length += (pt - prev_pt).length();
             prev_pt = pt;
         }
-        // UtilityFunctions::print("Profile Length: " + rtos(shape_length));
     }
 
     // Will contain the quads resulting from the sweep.
