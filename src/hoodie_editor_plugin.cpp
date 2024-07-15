@@ -1529,7 +1529,7 @@ void HoodieNodePluginDefaultEditor::setup(HoodieEditorPlugin *p_editor, Ref<Hood
         if (properties[i]->is_class("EditorSpinSlider")) {
             properties[i]->connect("value_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         } else if (properties[i]->is_class("LineEdit")) {
-            properties[i]->connect("text_submitted", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
+            properties[i]->connect("text_changed", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         } else if (properties[i]->is_class("CheckButton")) {
             properties[i]->connect("toggled", callable_mp(this, &HoodieNodePluginDefaultEditor::_property_changed).bind(p_names[i], properties[i], "", false));
         } else if (properties[i]->is_class("OptionButton")) {
