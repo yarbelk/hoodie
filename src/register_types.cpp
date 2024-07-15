@@ -15,6 +15,7 @@
 #include "hoodie_nodes/curve_operations/hn_curve_sweep.h"
 #include "hoodie_nodes/curve_operations/hn_curve_to_mesh.h"
 #include "hoodie_nodes/curve_operations/hn_curve_to_points.h"
+#include "hoodie_nodes/curve_operations/hn_evenly_spaced_points_curve.h"
 #include "hoodie_nodes/curve_operations/hn_offset_curve_2d.h"
 #include "hoodie_nodes/curve_operations/hn_simplify_curve.h"
 #include "hoodie_nodes/curve_operations/hn_subdivision_curve.h"
@@ -73,6 +74,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNCurveSweep>();
 		ClassDB::register_class<HNCurveToMesh>();
 		ClassDB::register_class<HNCurveToPoints>();
+		ClassDB::register_class<HNEvenlySpacedPointsCurve>();
 		ClassDB::register_class<HNOffsetCurve2D>();
 		ClassDB::register_class<HNSimplifyCurve>();
 		ClassDB::register_class<HNSubdivisionCurve>();

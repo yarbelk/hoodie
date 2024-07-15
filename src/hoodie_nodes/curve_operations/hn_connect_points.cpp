@@ -8,16 +8,20 @@ void HNConnectPoints::_process(const Array &p_inputs) {
     Ref<HoodieGeo> in_geo = p_inputs[0];
     TypedArray<bool> filter;
 
-    if (p_inputs[1].get_type() == Variant::ARRAY) {
+    {
         Array a = p_inputs[1];
         if (a.size() > 0) {
             filter = a;
+        } else {
+            filter.push_back(true);
         }
     }
 
     const int pts_size = in_geo.ptr()->points.size();
 
-    filter.resize(pts_size);
+    while (filter.size() < pts_size) {
+        filter.push_back(filter[filter.size() - 1]);
+    }
 
     Vector<HoodieGeo::Primitive> primitives;
     PackedInt32Array vertices;
@@ -53,17 +57,7 @@ void HNConnectPoints::_process(const Array &p_inputs) {
         }
     }
 
-    /*
-    vertices.push_back(0);
-
-    for (int i = 0; i < pts_size; i++) {
-        if (filter[i]) {
-            vertices.push_back((i + 1) % pts_size);
-        } else {
-
-        }
-    }
-    */
+    primitives.push_back(HoodieGeo::Primitive(vertices));
 
     Ref<HoodieGeo> r_hgeo = HoodieGeo::create_reference(in_geo->points, primitives);
     r_hgeo->attributes = in_geo->attributes;
