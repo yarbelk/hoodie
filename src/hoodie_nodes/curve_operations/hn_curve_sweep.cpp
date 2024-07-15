@@ -58,6 +58,10 @@ void HNCurveSweep::_process(const Array &p_inputs) {
     const int total_indices = 2 * 3 * (path_size - 1) * (shape_verts_size - 1);
 
     // Check stuff.
+    if (path_size <= 1) {
+        UtilityFunctions::push_warning(get_class(), " node: Path has not enough points (needs at least 2).");
+        return;
+    }
     if (shape_size <= 1) {
         UtilityFunctions::push_warning(get_class(), " node: Shape has not enough points (needs at least 2).");
         return;
