@@ -212,3 +212,7 @@ Vector<StringName> HNPopulate::get_editable_properties() const {
 HashMap<StringName, String> HNPopulate::get_editable_properties_names() const {
     return HashMap<StringName, String>();
 }
+
+bool HNPopulate::has_button() const {
+    return true;
+}

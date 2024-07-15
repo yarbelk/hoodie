@@ -45,6 +45,8 @@ public:
 
     Vector<StringName> get_editable_properties() const override;
     HashMap<StringName, String> get_editable_properties_names() const override;
+
+    bool has_button() const override;
 };
     
 } // namespace godot
