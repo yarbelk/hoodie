@@ -45,6 +45,7 @@ void HNInputCurve3D::_process(const Array &p_inputs) {
                 ts.push_back(t);
             }
         }
+        ts[ts.size() - 1] = ts[ts.size() - 1] * -1;
         tangents = ts;
 
         // TODO: implement normals
