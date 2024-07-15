@@ -17,6 +17,8 @@ protected:
 public:
     virtual void clear();
 
+    virtual Variant duplicate();
+
     virtual HashMap<String, String> populate_tab_inspector() const;
 
     static String variant_to_string(const Variant &p_v);

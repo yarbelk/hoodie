@@ -36,6 +36,7 @@
 #include "hoodie_nodes/utilities_hgeo/hn_add_attribute.h"
 #include "hoodie_nodes/utilities_hgeo/hn_compose_hoodie_geo.h"
 #include "hoodie_nodes/utilities_hgeo/hn_hoodie_geo_to_mesh.h"
+#include "hoodie_nodes/utilities_hgeo/hn_join_hoodie_geo.h"
 #include "hoodie_nodes/utilities_math/hn_math_derivative.h"
 #include "hoodie_nodes/utilities_math/hn_math_less_than.h"
 #include "hoodie_nodes/utilities_math/hn_math_multiply.h"
@@ -95,6 +96,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNAddAttribute>();
 		ClassDB::register_class<HNComposeHoodieGeo>();
 		ClassDB::register_class<HNHoodieGeoToMesh>();
+		ClassDB::register_class<HNJoinHoodieGeo>();
 		ClassDB::register_class<HNMathDerivative>();
 		ClassDB::register_class<HNMathLessThan>();
 		ClassDB::register_class<HNMathMultiply>();

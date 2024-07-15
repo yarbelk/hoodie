@@ -499,6 +499,7 @@ HoodieControl::HoodieControl() {
     add_options.push_back(AddOption("Add Attribute", "Utilities/Hoodie Geo", "HNAddAttribute"));
     add_options.push_back(AddOption("Compose Hoodie Geo", "Utilities/Hoodie Geo", "HNComposeHoodieGeo"));
     add_options.push_back(AddOption("HGeo To Mesh", "Utilities/Hoodie Geo", "HNHoodieGeoToMesh"));
+    add_options.push_back(AddOption("Join HGeo", "Utilities/Hoodie Geo", "HNJoinHoodieGeo"));
 
     add_options.push_back(AddOption("Derivative", "Utilities/Math", "HNMathDerivative"));
     add_options.push_back(AddOption("Less Than", "Utilities/Math", "HNMathLessThan"));

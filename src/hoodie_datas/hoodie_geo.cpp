@@ -14,6 +14,23 @@ void HoodieGeo::clear() {
     primitives.clear();
 }
 
+Variant HoodieGeo::duplicate() {
+    Ref<HoodieGeo> ret;
+    ret.instantiate();
+
+    ret->points = points.duplicate();
+
+    for (auto attr : attributes) {
+        ret->attributes[attr.key] = attr.value.duplicate();
+    }
+
+    for (auto prim : primitives) {
+        ret->primitives.push_back(HoodieGeo::Primitive(prim.vertices.duplicate()));
+    }
+
+    return ret;
+}
+
 TypedArray<PackedVector3Array> HoodieGeo::pack_primitive_points() const {
     TypedArray<PackedVector3Array> ret;
 

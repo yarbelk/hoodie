@@ -36,6 +36,8 @@ protected:
 public:
     void clear() override;
 
+    Variant duplicate() override;
+
     HashMap<String, String> populate_tab_inspector() const override;
 
     static Ref<HoodieData> create_reference(const PackedVector3Array &p_points);

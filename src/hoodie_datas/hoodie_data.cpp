@@ -8,6 +8,10 @@ void HoodieData::_bind_methods() {
 void HoodieData::clear() {
 }
 
+Variant HoodieData::duplicate() {
+    return Variant();
+}
+
 HashMap<String, String> HoodieData::populate_tab_inspector() const {
     return HashMap<String, String>();
 }
