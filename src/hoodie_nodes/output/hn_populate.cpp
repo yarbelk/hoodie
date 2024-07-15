@@ -68,6 +68,18 @@ void HNPopulate::_process(const Array &p_inputs) {
     PackedVector3Array in_rotations = p_inputs[1];
     PackedVector3Array in_scales = p_inputs[2];
 
+    if (in_positions.size() < 1) {
+        in_positions.push_back(Vector3(0, 0, 0));
+    }
+
+    if (in_rotations.size() < 1) {
+        in_rotations.push_back(Vector3(0, 0, 0));
+    }
+
+    if (in_scales.size() < 1) {
+        in_scales.push_back(Vector3(1, 1, 1));
+    }
+
     const int count = Math::max(Math::max(in_positions.size(), in_rotations.size()), in_scales.size());
 
     for (int i = 0; i < count; i++) {
