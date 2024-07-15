@@ -206,6 +206,17 @@ void HoodieGraphPlugin::add_node(id_t p_id, bool p_just_update) {
     }
     graph_node->add_child(props_vb);
 
+    // Add process button.
+    if (hoodie_node->has_button()) {
+        Button *button = memnew(Button);
+        button->set_custom_minimum_size(Size2(65, 0));
+        button->set_h_size_flags(Control::SIZE_EXPAND_FILL);
+        button->set_text("Process");
+        button->connect("pressed", callable_mp(hoodie_node.ptr(), &HoodieNode::mark_dirty_button));
+        button->connect("pressed", callable_mp(hoodie_mesh.ptr(), &HoodieMesh::_queue_update));
+        graph_node->add_child(button);
+    }
+
     editor->hoodie_control->graph_edit->add_child(graph_node);
 }
 

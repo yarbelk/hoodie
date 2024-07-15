@@ -62,15 +62,10 @@ void HoodieMesh::_update() {
 
     // Iterate on all output nodes
     for (const KeyValue<id_t, Node> &E : graph.nodes) {
-        if (E.value.node->get_output_port_count() != 0) {
-            continue;
-        }
+        if (E.value.node->get_output_port_count() != 0) { continue; }
 
         bool changed = _update_node(E.key, E.value.node);
-
-        if (!changed) {
-            continue;
-        }
+        if (!changed) { continue; }
 
         Ref<Material> material;
 
@@ -87,10 +82,7 @@ void HoodieMesh::_update() {
         }
 
         Ref<HoodieArrayMesh> r_ham = E.value.node->get_output(0);
-
-        if (r_ham.is_null()) {
-            continue;
-        }
+        if (r_ham.is_null()) { continue; }
 
         Variant surface = r_ham->array;
 

@@ -61,6 +61,7 @@ private:
 
 protected:
     void mark_dirty();
+    void mark_dirty_button();
 
     // Store here the data outputs of the node.
     Array outputs;
@@ -99,6 +100,8 @@ public:
 
     virtual Vector<StringName> get_editable_properties() const;
     virtual HashMap<StringName, String> get_editable_properties_names() const;
+
+    virtual bool has_button() const;
 
     const Variant get_output(int p_port);
     void set_output(int p_port, const Variant &p_data);

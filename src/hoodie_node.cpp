@@ -5,8 +5,15 @@
 using namespace godot;
 
 void HoodieNode::mark_dirty() {
-    dirty = true;
+    UtilityFunctions::print("Mark dirty!");
+    if (!has_button()) {
+        dirty = true;
+    }
     // TODO: emit_changed?
+}
+
+void HoodieNode::mark_dirty_button() {
+    dirty = true;
 }
 
 void HoodieNode::set_status(const ProcessStatus &p_status) {
@@ -23,7 +30,8 @@ void HoodieNode::_bind_methods() {
 }
 
 bool HoodieNode::update(bool p_inputs_updated, const Array &p_inputs) {
-    bool updated = dirty || p_inputs_updated;
+    bool inputs_button = has_button() ? false : p_inputs_updated;
+    bool updated = dirty || inputs_button;
     dirty = false;
 
     if (updated) {
@@ -92,6 +100,10 @@ Vector<StringName> HoodieNode::get_editable_properties() const {
 
 HashMap<StringName, String> HoodieNode::get_editable_properties_names() const {
     return HashMap<StringName, String>();
+}
+
+bool HoodieNode::has_button() const {
+    return false;
 }
 
 const Variant HoodieNode::get_output(int p_port) {
