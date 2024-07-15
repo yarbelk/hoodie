@@ -100,7 +100,7 @@ public:
     virtual Vector<StringName> get_editable_properties() const;
     virtual HashMap<StringName, String> get_editable_properties_names() const;
 
-    const Variant get_output(int p_port) const;
+    const Variant get_output(int p_port);
     void set_output(int p_port, const Variant &p_data);
 
     bool is_output_port_connected(vec_size_t p_port) const;

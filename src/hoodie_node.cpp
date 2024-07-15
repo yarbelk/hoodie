@@ -94,10 +94,17 @@ HashMap<StringName, String> HoodieNode::get_editable_properties_names() const {
     return HashMap<StringName, String>();
 }
 
-const Variant HoodieNode::get_output(int p_port) const {
+const Variant HoodieNode::get_output(int p_port) {
     if (outputs.size() == 0 || outputs.size() < p_port) {
         return Variant();
     } else {
+        if (get_output_port_type(p_port) == PortType::PORT_TYPE_HGEO) {
+            Ref<HoodieGeo> hgeo = outputs[p_port];
+            if (hgeo.is_null()) {
+                hgeo.instantiate();
+                outputs[p_port] = hgeo;
+            }
+        }
         return outputs[p_port];
     }
 }
