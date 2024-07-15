@@ -41,6 +41,7 @@
 #include "hoodie_nodes/utilities_math/hn_math_less_than.h"
 #include "hoodie_nodes/utilities_math/hn_math_multiply.h"
 #include "hoodie_nodes/utilities_math/hn_math_noise_reduction.h"
+#include "hoodie_nodes/utilities_math/hn_math_operation.h"
 #include "hoodie_nodes/utilities_math/hn_math_sign.h"
 #include "hoodie_nodes/utilities_mesh/hn_compose_mesh.h"
 #include "hoodie_nodes/utilities_mesh/hn_decompose_mesh.h"
@@ -101,6 +102,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNMathLessThan>();
 		ClassDB::register_class<HNMathMultiply>();
 		ClassDB::register_class<HNMathNoiseReduction>();
+		ClassDB::register_class<HNMathOperation>();
 		ClassDB::register_class<HNMathSign>();
 		ClassDB::register_class<HNComposeMesh>();
 		ClassDB::register_class<HNDecomposeMesh>();
