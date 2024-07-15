@@ -672,6 +672,11 @@ bool HoodieMesh::is_port_types_compatible(int p_a, int p_b) const {
         return true;
     }
 
+    // SCALAR INT
+    if (a == HoodieNode::PortType::PORT_TYPE_SCALAR_INT && b == HoodieNode::PortType::PORT_TYPE_SCALAR) {
+        return true;
+    }
+
     // INT UINT
     if (a == HoodieNode::PortType::PORT_TYPE_SCALAR_INT && b == HoodieNode::PortType::PORT_TYPE_SCALAR_UINT) {
         return true;
