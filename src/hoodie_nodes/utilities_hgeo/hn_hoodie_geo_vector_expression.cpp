@@ -146,7 +146,7 @@ void HNHoodieGeoVectorExpression::_process(const Array &p_inputs) {
 
                 Variant expr_ret = expr->execute(expr_values);
 
-                if (filter->has_execute_failed()) {
+                if (expr->has_execute_failed()) {
                     UtilityFunctions::print("Expression execution failed.");
                     return;
                 }
