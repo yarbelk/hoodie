@@ -35,8 +35,9 @@
 #include "hoodie_nodes/utilities_data/hn_shift_data.h"
 #include "hoodie_nodes/utilities_hgeo/hn_add_attribute.h"
 #include "hoodie_nodes/utilities_hgeo/hn_compose_hoodie_geo.h"
-#include "hoodie_nodes/utilities_hgeo/hn_hoodie_geo_vector_expression.h"
+#include "hoodie_nodes/utilities_hgeo/hn_hoodie_geo_delete_expression.h"
 #include "hoodie_nodes/utilities_hgeo/hn_hoodie_geo_to_mesh.h"
+#include "hoodie_nodes/utilities_hgeo/hn_hoodie_geo_vector_expression.h"
 #include "hoodie_nodes/utilities_hgeo/hn_join_hoodie_geo.h"
 #include "hoodie_nodes/utilities_math/hn_math_derivative.h"
 #include "hoodie_nodes/utilities_math/hn_math_less_than.h"
@@ -97,8 +98,9 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNShiftData>();
 		ClassDB::register_class<HNAddAttribute>();
 		ClassDB::register_class<HNComposeHoodieGeo>();
-		ClassDB::register_class<HNHoodieGeoVectorExpression>();
+		ClassDB::register_class<HNHoodieGeoDeleteExpression>();
 		ClassDB::register_class<HNHoodieGeoToMesh>();
+		ClassDB::register_class<HNHoodieGeoVectorExpression>();
 		ClassDB::register_class<HNJoinHoodieGeo>();
 		ClassDB::register_class<HNMathDerivative>();
 		ClassDB::register_class<HNMathLessThan>();
