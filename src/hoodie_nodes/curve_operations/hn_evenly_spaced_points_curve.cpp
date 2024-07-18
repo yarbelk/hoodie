@@ -17,8 +17,8 @@ void HNEvenlySpacedPointsCurve::_process(const Array &p_inputs) {
         }
     }
 
-    TypedArray<PackedVector3Array> packs = in_hgeo->pack_primitive_points();
-    TypedArray<PackedVector3Array> out_packs;
+    Vector<PackedVector3Array> packs = in_hgeo->pack_primitive_points();
+    Vector<PackedVector3Array> out_packs;
 
     for (int prim = 0; prim < packs.size(); prim++) {
         out_packs.push_back(GeoUtils::evenly_spaced_points_on_path(packs[prim], in_distance));

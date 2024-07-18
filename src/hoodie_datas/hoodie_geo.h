@@ -38,14 +38,19 @@ public:
 
     Variant duplicate() override;
 
+    HashMap<String, Array> HoodieGeo::duplicate_attributes() const;
+
     HashMap<String, String> populate_tab_inspector() const override;
 
     static Ref<HoodieData> create_reference(const PackedVector3Array &p_points);
     static Ref<HoodieData> create_reference(const PackedVector3Array &p_points, const Vector<Primitive> &p_primitives);
     static Ref<HoodieData> create_reference(const PackedVector3Array &p_points, const PackedInt32Array &p_vertices);
 
-    TypedArray<PackedVector3Array> pack_primitive_points() const;
-    void unpack_primitive_points(const TypedArray<PackedVector3Array> &p_array);
+    Vector<PackedVector3Array> pack_primitive_points() const;
+    void unpack_primitive_points(const Vector<PackedVector3Array> &p_array);
+
+    Vector<HashMap<String, Array>> HoodieGeo::pack_primitive_attributes() const;
+    void unpack_primitive_attributes(const Vector<HashMap<String, Array>> &p_array);
 
     Array to_mesh() const;
 

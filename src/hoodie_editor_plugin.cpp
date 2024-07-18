@@ -509,6 +509,7 @@ HoodieControl::HoodieControl() {
 
     add_options.push_back(AddOption("Add Attribute", "Utilities/Hoodie Geo", "HNAddAttribute"));
     add_options.push_back(AddOption("Compose Hoodie Geo", "Utilities/Hoodie Geo", "HNComposeHoodieGeo"));
+    add_options.push_back(AddOption("HGeo Vector Expr", "Utilities/Hoodie Geo", "HNHoodieGeoVectorExpression"));
     add_options.push_back(AddOption("HGeo To Mesh", "Utilities/Hoodie Geo", "HNHoodieGeoToMesh"));
     add_options.push_back(AddOption("Join HGeo", "Utilities/Hoodie Geo", "HNJoinHoodieGeo"));
 
@@ -1448,8 +1449,11 @@ void HoodieNodePluginDefaultEditor::_property_changed(const Variant &p_value, co
         undo_redo->add_do_method(p_property_control, "set_value_no_signal", p_value);
         undo_redo->add_undo_method(p_property_control, "set_value_no_signal", node->get(p_property));
     } else if (p_property_control->is_class("LineEdit")) {
+        LineEdit *le = Object::cast_to<LineEdit>(p_property_control);
         undo_redo->add_do_method(p_property_control, "set_text", p_value);
+        undo_redo->add_do_method(p_property_control, "set_caret_column", le->get_caret_column());
         undo_redo->add_undo_method(p_property_control, "set_text", node->get(p_property));
+        undo_redo->add_undo_method(p_property_control, "set_caret_column", le->get_caret_column());
     } else if (p_property_control->is_class("CheckButton")) {
         undo_redo->add_do_method(p_property_control, "set_pressed_no_signal", p_value);
         undo_redo->add_undo_method(p_property_control, "set_pressed_no_signal", node->get(p_property));

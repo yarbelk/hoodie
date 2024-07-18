@@ -68,17 +68,16 @@ void HNSimplifyCurve::_process(const Array &p_inputs) {
     Geometry2D g2d;
 
     // Pack points of the primitives
-    TypedArray<PackedVector3Array> points_group;
-    TypedArray<PackedVector3Array> new_points_group;
+    Vector<PackedVector3Array> points_group;
+    Vector<PackedVector3Array> new_points_group;
 
     // Pack points from primitives
     points_group = in_hgeo->pack_primitive_points();
-    new_points_group.resize(points_group.size());
 
     if (get_algorithm() == Douglas_Peucker) {
         // https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
         for (int p = 0; p < points_group.size(); p++) {
-            new_points_group[p] = DouglasPeucker(points_group[p], in_epsilon);
+            new_points_group.push_back(DouglasPeucker(points_group[p], in_epsilon));
         }
     }
 

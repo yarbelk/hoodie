@@ -31,8 +31,18 @@ Variant HoodieGeo::duplicate() {
     return ret;
 }
 
-TypedArray<PackedVector3Array> HoodieGeo::pack_primitive_points() const {
-    TypedArray<PackedVector3Array> ret;
+HashMap<String, Array> HoodieGeo::duplicate_attributes() const {
+    HashMap<String, Array> ret;
+
+    for (auto attr : attributes) {
+        ret[attr.key] = attr.value.duplicate();
+    }
+
+    return ret;
+}
+
+Vector<PackedVector3Array> HoodieGeo::pack_primitive_points() const {
+    Vector<PackedVector3Array> ret;
 
     for (Primitive p : primitives) {
         PackedVector3Array pts;
@@ -46,7 +56,7 @@ TypedArray<PackedVector3Array> HoodieGeo::pack_primitive_points() const {
     return ret;
 }
 
-void HoodieGeo::unpack_primitive_points(const TypedArray<PackedVector3Array> &p_array) {
+void HoodieGeo::unpack_primitive_points(const Vector<PackedVector3Array> &p_array) {
     points.clear();
     primitives.clear();
 
@@ -61,6 +71,42 @@ void HoodieGeo::unpack_primitive_points(const TypedArray<PackedVector3Array> &p_
             verts[p] = verts_counter++;
         }
         primitives.append(Primitive(verts));
+    }
+}
+
+Vector<HashMap<String, Array>> HoodieGeo::pack_primitive_attributes() const {
+    Vector<HashMap<String, Array>> ret;
+
+    for (Primitive p : primitives) {
+        HashMap<String, Array> map;
+
+        for (auto a : attributes) {
+            Array arr;
+            arr.resize(p.vertices.size());
+
+            for (int i = 0; i < p.vertices.size(); i++) {
+                arr[i] = map[a.key][p.vertices[i]];
+            }
+
+            map[a.key] = arr;
+        }
+
+        ret.push_back(map);
+    }
+    
+    return ret;
+}
+
+void HoodieGeo::unpack_primitive_attributes(const Vector<HashMap<String, Array>> &p_array) {
+    attributes.clear();
+
+    int verts_counter = 0;
+    for (int i = 0; i < p_array.size(); i++) {
+        HashMap<String, Array> attr_map = p_array[0];
+
+        for (auto attr : attr_map) {
+            attributes[attr.key].append_array(attr.value);
+        }
     }
 }
 

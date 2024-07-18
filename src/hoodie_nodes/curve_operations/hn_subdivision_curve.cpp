@@ -31,8 +31,8 @@ void HNSubdivisionCurve::_process(const Array &p_inputs) {
     }
 
     // Pack points of the primitives
-    TypedArray<PackedVector3Array> points_group;
-    TypedArray<PackedVector3Array> new_points_group;
+    Vector<PackedVector3Array> points_group;
+    Vector<PackedVector3Array> new_points_group;
 
     // Pack points from primitives
     points_group = in_hgeo->pack_primitive_points();
@@ -67,7 +67,7 @@ void HNSubdivisionCurve::_process(const Array &p_inputs) {
             }
 
             // Set values for the next step.
-            points_group = new_points_group.duplicate(true);
+            points_group = new_points_group.duplicate();
         }
     }
 
