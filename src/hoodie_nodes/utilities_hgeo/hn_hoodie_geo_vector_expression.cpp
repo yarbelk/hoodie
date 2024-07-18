@@ -142,7 +142,6 @@ void HNHoodieGeoVectorExpression::_process(const Array &p_inputs) {
                 expr_values.push_back(pts[i].y);
                 expr_values.push_back(pts[i].z);
                 if (use_attribute) { expr_values.push_back(Vector3(attr[i])); }
-                if (use_attribute) { UtilityFunctions::print(attribute_name + " " + rtos(attr[0]) + " " + rtos(attr[1]) + " " + rtos(attr[2])); }
 
                 Variant expr_ret = expr->execute(expr_values);
 
