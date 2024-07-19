@@ -18,6 +18,8 @@ protected:
 public:
     void clear() override;
 
+    Variant duplicate() override;
+
     HashMap<String, String> populate_tab_inspector() const override;
 
     static Ref<HoodieArrayMesh> create_reference(const Array &p_array);
