@@ -9,13 +9,18 @@ void HNAddAttribute::_process(const Array &p_inputs) {
     String in_name;
     Array in_data = p_inputs[2];
 
-    Array inputs = p_inputs.duplicate(true);
-
-    if (p_inputs[1].get_type() == Variant::ARRAY) {
-        Array a = inputs[1];
+    {
+        Array a = p_inputs[1];
         if (a.size() > 0) {
             in_name = a[0];
         }
+    }
+
+    if (in_name.is_empty()) { return; }
+    if (in_data.size() < 1) { return; }
+
+    while (in_data.size() < in_geo->points.size()) {
+        in_data.push_back(in_data[in_data.size() - 1]);
     }
 
     in_geo->attributes[in_name] = in_data;

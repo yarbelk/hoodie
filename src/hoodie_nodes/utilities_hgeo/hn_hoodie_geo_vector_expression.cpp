@@ -102,12 +102,12 @@ void HNHoodieGeoVectorExpression::_process(const Array &p_inputs) {
         if (use_attribute) {
             attr = attributes[attribute_name];
 
-            if (attr.size() < 1 || !Variant::can_convert(attr[0].get_type(), Variant::VECTOR3)) {
-                return;
-            }
+            if (attr.size() < 1) { return; }
+            // UtilityFunctions::print("Attribute type: " + Variant::get_type_name(attr[0].get_type()));
+            if (!Variant::can_convert(attr[0].get_type(), Variant::VECTOR3) && !Variant::can_convert(attr[0].get_type(), Variant::FLOAT)) { return; }
         }
 
-        PackedVector3Array target_arr = attribute_name.is_empty() ? pts : attr;
+        Array target_arr = use_attribute ? attr : pts;
 
         for (int i = 0; i < target_arr.size(); i++) {
             Array filter_values;
@@ -153,15 +153,21 @@ void HNHoodieGeoVectorExpression::_process(const Array &p_inputs) {
                 // Return value validation
                 if (!Variant::can_convert(expr_ret.get_type(), Variant::Type::ARRAY)) { return; }
                 Array arr_ret = expr_ret;
-                if (arr_ret.size() != 3) { return; }
-                Variant x = arr_ret[0];
-                Variant y = arr_ret[1];
-                Variant z = arr_ret[2];
-                if (!Variant::can_convert(x.get_type(), Variant::FLOAT)) { return; }
-                if (!Variant::can_convert(y.get_type(), Variant::FLOAT)) { return; }
-                if (!Variant::can_convert(z.get_type(), Variant::FLOAT)) { return; }
-
-                target_arr[i] = Vector3(x, y, z);
+                if (arr_ret.size() == 3) {
+                    Variant x = arr_ret[0];
+                    Variant y = arr_ret[1];
+                    Variant z = arr_ret[2];
+                    if (!Variant::can_convert(x.get_type(), Variant::FLOAT)) { return; }
+                    if (!Variant::can_convert(y.get_type(), Variant::FLOAT)) { return; }
+                    if (!Variant::can_convert(z.get_type(), Variant::FLOAT)) { return; }
+                    target_arr[i] = Vector3(x, y, z);
+                } else if (arr_ret.size() == 1) {
+                    Variant x = arr_ret[0];
+                    if (!Variant::can_convert(x.get_type(), Variant::FLOAT)) { return; }
+                    target_arr[i] = x;
+                }
+            } else {
+                target_arr[i] = use_attribute ? attr[i] : pts[i];
             }
         }
 

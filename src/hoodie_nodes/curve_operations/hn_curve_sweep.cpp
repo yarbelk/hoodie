@@ -91,6 +91,7 @@ void HNCurveSweep::_process(const Array &p_inputs) {
     PackedVector3Array curve_tan;
     PackedVector3Array curve_nor;
     PackedFloat32Array curve_tilt;
+    PackedFloat32Array curve_weight;
 
     if (curve.ptr()->attributes.has("T")) {
         curve_tan = curve.ptr()->attributes["T"];
@@ -115,6 +116,13 @@ void HNCurveSweep::_process(const Array &p_inputs) {
     } else {
         curve_tilt.resize(path_size);
         curve_tilt.fill(0.0);
+    }
+
+    if (curve.ptr()->attributes.has("Weight")) {
+        curve_weight = curve.ptr()->attributes["Weight"];
+    } else {
+        curve_weight.resize(path_size);
+        curve_weight.fill(1.0);
     }
 
     // Shape Length
@@ -176,7 +184,8 @@ void HNCurveSweep::_process(const Array &p_inputs) {
                 prim_ids.resize(4);
 
                 int index = p * shape_verts_size + s;
-                vertices[index] = frame.xform(profile_pos[s]);
+                // vertices[index] = frame.xform(profile_pos[s]) * curve_weight[p];
+                vertices[index] = frame.xform(profile_pos[s] * curve_weight[p]);
                 normals[index] = curve_nor[p];
 
                 float uv_u = get_u_distance() ? u_distances[j] : p;
