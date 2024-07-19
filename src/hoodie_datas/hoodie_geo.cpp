@@ -85,7 +85,7 @@ Vector<HashMap<String, Array>> HoodieGeo::pack_primitive_attributes() const {
             arr.resize(p.vertices.size());
 
             for (int i = 0; i < p.vertices.size(); i++) {
-                arr[i] = map[a.key][p.vertices[i]];
+                arr[i] = attributes[a.key][p.vertices[i]];
             }
 
             map[a.key] = arr;
@@ -102,7 +102,7 @@ void HoodieGeo::unpack_primitive_attributes(const Vector<HashMap<String, Array>>
 
     int verts_counter = 0;
     for (int i = 0; i < p_array.size(); i++) {
-        HashMap<String, Array> attr_map = p_array[0];
+        HashMap<String, Array> attr_map = p_array[i];
 
         for (auto attr : attr_map) {
             attributes[attr.key].append_array(attr.value);
@@ -225,6 +225,11 @@ HashMap<String, String> HoodieGeo::populate_tab_inspector() const {
 
     tabs["Points"] = s_points;
     tabs["Primitives"] = s_primitives;
+
+    for (auto attr : attributes) {
+        String s_attr = array_to_string(attr.value);
+        tabs[attr.key] = s_attr;
+    }
 
     return tabs;
 }
