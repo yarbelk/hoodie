@@ -542,6 +542,7 @@ HoodieControl::HoodieControl() {
 
     // OUTPUT
 
+    add_options.push_back(AddOption("Display HGeo", "Output", "HNDisplayHoodieGeo"));
     add_options.push_back(AddOption("Output", "Output", "HNOutput"));
     add_options.push_back(AddOption("Populate", "Output", "HNPopulate"));
 
