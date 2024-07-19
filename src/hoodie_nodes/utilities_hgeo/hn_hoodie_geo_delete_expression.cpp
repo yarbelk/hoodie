@@ -58,6 +58,9 @@ void HNHoodieGeoDeleteExpression::_process(const Array &p_inputs) {
 
     Vector<PackedVector3Array> out_pts_packs;
     Vector<HashMap<String, Array>> out_attr_packs;
+    Vector<HoodieGeo::Primitive> out_primitives;
+
+    Ref<HoodieGeo> out_hgeo = in_hgeo->duplicate();
 
     if (target == Target::Points) {
         pts_packs.push_back(in_hgeo->points.duplicate());
@@ -74,6 +77,9 @@ void HNHoodieGeoDeleteExpression::_process(const Array &p_inputs) {
         PackedVector3Array out_pts;
         HashMap<String, Array> out_attributes;
 
+        PackedInt32Array primitive_ids_to_delete;
+        HashMap<int, int> ids_map;
+
         for (int i = 0; i < pts.size(); i++) {
             Array filter_values;
             filter_values.push_back(i);
@@ -89,10 +95,40 @@ void HNHoodieGeoDeleteExpression::_process(const Array &p_inputs) {
             if (!(bool)filter_ret) {
                 // Don't delete, hence add to out values.
                 out_pts.push_back(pts[i]);
+
+                if (target == Target::Points) {
+                    // This map will be used later to update primitives vertices id.
+                    ids_map[i] = out_pts.size() - 1;
+                }
                 
                 for (auto attr : attributes) {
                     out_attributes[attr.key].append(attr.value);
                 }
+            } else {
+                primitive_ids_to_delete.push_back(i);
+            }
+        }
+
+        // Delete primitive vertices
+        if (target == Target::Points) {
+            for (int p = 0; p < out_hgeo->primitives.size(); p++) {
+                PackedInt32Array new_verts;
+                for (int i = 0; i < out_hgeo->primitives[p].vertices.size(); i++) {
+                    bool found = false;
+                    for (int id : primitive_ids_to_delete) {
+                        if (out_hgeo->primitives[p].vertices[i] == id) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        // Take the id from the map, since deletion messes up the id order.
+                        new_verts.push_back(ids_map[out_hgeo->primitives[p].vertices[i]]);
+                    }
+                }
+
+                out_primitives.push_back(new_verts);
             }
         }
 
@@ -100,11 +136,10 @@ void HNHoodieGeoDeleteExpression::_process(const Array &p_inputs) {
         out_pts_packs.push_back(out_pts);
     }
 
-    Ref<HoodieGeo> out_hgeo = in_hgeo->duplicate();
-
     if (target == Target::Points) {
         out_hgeo->attributes = out_attr_packs[0];
         out_hgeo->points = out_pts_packs[0];
+        out_hgeo->primitives = out_primitives;
     } else if (target == Target::PackedPoints) {
         out_hgeo->unpack_primitive_points(out_pts_packs);
         out_hgeo->unpack_primitive_attributes(out_attr_packs);
