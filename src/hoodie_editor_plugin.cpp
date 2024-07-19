@@ -532,6 +532,7 @@ HoodieControl::HoodieControl() {
 
     add_options.push_back(AddOption("Compose Mesh", "Utilities/Mesh", "HNComposeMesh"));
     add_options.push_back(AddOption("Decompose Mesh", "Utilities/Mesh", "HNDecomposeMesh"));
+    add_options.push_back(AddOption("Swap UV", "Utilities/Mesh", "HNSwapUV"));
 
     add_options.push_back(AddOption("Align Euler to Vector", "Utilities/Rotation", "HNAlignEulerToVector"));
 

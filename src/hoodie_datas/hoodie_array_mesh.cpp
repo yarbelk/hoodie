@@ -11,6 +11,15 @@ void HoodieArrayMesh::clear() {
     array.clear();
 }
 
+Variant HoodieArrayMesh::duplicate() {
+    Ref<HoodieArrayMesh> ret;
+    ret.instantiate();
+
+    ret->array = array.duplicate(true);
+
+    return ret;
+}
+
 HashMap<String, String> HoodieArrayMesh::populate_tab_inspector() const {
     HashMap<String, String> tabs;
 

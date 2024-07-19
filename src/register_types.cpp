@@ -48,6 +48,7 @@
 #include "hoodie_nodes/utilities_math/hn_math_sign.h"
 #include "hoodie_nodes/utilities_mesh/hn_compose_mesh.h"
 #include "hoodie_nodes/utilities_mesh/hn_decompose_mesh.h"
+#include "hoodie_nodes/utilities_mesh/hn_swap_uv.h"
 #include "hoodie_nodes/utilities_vector/hn_combine_xyz.h"
 #include "hoodie_nodes/utilities_vector/hn_separate_xyz.h"
 #include "hoodie_nodes/utilities_vector/hn_combine_xy.h"
@@ -112,6 +113,7 @@ void initialize_hoodie_module(ModuleInitializationLevel p_level) {
 		ClassDB::register_class<HNMathSign>();
 		ClassDB::register_class<HNComposeMesh>();
 		ClassDB::register_class<HNDecomposeMesh>();
+		ClassDB::register_class<HNSwapUV>();
 		ClassDB::register_class<HNCombineXY>();
 		ClassDB::register_class<HNCombineXYZ>();
 		ClassDB::register_class<HNSeparateXY>();
