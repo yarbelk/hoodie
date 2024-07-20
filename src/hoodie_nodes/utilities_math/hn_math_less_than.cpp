@@ -3,12 +3,11 @@
 using namespace godot;
 
 void HNMathLessThan::_process(const Array &p_inputs) {
-    if (p_inputs.size() == 0) {
-        return;
-    }
+    Array fac_0 = p_inputs[0];
+    Array fac_1 = p_inputs[1];
 
-    Array fac_0 = p_inputs[0].duplicate();
-    Array fac_1 = p_inputs[1].duplicate();
+    if (fac_0.size() < 1) { return; }
+    if (fac_1.size() < 1) { return; }
 
     while (fac_0.size() < fac_1.size()) {
         fac_0.push_back(fac_0[fac_0.size() - 1]);
@@ -27,7 +26,7 @@ void HNMathLessThan::_process(const Array &p_inputs) {
         results[i] = a < b;
     }
 
-    outputs[0] = results;
+    set_output(0, results);
 }
 
 String HNMathLessThan::get_caption() const {
