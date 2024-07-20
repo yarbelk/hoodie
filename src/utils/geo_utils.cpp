@@ -28,6 +28,9 @@ float GeoUtils::point_segment_distance(const Vector3 &p, const Vector3 &a, const
 PackedFloat32Array GeoUtils::progressive_path_distances(const PackedVector3Array &p_points) {
     PackedFloat32Array distances;
     distances.resize(p_points.size());
+    distances.fill(0);
+
+    if (p_points.size() < 1) { return distances; }
 
     float dist = 0;
     Vector3 prev_pt = p_points[0];
