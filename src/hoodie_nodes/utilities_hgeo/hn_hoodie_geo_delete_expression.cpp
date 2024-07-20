@@ -46,6 +46,9 @@ void HNHoodieGeoDeleteExpression::_process(const Array &p_inputs) {
     PackedStringArray filter_params;
     filter_params.push_back("i");
     filter_params.push_back("ptscount");
+    for (auto attr : in_hgeo->attributes) {
+        filter_params.push_back(attr.key);
+    }
 
     Error f_error = filter->parse(filter_expression, filter_params);
     if (f_error != Error::OK) {
@@ -84,6 +87,9 @@ void HNHoodieGeoDeleteExpression::_process(const Array &p_inputs) {
             Array filter_values;
             filter_values.push_back(i);
             filter_values.push_back(pts.size());
+            for (auto attr : in_hgeo->attributes) {
+                filter_values.push_back(attr.value[i]);
+            }
 
             Variant filter_ret = filter->execute(filter_values);
 
@@ -102,7 +108,7 @@ void HNHoodieGeoDeleteExpression::_process(const Array &p_inputs) {
                 }
                 
                 for (auto attr : attributes) {
-                    out_attributes[attr.key].append(attr.value);
+                    out_attributes[attr.key].append(attr.value[i]);
                 }
             } else {
                 primitive_ids_to_delete.push_back(i);
