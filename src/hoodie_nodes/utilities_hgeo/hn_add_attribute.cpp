@@ -16,6 +16,7 @@ void HNAddAttribute::_process(const Array &p_inputs) {
         }
     }
 
+    if (in_geo.is_null()) { return; }
     if (in_name.is_empty()) { return; }
     if (in_data.size() < 1) { return; }
 
@@ -23,9 +24,12 @@ void HNAddAttribute::_process(const Array &p_inputs) {
         in_data.push_back(in_data[in_data.size() - 1]);
     }
 
-    in_geo->attributes[in_name] = in_data;
+    Ref<HoodieGeo> out_hgeo;
+    out_hgeo = in_geo->duplicate();
 
-    outputs[0] = in_geo;
+    out_hgeo->attributes[in_name] = in_data;
+
+    set_output(0, out_hgeo);
 }
 
 String HNAddAttribute::get_caption() const {
