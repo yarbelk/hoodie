@@ -5,30 +5,22 @@
 using namespace godot;
 
 void HNPointsDistance::_process(const Array &p_inputs) {
-    PackedVector3Array as;
-    PackedVector3Array bs;
+    PackedVector3Array in_a = p_inputs[0];
+    PackedVector3Array in_b = p_inputs[1];
 
-    if (p_inputs[0].get_type() == Variant::ARRAY) {
-        Array a = p_inputs[0];
-        if (a.size() > 0) {
-            as = a;
-        }
-    }
-    if (p_inputs[1].get_type() == Variant::ARRAY) {
-        Array a = p_inputs[1];
-        if (a.size() > 0) {
-            bs = a;
-        }
-    }
+    if (in_a.size() == 0) { return; }
+    if (in_b.size() == 0) { return; }
 
-    bs.resize(as.size());
+    if (in_a.size() != in_b.size()) { return; }
+
+    in_b.resize(in_a.size());
 
     PackedFloat32Array distances;
-    distances.resize(as.size());
+    distances.resize(in_a.size());
 
-    for (int i = 0; i < as.size(); i++) {
-        Vector3 a = as[i];
-        Vector3 b = bs[i];
+    for (int i = 0; i < in_a.size(); i++) {
+        Vector3 a = in_a[i];
+        Vector3 b = in_b[i];
 
         distances[i] = (b - a).length();
     }
