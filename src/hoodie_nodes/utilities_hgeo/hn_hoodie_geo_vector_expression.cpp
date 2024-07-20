@@ -102,9 +102,13 @@ void HNHoodieGeoVectorExpression::_process(const Array &p_inputs) {
         if (use_attribute) {
             attr = attributes[attribute_name];
 
-            if (attr.size() < 1) { return; }
+            if (attr.size() < 1) {
+                continue;
+            }
             // UtilityFunctions::print("Attribute type: " + Variant::get_type_name(attr[0].get_type()));
-            if (!Variant::can_convert(attr[0].get_type(), Variant::VECTOR3) && !Variant::can_convert(attr[0].get_type(), Variant::FLOAT)) { return; }
+            if (!Variant::can_convert(attr[0].get_type(), Variant::VECTOR3) && !Variant::can_convert(attr[0].get_type(), Variant::FLOAT)) {
+                return;
+            }
         }
 
         Array target_arr = use_attribute ? attr : pts;
@@ -128,7 +132,10 @@ void HNHoodieGeoVectorExpression::_process(const Array &p_inputs) {
             expr_params.push_back("x");
             expr_params.push_back("y");
             expr_params.push_back("z");
-            if (use_attribute) { expr_params.push_back(attribute_name); }
+            // if (use_attribute) { expr_params.push_back(attribute_name); }
+            for (auto a : attributes) {
+                expr_params.push_back(a.key);
+            }
 
             Error expr_err = expr->parse(expression, expr_params);
             if (expr_err != Error::OK) {
@@ -141,7 +148,10 @@ void HNHoodieGeoVectorExpression::_process(const Array &p_inputs) {
                 expr_values.push_back(pts[i].x);
                 expr_values.push_back(pts[i].y);
                 expr_values.push_back(pts[i].z);
-                if (use_attribute) { expr_values.push_back(Vector3(attr[i])); }
+                // if (use_attribute) { expr_values.push_back(Vector3(attr[i])); }
+                for (auto a : attributes) {
+                    expr_values.push_back(a.value[i]);
+                }
 
                 Variant expr_ret = expr->execute(expr_values);
 
@@ -151,19 +161,29 @@ void HNHoodieGeoVectorExpression::_process(const Array &p_inputs) {
                 }
 
                 // Return value validation
-                if (!Variant::can_convert(expr_ret.get_type(), Variant::Type::ARRAY)) { return; }
+                if (!Variant::can_convert(expr_ret.get_type(), Variant::Type::ARRAY)) {
+                    return;
+                }
                 Array arr_ret = expr_ret;
                 if (arr_ret.size() == 3) {
                     Variant x = arr_ret[0];
                     Variant y = arr_ret[1];
                     Variant z = arr_ret[2];
-                    if (!Variant::can_convert(x.get_type(), Variant::FLOAT)) { return; }
-                    if (!Variant::can_convert(y.get_type(), Variant::FLOAT)) { return; }
-                    if (!Variant::can_convert(z.get_type(), Variant::FLOAT)) { return; }
+                    if (!Variant::can_convert(x.get_type(), Variant::FLOAT)) {
+                        return;
+                        }
+                    if (!Variant::can_convert(y.get_type(), Variant::FLOAT)) {
+                        return;
+                    }
+                    if (!Variant::can_convert(z.get_type(), Variant::FLOAT)) {
+                        return;
+                    }
                     target_arr[i] = Vector3(x, y, z);
                 } else if (arr_ret.size() == 1) {
                     Variant x = arr_ret[0];
-                    if (!Variant::can_convert(x.get_type(), Variant::FLOAT)) { return; }
+                    if (!Variant::can_convert(x.get_type(), Variant::FLOAT)) {
+                        return;
+                    }
                     target_arr[i] = x;
                 }
             } else {
