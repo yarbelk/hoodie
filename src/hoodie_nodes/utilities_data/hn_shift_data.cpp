@@ -5,39 +5,31 @@
 using namespace godot;
 
 void HNShiftData::_process(const Array &p_inputs) {
-    Array in;
-    int offset = 0;
+    Array in_data = p_inputs[0];
+    int in_offset = 0;
 
-    if (p_inputs.size() > 0) {
-        if (p_inputs[0].get_type() == Variant::ARRAY) {
-            Array a = p_inputs[0];
-            if (a.size() > 0) {
-                in = a;
-            }
+    {
+        Array a = p_inputs[1];
+        if (a.size() > 0) {
+            in_offset = a[0];
         }
-        if (p_inputs[1].get_type() == Variant::ARRAY) {
-            Array a = p_inputs[1];
-            if (a.size() > 0) {
-                offset = a[0];
-            }
-        }
-    } else {
-        return;
     }
 
-    Array shifted;
-    shifted.resize(in.size());
+    if (in_data.size() < 1) { return; }
 
-    for (int i = 0; i < in.size(); i++) {
-        int n = in.size();
-        int a = i + offset;
+    Array shifted;
+    shifted.resize(in_data.size());
+
+    for (int i = 0; i < in_data.size(); i++) {
+        int n = in_data.size();
+        int a = i + in_offset;
 
         a = ((a % n) + n) % n;
 
-        shifted[i] = in[a];
+        shifted[i] = in_data[a];
     }
 
-    outputs[0] = shifted;
+    set_output(0, shifted);
 }
 
 String HNShiftData::get_caption() const {
