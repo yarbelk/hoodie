@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: submodules-init
-      uses: git submodules update --init
+      run: git submodules update --init
     - name: godot version
       run: cd godot-cpp && git checkout ${{ matrix.version }}
     - name: Setup Python
