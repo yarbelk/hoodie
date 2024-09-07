@@ -10,13 +10,15 @@ jobs:
   build:
     strategy:
       matrix:
-
         os: [ubuntu-latest, windows-latest, macos-latest]
+        version: ["godot-4.2-stable", "godot-4.3-stable"]
     runs-on: ${{ matrix.os }}    
     steps:
     - uses: actions/checkout@v4
     - name: submodules-init
-      uses: snickerbockers/submodules-init@v4
+      uses: git submodules update --init
+    - name: godot version
+      run: cd godot-cpp && git checkout ${{ matrix.version }}
     - name: Setup Python
       uses: actions/setup-python@v5.2.0
       with:
