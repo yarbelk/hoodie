@@ -1,0 +1,27 @@
+name: C++ SCons
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}    
+    steps:
+    - uses: actions/checkout@v4
+    - name: submodules-init
+      uses: snickerbockers/submodules-init@v4
+    - name: Setup Python
+      uses: actions/setup-python@v5.2.0
+      with:
+        cache: pip
+    - name: setup scons
+      run: pip install Scons
+    - name: build
+      run: scons target=editor dev_mode=yes dev_build=yes
