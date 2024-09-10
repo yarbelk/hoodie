@@ -2,7 +2,7 @@ name: C++ SCons
 
 on:
   push:
-    branches: [ "master", "actions" ]
+    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
